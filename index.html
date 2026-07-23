@@ -306,7 +306,7 @@ function terresLegend(on){ tleg.classList.toggle('on',on); }
 
 /* ===== survol Terres sauvages : affiche le type (élément) de la zone ===== */
 const ELEMCOL={}; TERRES_LEG.forEach(([g,items])=>items.forEach(([n,c])=>ELEMCOL[n]='rgb('+c[0]+','+c[1]+','+c[2]+')'));
-map.createPane('tz'); map.getPane('tz').style.zIndex=395;
+map.createPane('tz'); map.getPane('tz').style.zIndex=450;  // au-dessus des vecteurs (400), sous les lieux (600)
 const tzRenderer=L.canvas({pane:'tz',padding:.3});
 let tzLayer=null, tzOn=false;
 function terresHover(on){ tzOn=on;
