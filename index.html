@@ -53,6 +53,11 @@
   #tlegend .hd{font-weight:700;color:#e8eaed;font-size:12px;margin-bottom:4px;position:sticky;top:0;
     background:rgba(16,20,28,.98);padding-bottom:3px}
   #tlegend .hd span{cursor:pointer;float:right;opacity:.6}
+  .tztip{background:#12161f;color:#e8eaed;border:1px solid #2a3440;border-radius:6px;
+    font-size:12px;font-weight:600;padding:3px 8px;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+  .tztip::before{border-top-color:#2a3440}
+  .tzsw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;
+    vertical-align:-1px;border:1px solid #0006}
   @media(max-width:640px){#legend{display:none}#tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
 </style>
 </head>
@@ -250,7 +255,7 @@ const lieux={group:L.layerGroup(),
 /* ===== contrôle des couches ===== */
 const overlayDefs={
   'Lieux':lieux, 'Royaumes':royaumes, 'Provinces':provinces,
-  'Terres sauvages':{group:terres,add(){terresLegend(true)},remove(){terresLegend(false)}},
+  'Terres sauvages':{group:terres,add(){terresLegend(true);terresHover(true)},remove(){terresLegend(false);terresHover(false)}},
   'Rivières':{group:L.layerGroup(),add(){rivOn=true;rivUpdate();},remove(){rivOn=false;rivUpdate();}},
   'Routes':routes, 'Routes maritimes':routesMer, 'Courants marins':courants
 };
@@ -298,6 +303,22 @@ tleg.innerHTML='<div class="hd">Terres sauvages<span onclick="terresLegend(false
  TERRES_LEG.map(([g,items])=>'<b>'+g+'</b>'+items.map(([n,c])=>
    '<div class="row"><span class="sw" style="background:rgb('+c[0]+','+c[1]+','+c[2]+')"></span>'+n+'</div>').join('')).join('');
 function terresLegend(on){ tleg.classList.toggle('on',on); }
+
+/* ===== survol Terres sauvages : affiche le type (élément) de la zone ===== */
+const ELEMCOL={}; TERRES_LEG.forEach(([g,items])=>items.forEach(([n,c])=>ELEMCOL[n]='rgb('+c[0]+','+c[1]+','+c[2]+')'));
+map.createPane('tz'); map.getPane('tz').style.zIndex=395;
+const tzRenderer=L.canvas({pane:'tz',padding:.3});
+let tzLayer=null, tzOn=false;
+function terresHover(on){ tzOn=on;
+  if(on){ if(!tzLayer) INARAMA.load('terres_zones',d=>{ tzLayer=gj(d,{renderer:tzRenderer,pane:'tz',
+            style:()=>({stroke:false,fill:true,fillColor:'#000',fillOpacity:0}),
+            onEachFeature:(f,l)=>{ const e=f.properties.e;
+              l.bindTooltip('<span class="tzsw" style="background:'+(ELEMCOL[e]||'#9aa0a6')+'"></span>'+e,
+                {sticky:true,className:'tztip',direction:'top',offset:[0,-4]}); }});
+            if(tzOn) tzLayer.addTo(map); });
+          else if(!map.hasLayer(tzLayer)) tzLayer.addTo(map); }
+  else if(tzLayer) map.removeLayer(tzLayer);
+}
 </script>
 </body>
 </html>
