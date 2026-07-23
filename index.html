@@ -42,7 +42,18 @@
   #legend .sw{width:14px;height:14px;flex:none;display:flex;align-items:center;justify-content:center}
   #legend .dot{width:11px;height:11px;border-radius:50%;flex:none}
   #legend .hide{cursor:pointer;position:absolute;right:8px;top:6px;opacity:.6}
-  @media(max-width:640px){#legend{display:none}#brand{font-size:13px;left:48px}}
+  #tlegend{position:absolute;right:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.92);
+    border:1px solid #2a3440;border-radius:9px;padding:8px 6px 8px 11px;font-size:11px;
+    max-height:62vh;overflow-y:auto;width:150px;box-shadow:0 4px 16px rgba(0,0,0,.5);display:none}
+  #tlegend.on{display:block}
+  #tlegend b{display:block;margin:7px 0 3px;font-size:9px;letter-spacing:.05em;color:#8fa0b2;text-transform:uppercase}
+  #tlegend b:first-of-type{margin-top:0}
+  #tlegend .row{display:flex;align-items:center;gap:6px;margin:1.5px 0;line-height:1.25}
+  #tlegend .sw{width:12px;height:12px;border-radius:3px;flex:none;border:1px solid #0006}
+  #tlegend .hd{font-weight:700;color:#e8eaed;font-size:12px;margin-bottom:4px;position:sticky;top:0;
+    background:rgba(16,20,28,.98);padding-bottom:3px}
+  #tlegend .hd span{cursor:pointer;float:right;opacity:.6}
+  @media(max-width:640px){#legend{display:none}#tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
 </style>
 </head>
 <body>
@@ -239,7 +250,7 @@ const lieux={group:L.layerGroup(),
 /* ===== contrôle des couches ===== */
 const overlayDefs={
   'Lieux':lieux, 'Royaumes':royaumes, 'Provinces':provinces,
-  'Terres sauvages':{group:terres,add(){},remove(){}},
+  'Terres sauvages':{group:terres,add(){terresLegend(true)},remove(){terresLegend(false)}},
   'Rivières':{group:L.layerGroup(),add(){rivOn=true;rivUpdate();},remove(){rivOn=false;rivUpdate();}},
   'Routes':routes, 'Routes maritimes':routesMer, 'Courants marins':courants
 };
@@ -266,6 +277,27 @@ document.getElementById('legend').innerHTML=
     '<div class="row"><span class="dot" style="background:'+RAR[n]+'"></span>'+n+' — '+t+'</div>').join('')+
   '<b>Type de lieu</b>'+
   Object.entries(shapeSwatch).map(([k,s])=>'<div class="row"><span class="sw">'+s+'</span>'+k+'</div>').join('');
+
+/* ===== légende Terres sauvages (élément → couleur, exact QGIS) ===== */
+const TERRES_LEG=[
+ ['Éléments purs',[['Feu',[224,51,24]],['Air',[41,216,196]],['Terre',[122,90,46]],['Eau',[31,111,224]]]],
+ ['Combinaisons',[['Éclair',[255,140,26]],['Magnétisme',[181,70,46]],['Vapeur ardente',[242,96,79]],
+  ['Foudre',[245,208,32]],['Verre',[188,220,214]],['Orage',[107,91,138]],['Obsidienne',[51,43,58]],
+  ['Bronze',[169,113,60]],['Geyser',[43,181,160]],['Plasma',[180,75,232]],['Fumée noire',[78,78,86]],
+  ['Ammoniac',[175,201,58]],['Acier',[135,148,160]],['Acide sulfurique',[127,224,31]],['Lave',[229,100,26]],
+  ['Sel gemme',[232,180,184]],['Sang',[140,28,43]],['Eau thermale',[111,212,208]],['Poussière',[201,183,143]],
+  ['Brume',[183,201,216]],['Sable',[220,194,118]],['Pollen',[199,219,77]],['Tempête',[62,123,196]],
+  ['Roche',[138,128,115]],['Bois',[110,140,67]],['Glace',[168,220,239]],['Chlore gazeux',[185,214,107]],
+  ['Boue',[94,74,42]],['Plante',[62,155,79]],['Mercure',[185,196,204]]]],
+ ['Hors système',[['Astral Lumière',[255,227,154]],['Astral Ombre',[122,63,192]],['Arcane',[152,131,158]],['Quintessence',[242,238,255]]]],
+ ['Non formalisé',[['ruine',[156,143,160]],['eau',[110,136,168]],['terre',[138,122,98]],['air',[127,175,168]],
+  ['feu',[176,128,120]],['astral_lum',[216,203,168]],['astral_ombre',[136,120,168]],['arcane',[168,137,176]],['ecole',[145,156,185]]]]
+];
+const tleg=document.createElement('div'); tleg.id='tlegend'; document.body.appendChild(tleg);
+tleg.innerHTML='<div class="hd">Terres sauvages<span onclick="terresLegend(false)">✕</span></div>'+
+ TERRES_LEG.map(([g,items])=>'<b>'+g+'</b>'+items.map(([n,c])=>
+   '<div class="row"><span class="sw" style="background:rgb('+c[0]+','+c[1]+','+c[2]+')"></span>'+n+'</div>').join('')).join('');
+function terresLegend(on){ tleg.classList.toggle('on',on); }
 </script>
 </body>
 </html>
