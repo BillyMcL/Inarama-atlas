@@ -149,8 +149,8 @@ function simpleLayer(name,dataKey,make){ simple[name]=L.layerGroup();
 map.createPane('roy'); map.getPane('roy').style.zIndex=350;   // fond royaumes sous le reste
 const royRenderer=L.canvas({pane:'roy',padding:.4});
 function royPopup(p){
-  let h='<div class="lp"><h4>'+p.n+'</h4>';
-  if(p.np) h+='<div class="meta">nom proposé : '+p.np+'</div>';
+  let h='<div class="lp"><h4>'+(p.np||p.n)+'</h4>';
+  if(p.np) h+='<div class="meta">anciennement « '+p.n+' »</div>';
   h+='<div class="desc">'+p.d+'</div></div>'; return h;
 }
 const royaumes=simpleLayer('Royaumes','royaumes',(d,g)=>{
@@ -161,7 +161,7 @@ const royaumes=simpleLayer('Royaumes','royaumes',(d,g)=>{
   }).addTo(g);
   d.features.forEach(f=>{const p=f.properties; if(!p.lp)return;
     const m=L.marker(c2ll(p.lp),{interactive:!!p.d,keyboard:false,
-      icon:L.divIcon({className:'roylbl'+(p.d?' clic':''),html:p.n,iconSize:[0,0]})}).addTo(g);
+      icon:L.divIcon({className:'roylbl'+(p.d?' clic':''),html:(p.np||p.n),iconSize:[0,0]})}).addTo(g);
     if(p.d) m.bindPopup(royPopup(p),{maxWidth:340});
   });
 });
