@@ -31,6 +31,8 @@
   .lbl-roy{color:#ffe9b0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
   .roylbl{color:#141414;font:700 18px Arial,sans-serif;white-space:nowrap;pointer-events:none;
     transform:translate(-50%,-50%);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 4px #fff,0 1px 1px #fff}
+  .roylbl.clic{pointer-events:auto;cursor:pointer}
+  .roylbl.clic:hover{text-decoration:underline}
   .provlbl{color:#2a2a2a;font:italic 500 14px Arial,sans-serif;white-space:nowrap;pointer-events:none;
     transform:translate(-50%,-50%);text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 1px 1px #fff}
   #legend{position:absolute;left:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.9);
@@ -146,15 +148,21 @@ function simpleLayer(name,dataKey,make){ simple[name]=L.layerGroup();
 
 map.createPane('roy'); map.getPane('roy').style.zIndex=350;   // fond royaumes sous le reste
 const royRenderer=L.canvas({pane:'roy',padding:.4});
+function royPopup(p){
+  let h='<div class="lp"><h4>'+p.n+'</h4>';
+  if(p.np) h+='<div class="meta">nom proposé : '+p.np+'</div>';
+  h+='<div class="desc">'+p.d+'</div></div>'; return h;
+}
 const royaumes=simpleLayer('Royaumes','royaumes',(d,g)=>{
   gj(d,{ renderer:royRenderer, pane:'roy',
     style:f=>{const c=f.properties.c||[136,136,136];
       return {color:'#20242c',weight:.7,opacity:.45,
               fillColor:'rgb('+c[0]+','+c[1]+','+c[2]+')',fillOpacity:.5};}
   }).addTo(g);
-  d.features.forEach(f=>{const lp=f.properties.lp; if(!lp)return;
-    L.marker(c2ll(lp),{interactive:false,keyboard:false,
-      icon:L.divIcon({className:'roylbl',html:f.properties.n,iconSize:[0,0]})}).addTo(g);
+  d.features.forEach(f=>{const p=f.properties; if(!p.lp)return;
+    const m=L.marker(c2ll(p.lp),{interactive:!!p.d,keyboard:false,
+      icon:L.divIcon({className:'roylbl'+(p.d?' clic':''),html:p.n,iconSize:[0,0]})}).addTo(g);
+    if(p.d) m.bindPopup(royPopup(p),{maxWidth:340});
   });
 });
 
