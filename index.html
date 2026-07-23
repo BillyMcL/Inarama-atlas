@@ -35,6 +35,8 @@
   .roylbl.clic:hover{text-decoration:underline}
   .provlbl{color:#2a2a2a;font:italic 500 14px Arial,sans-serif;white-space:nowrap;pointer-events:none;
     transform:translate(-50%,-50%);text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 1px 1px #fff}
+  .provlbl.clic{pointer-events:auto;cursor:pointer}
+  .provlbl.clic:hover{text-decoration:underline}
   #legend{position:absolute;left:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.9);
     border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:190px;
     box-shadow:0 4px 16px rgba(0,0,0,.5)}
@@ -173,7 +175,7 @@ const provinces={group:L.layerGroup(),
     if(!provLayer)INARAMA.load('provinces',d=>{provLayer=gj(d,{
       style:()=>({color:'#111111',weight:.9,opacity:.85,fill:false})}); provUpdate();});
     if(!provLabelsData)INARAMA.load('prov_labels',d=>{provLabelsData=true;
-      provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n})); provUpdate();});
+      provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n,d:o.d,s:o.s})); provUpdate();});
     provUpdate();},
   remove(){provOn=false;provUpdate();}};
 function provUpdate(){
@@ -186,9 +188,16 @@ function provLabelSync(){
   if(!show){ provLblMk.forEach(m=>map.removeLayer(m)); provLblMk.clear(); return; }
   const b=map.getBounds().pad(0.2);
   provLabels.forEach(o=>{ const vis=b.contains(o.ll); let m=provLblMk.get(o);
-    if(vis&&!m){ m=L.marker(o.ll,{interactive:false,keyboard:false,
-        icon:L.divIcon({className:'provlbl',html:o.n,iconSize:[0,0]})}).addTo(map); provLblMk.set(o,m); }
+    if(vis&&!m){ m=L.marker(o.ll,{interactive:!!o.d,keyboard:false,
+        icon:L.divIcon({className:'provlbl'+(o.d?' clic':''),html:o.n,iconSize:[0,0]})}).addTo(map);
+      if(o.d) m.bindPopup(provPopup(o),{maxWidth:330});
+      provLblMk.set(o,m); }
     else if(!vis&&m){ map.removeLayer(m); provLblMk.delete(o); } });
+}
+function provPopup(o){
+  let h='<div class="lp"><h4>'+o.n+'</h4>';
+  if(o.s) h+='<div class="meta">nom proposé</div>';
+  h+='<div class="desc">'+o.d+'</div></div>'; return h;
 }
 
 const courants=simpleLayer('Courants','courants',(d,g)=>gj(d,{
