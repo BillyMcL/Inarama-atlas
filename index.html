@@ -171,7 +171,7 @@ const courants=simpleLayer('Courants','courants',(d,g)=>gj(d,{
   style:()=>({color:'#5fb0d8',weight:.7,opacity:.28})}).addTo(g));
 
 /* Terres sauvages = surcouche raster (shapeburst baké, tache à opacité variable) */
-const terres=L.tileLayer('tiles/terres/{z}/{x}/{y}.png',tOpt(6));
+const terres=L.tileLayer('tiles/terres/{z}/{x}/{y}.png',tOpt(7));
 
 /* ===== LIEUX : formes SVG par type, couleur par rareté, révélation + virtualisation ===== */
 const RAR={1:'#2f9e5f',2:'#2f74c8',3:'#9a3fb5',4:'#f2c531',5:'#d23b2e',0:'#9aa0a6'};
