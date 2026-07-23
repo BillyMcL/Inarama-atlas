@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=6.0">
+<title>Inarama — Atlas</title>
+<link rel="stylesheet" href="lib/leaflet.css"/>
+<style>
+  html,body{margin:0;height:100%;background:#070b12;font-family:system-ui,Segoe UI,sans-serif;color:#e8eaed}
+  #map{position:absolute;inset:0}
+  .leaflet-container{background:#070b12}
+  #brand{position:absolute;top:8px;left:52px;z-index:600;pointer-events:none;
+    font-weight:700;letter-spacing:.22em;font-size:15px;color:#f3ede0;text-shadow:0 1px 5px #000}
+  #brand small{display:block;letter-spacing:.14em;font-weight:400;font-size:9px;opacity:.7;margin-top:1px}
+  .leaflet-control-layers{background:rgba(16,20,28,.93);color:#e8eaed;border:1px solid #2a3440;
+    border-radius:10px;box-shadow:0 6px 22px rgba(0,0,0,.5);font-size:13px}
+  .leaflet-control-layers-expanded{padding:8px 12px 10px}
+  .leaflet-control-layers label{margin:2px 0;line-height:1.6}
+  .leaflet-control-layers-separator{border-top:1px solid #2a3440;margin:6px -6px}
+  a.leaflet-control-layers-toggle{background-image:none}
+  a.leaflet-control-layers-toggle::before{content:"\2630";color:#e8eaed;font-size:20px;
+    display:flex;align-items:center;justify-content:center;height:100%}
+  .leaflet-popup-content-wrapper{background:#12161f;color:#e8eaed;border-radius:10px;border:1px solid #2a3440}
+  .leaflet-popup-tip{background:#12161f;border:1px solid #2a3440}
+  .lp h4{margin:0 0 4px;font-size:15px;color:#f5d98a}
+  .lp .meta{font-size:11px;color:#9db0c4;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+  .lp .tag{display:inline-block;background:#20303f;border-radius:5px;padding:1px 6px;margin:0 4px 4px 0;font-size:11px}
+  .lp .desc{font-size:12px;line-height:1.45;color:#cdd6df;max-height:180px;overflow:auto}
+  .lbl{background:none;border:none;box-shadow:none;color:#f3ede0;font-size:11px;font-weight:600;
+    text-shadow:0 0 3px #000,0 0 3px #000,0 1px 2px #000;padding:0}
+  .lbl-roy{color:#ffe9b0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+  .roylbl{color:#141414;font:700 18px Arial,sans-serif;white-space:nowrap;pointer-events:none;
+    transform:translate(-50%,-50%);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 4px #fff,0 1px 1px #fff}
+  .provlbl{color:#2a2a2a;font:italic 500 14px Arial,sans-serif;white-space:nowrap;pointer-events:none;
+    transform:translate(-50%,-50%);text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 1px 1px #fff}
+  #legend{position:absolute;left:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.9);
+    border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:190px;
+    box-shadow:0 4px 16px rgba(0,0,0,.5)}
+  #legend b{display:block;margin:6px 0 4px;font-size:10px;letter-spacing:.06em;color:#93a3b4;text-transform:uppercase}
+  #legend b:first-child{margin-top:0}
+  #legend .row{display:flex;align-items:center;gap:6px;margin:2px 0}
+  #legend .sw{width:14px;height:14px;flex:none;display:flex;align-items:center;justify-content:center}
+  #legend .dot{width:11px;height:11px;border-radius:50%;flex:none}
+  #legend .hide{cursor:pointer;position:absolute;right:8px;top:6px;opacity:.6}
+  @media(max-width:640px){#legend{display:none}#brand{font-size:13px;left:48px}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="brand">INARAMA<small>ATLAS DU MONDE</small></div>
+<div id="legend"></div>
+
+<script>
+window.INARAMA={_d:{},_cb:{},_inj:{},
+  reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
+  load:function(n,cb){if(this._d[n])return cb(this._d[n]);
+    (this._cb[n]=this._cb[n]||[]).push(cb);
+    if(this._inj[n])return;this._inj[n]=1;
+    var s=document.createElement('script');s.src='data/'+n+'.js';s.async=true;document.body.appendChild(s);}};
+</script>
+<script src="lib/leaflet.js"></script>
+<script>
+/* ===== repère monde (aligné sur satellite_monde.tif) ===== */
+const W=18764,H=26784,MAXZ=7,RES=2.0;
+const XMIN=-18764.690210918135563,YMAX=26779.558561177349475;
+const map=L.map('map',{crs:L.CRS.Simple,minZoom:1,maxZoom:8,zoomSnap:.5,
+  wheelPxPerZoomLevel:120,preferCanvas:true});
+map.attributionControl.setPrefix('Inarama · Leaflet');
+const bounds=L.latLngBounds(map.unproject([0,H],MAXZ),map.unproject([W,0],MAXZ));
+map.setMaxBounds(bounds.pad(0.12));map.fitBounds(bounds);
+const c2ll=c=>map.unproject([c[0],c[1]],MAXZ);
+const cv=L.canvas({padding:.4});
+
+/* ===== fonds ===== */
+const tOpt=m=>({minNativeZoom:0,maxNativeZoom:m,tms:false,bounds:bounds,noWrap:true});
+const bases={
+  '🗺 Terrain':L.tileLayer('tiles/terrain/{z}/{x}/{y}.jpg',tOpt(7)).addTo(map),
+  '🛰 Satellite':L.tileLayer('tiles/satellite/{z}/{x}/{y}.jpg',tOpt(7))
+};
+
+/* ===== helpers geojson ===== */
+function gj(d,o){o.coordsToLatLng=c2ll;return L.geoJSON(d,o);}
+
+/* ===== couche à paliers (lignes révélées au zoom) ===== */
+function tieredLine(name,parts){
+  // parts: [{key, filter(f), style, reveal}]  loaded from one data key
+  let on=false,built=false,subs=[];
+  function build(d){ built=true;
+    parts.forEach(p=>{ p.layer=gj(d,{filter:p.filter,style:p.style}); subs.push(p); });
+    update();
+  }
+  function update(){ if(!on){subs.forEach(p=>map.removeLayer(p.layer));return;}
+    const z=map.getZoom();
+    subs.forEach(p=>{ if(z>=p.reveal){ if(!map.hasLayer(p.layer))p.layer.addTo(map);}
+                      else map.removeLayer(p.layer); }); }
+  return {group:L.layerGroup(),
+    add(){on=true; if(!built)INARAMA.load(name,build); else update();},
+    remove(){on=false;update();}, zoom(){if(on)update();}};
+}
+
+/* ===== RIVIÈRES (3 paliers de débit) ===== */
+const rivStyle=w=>()=>({color:'#5a97cf',weight:w,opacity:.9,lineCap:'round'});
+let rivOn=false,rivL={};
+function rivEnsure(t){ if(rivL[t]){if(rivOn&&map.getZoom()>=rivRev[t]&&!map.hasLayer(rivL[t]))rivL[t].addTo(map);return;}
+  INARAMA.load('rivieres_'+t,d=>{rivL[t]=gj(d,{style:rivStyle(t==1?1.9:t==2?1.2:.8)});rivUpdate();}); }
+const rivRev={1:2.5,2:4,3:5.5};
+function rivUpdate(){ if(!rivOn){for(const t in rivL)map.removeLayer(rivL[t]);return;}
+  const z=map.getZoom();
+  [1,2,3].forEach(t=>{ if(z>=rivRev[t])rivEnsure(t); else if(rivL[t])map.removeLayer(rivL[t]); }); }
+
+/* ===== ROUTES (par classe, révélées au zoom) ===== */
+const rtCol='#6b4726';
+const routes=tieredLine('routes',[
+  {reveal:3.5,filter:f=>f.properties.classe===1,style:()=>({color:rtCol,weight:1.9,opacity:.85,lineCap:'round'})},
+  {reveal:5,  filter:f=>f.properties.classe===2,style:()=>({color:rtCol,weight:1.2,opacity:.8,lineCap:'round'})},
+  {reveal:6,  filter:f=>f.properties.classe===3,style:()=>({color:rtCol,weight:.7,opacity:.75,lineCap:'round'})},
+  {reveal:7,  filter:f=>f.properties.classe===4,style:()=>({color:rtCol,weight:.5,opacity:.7,dashArray:'2,3'})}
+]);
+/* ===== ROUTES MARITIMES (par classe) ===== */
+const routesMer=tieredLine('routes_mer',[
+  {reveal:3,  filter:f=>f.properties.classe===1,style:()=>({color:'#3f8fa0',weight:1.4,opacity:.8,dashArray:'5,5'})},
+  {reveal:5,  filter:f=>f.properties.classe===2,style:()=>({color:'#3f8fa0',weight:1.0,opacity:.75,dashArray:'4,5'})},
+  {reveal:6,  filter:f=>f.properties.classe===3,style:()=>({color:'#3f8fa0',weight:.7,opacity:.7,dashArray:'3,4'})}
+]);
+
+/* ===== surcouches simples (lazy) ===== */
+const simple={}, sBuilt={};
+function simpleLayer(name,dataKey,make){ simple[name]=L.layerGroup();
+  return {group:simple[name], add(){ if(!sBuilt[name]){sBuilt[name]=1;INARAMA.load(dataKey,d=>make(d,simple[name]));}}, remove(){}}; }
+
+map.createPane('roy'); map.getPane('roy').style.zIndex=350;   // fond royaumes sous le reste
+const royRenderer=L.canvas({pane:'roy',padding:.4});
+const royaumes=simpleLayer('Royaumes','royaumes',(d,g)=>{
+  gj(d,{ renderer:royRenderer, pane:'roy',
+    style:f=>{const c=f.properties.c||[136,136,136];
+      return {color:'#20242c',weight:.7,opacity:.45,
+              fillColor:'rgb('+c[0]+','+c[1]+','+c[2]+')',fillOpacity:.5};}
+  }).addTo(g);
+  d.features.forEach(f=>{const lp=f.properties.lp; if(!lp)return;
+    L.marker(c2ll(lp),{interactive:false,keyboard:false,
+      icon:L.divIcon({className:'roylbl',html:f.properties.n,iconSize:[0,0]})}).addTo(g);
+  });
+});
+
+let provOn=false,provLayer=null;
+let provLabels=[], provLblMk=new Map(), provLabelsData=false;
+const provinces={group:L.layerGroup(),
+  add(){provOn=true;
+    if(!provLayer)INARAMA.load('provinces',d=>{provLayer=gj(d,{
+      style:()=>({color:'#111111',weight:.9,opacity:.85,fill:false})}); provUpdate();});
+    if(!provLabelsData)INARAMA.load('prov_labels',d=>{provLabelsData=true;
+      provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n})); provUpdate();});
+    provUpdate();},
+  remove(){provOn=false;provUpdate();}};
+function provUpdate(){
+  const show=provOn&&map.getZoom()>=3;
+  if(provLayer){ show?(map.hasLayer(provLayer)||provLayer.addTo(map)):map.removeLayer(provLayer); }
+  provLabelSync();
+}
+function provLabelSync(){
+  const show=provOn&&map.getZoom()>=4;   // noms de provinces à partir du zoom 4
+  if(!show){ provLblMk.forEach(m=>map.removeLayer(m)); provLblMk.clear(); return; }
+  const b=map.getBounds().pad(0.2);
+  provLabels.forEach(o=>{ const vis=b.contains(o.ll); let m=provLblMk.get(o);
+    if(vis&&!m){ m=L.marker(o.ll,{interactive:false,keyboard:false,
+        icon:L.divIcon({className:'provlbl',html:o.n,iconSize:[0,0]})}).addTo(map); provLblMk.set(o,m); }
+    else if(!vis&&m){ map.removeLayer(m); provLblMk.delete(o); } });
+}
+
+const courants=simpleLayer('Courants','courants',(d,g)=>gj(d,{
+  style:()=>({color:'#5fb0d8',weight:.7,opacity:.28})}).addTo(g));
+
+/* Terres sauvages = surcouche raster (shapeburst baké, tache à opacité variable) */
+const terres=L.tileLayer('tiles/terres/{z}/{x}/{y}.png',tOpt(6));
+
+/* ===== LIEUX : formes SVG par type, couleur par rareté, révélation + virtualisation ===== */
+const RAR={1:'#2f9e5f',2:'#2f74c8',3:'#9a3fb5',4:'#f2c531',5:'#d23b2e',0:'#9aa0a6'};
+function rarCol(n){return RAR[n]||RAR[0];}
+function rarSize(n){return n>=5?15:n>=4?12.5:n>=3?10.5:n>=2?9:7.5;}
+function ptsPoly(cx,cy,r,n,rot){let a=[];for(let i=0;i<n;i++){let t=rot+i*2*Math.PI/n;a.push((cx+r*Math.cos(t)).toFixed(1)+','+(cy+r*Math.sin(t)).toFixed(1));}return a.join(' ');}
+function ptsStar(cx,cy,r,n,rot,f){let a=[];for(let i=0;i<2*n;i++){let rr=i%2?r*f:r;let t=rot+i*Math.PI/n;a.push((cx+rr*Math.cos(t)).toFixed(1)+','+(cy+rr*Math.sin(t)).toFixed(1));}return a.join(' ');}
+const iconCache={};
+function lieuIcon(type,niv,etoile5){
+  const key=type+'|'+niv+'|'+etoile5;
+  if(iconCache[key])return iconCache[key];
+  const col=rarCol(niv), s=rarSize(niv)*(type==='sanctuaire'?1.25:1), pad=3, S=Math.ceil(s+pad*2), c=S/2, r=s/2;
+  const ol='stroke="#232323" stroke-width="1.1"';
+  let shape;
+  if(etoile5===1) shape=`<polygon points="${ptsStar(c,c,r*1.05,5,-Math.PI/2,0.42)}" fill="${col}" ${ol}/>`;
+  else if(type==='sanctuaire') shape=`<polygon points="${ptsStar(c,c,r,8,-Math.PI/2,0.52)}" fill="${col}" ${ol}/>`;
+  else if(type==='academie') shape=`<polygon points="${ptsPoly(c,c,r*1.1,3,-Math.PI/2)}" fill="${col}" ${ol}/>`;
+  else if(type==='guilde') shape=`<polygon points="${ptsPoly(c,c,r*1.1,4,-Math.PI/2)}" fill="${col}" ${ol}/>`;
+  else if(type==='arene') shape=`<circle cx="${c}" cy="${c}" r="${r*0.82}" fill="none" stroke="${col}" stroke-width="${Math.max(2,r*0.42)}"/><circle cx="${c}" cy="${c}" r="${r*0.82}" fill="none" stroke="#232323" stroke-width="0.7"/>`;
+  else shape=`<circle cx="${c}" cy="${c}" r="${r*0.9}" fill="${col}" ${ol}/>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${shape}</svg>`;
+  const ic=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(svg),iconSize:[S,S],iconAnchor:[c,c]});
+  return iconCache[key]=ic;
+}
+function popupHtml(p){
+  let h='<div class="lp"><h4>'+(p.nom||'Sans nom')+'</h4>';
+  h+='<div class="meta">'+[p.type,p.stat].filter(Boolean).join(' · ')+'</div>';
+  const t=[];
+  if(p.royaume)t.push(p.royaume); if(p.prov_nom)t.push(p.prov_nom);
+  if(p.race)t.push(p.race); if(p.elem)t.push(p.elem);
+  if(p.ecole)t.push('École: '+p.ecole); if(p.etoile5)t.push('★ étoile');
+  h+=t.map(x=>'<span class="tag">'+x+'</span>').join('');
+  if(p.desc)h+='<div class="desc">'+p.desc+'</div>';
+  return h+'</div>';
+}
+let lieuxOn=false, lieuxFeat=[], lieuxMk=new Map(), lieuxData=false;
+function revZoom(niv){ return niv>=5?1 : niv>=4?2.5 : niv>=3?3.5 : niv>=2?4.5 : 5.5; }
+function lblRevZoom(niv){ return niv>=5?2.5 : niv>=4?4 : niv>=3?5 : niv>=2?5.5 : 6; } // noms révélés après les points
+function lieuxBuild(d){ lieuxData=true;
+  lieuxFeat=d.features.map(f=>{const p=f.properties;return {ll:c2ll(f.geometry.coordinates),p:p,
+    niv:p.niveau||0, key:(p.etoile5===1?'e5':p.type)+'|'+(p.niveau||0)};});
+  lieuxSync();
+}
+function lieuxSync(){
+  if(!lieuxData)return;
+  if(!lieuxOn){ lieuxMk.forEach(m=>map.removeLayer(m)); lieuxMk.clear(); return; }
+  const z=map.getZoom(), b=map.getBounds().pad(0.25);
+  lieuxFeat.forEach(f=>{
+    const show = z>=revZoom(f.niv) && b.contains(f.ll);
+    let m=lieuxMk.get(f);
+    if(show && !m){ m=L.marker(f.ll,{icon:lieuIcon(f.p.type,f.niv,f.p.etoile5),
+        riseOnHover:true,keyboard:false});
+      m.bindPopup(popupHtml(f.p),{maxWidth:290});
+      if(f.p.nom)m.bindTooltip(f.p.nom,{className:'lbl',direction:'top',offset:[0,-6],permanent:true});
+      m.addTo(map); lieuxMk.set(f,m);
+    } else if(!show && m){ map.removeLayer(m); lieuxMk.delete(f); }
+  });
+  // noms : ouverts/fermés selon rareté + zoom (les points sans nom visible restent cliquables)
+  lieuxMk.forEach((m,f)=>{ if(m.getTooltip()){ (z>=lblRevZoom(f.niv))?m.openTooltip():m.closeTooltip(); } });
+}
+const lieux={group:L.layerGroup(),
+             add(){lieuxOn=true; if(!lieuxData)INARAMA.load('lieux',lieuxBuild); else lieuxSync();},
+             remove(){lieuxOn=false;lieuxSync();}};
+
+/* ===== contrôle des couches ===== */
+const overlayDefs={
+  'Lieux':lieux, 'Royaumes':royaumes, 'Provinces':provinces,
+  'Terres sauvages':{group:terres,add(){},remove(){}},
+  'Rivières':{group:L.layerGroup(),add(){rivOn=true;rivUpdate();},remove(){rivOn=false;rivUpdate();}},
+  'Routes':routes, 'Routes maritimes':routesMer, 'Courants marins':courants
+};
+const overlays={};
+for(const n in overlayDefs) overlays[n]=overlayDefs[n].group;
+L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
+
+map.on('overlayadd',e=>overlayDefs[e.name]&&overlayDefs[e.name].add());
+map.on('overlayremove',e=>overlayDefs[e.name]&&overlayDefs[e.name].remove());
+map.on('zoomend',()=>{rivUpdate();routes.zoom&&routes.zoom();routesMer.zoom&&routesMer.zoom();provUpdate();lieuxSync();});
+map.on('moveend',()=>{lieuxSync(); provLabelSync();});
+
+/* ===== couches actives par défaut ===== */
+[['Lieux',lieux],['Royaumes',royaumes],['Rivières',overlayDefs['Rivières']]].forEach(([n,o])=>{
+  overlays[n].addTo(map); o.add();
+});
+
+/* ===== légende ===== */
+const shapeSwatch={civil:'●',arene:'○',academie:'▲',guilde:'◆',sanctuaire:'✷'};
+document.getElementById('legend').innerHTML=
+  '<span class="hide" onclick="this.parentNode.style.display=\'none\'">✕</span>'+
+  '<b>Rareté (niveau)</b>'+
+  [[5,'légendaire'],[4,'très rare'],[3,'rare'],[2,'peu commun'],[1,'commun']].map(([n,t])=>
+    '<div class="row"><span class="dot" style="background:'+RAR[n]+'"></span>'+n+' — '+t+'</div>').join('')+
+  '<b>Type de lieu</b>'+
+  Object.entries(shapeSwatch).map(([k,s])=>'<div class="row"><span class="sw">'+s+'</span>'+k+'</div>').join('');
+</script>
+</body>
+</html>
