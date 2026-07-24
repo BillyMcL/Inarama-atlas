@@ -31,11 +31,11 @@
   .lbl-roy{color:#ffe9b0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
   .roylbl{color:#141414;font:700 18px Arial,sans-serif;white-space:nowrap;pointer-events:none;
     transform:translate(-50%,-50%);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 4px #fff,0 1px 1px #fff}
-  .roylbl.clic{pointer-events:auto;cursor:pointer}
+  .roylbl.clic{pointer-events:auto;cursor:pointer;padding:14px 18px}
   .roylbl.clic:hover{text-decoration:underline}
   .provlbl{color:#2a2a2a;font:italic 500 14px Arial,sans-serif;white-space:nowrap;pointer-events:none;
     transform:translate(-50%,-50%);text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 1px 1px #fff}
-  .provlbl.clic{pointer-events:auto;cursor:pointer}
+  .provlbl.clic{pointer-events:auto;cursor:pointer;padding:12px 16px}
   .provlbl.clic:hover{text-decoration:underline}
   #legend{position:absolute;left:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.9);
     border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:190px;
@@ -71,7 +71,7 @@
 <div id="legend"></div>
 
 <script>
-window.INARAMA_BUILD='2026-07-24i';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-07-24j';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -293,7 +293,7 @@ map.on('zoomend',()=>{rivUpdate();routes.zoom&&routes.zoom();routesMer.zoom&&rou
 map.on('moveend',()=>{lieuxSync(); provLabelSync();});
 
 /* ===== couches actives par défaut ===== */
-[['Lieux',lieux],['Royaumes',royaumes],['Rivières',overlayDefs['Rivières']]].forEach(([n,o])=>{
+[['Lieux',lieux],['Royaumes',royaumes]].forEach(([n,o])=>{
   overlays[n].addTo(map); o.add();
 });
 
