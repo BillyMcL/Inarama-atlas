@@ -224,7 +224,9 @@ function lieuIcon(type,niv,star,s){
   else if(type==='sanctuaire') shape=`<polygon points="${ptsStar(c,c,r*1.15,8,-Math.PI/2,0.52)}" fill="${col}" ${ol}/>`;
   else if(type==='academie') shape=`<polygon points="${ptsPoly(c,c,r*1.1,3,-Math.PI/2)}" fill="${col}" ${ol}/>`;
   else if(type==='guilde') shape=`<polygon points="${ptsPoly(c,c,r*1.1,4,-Math.PI/2)}" fill="${col}" ${ol}/>`;
-  else if(type==='arene') shape=`<circle cx="${c}" cy="${c}" r="${r*0.82}" fill="none" stroke="${col}" stroke-width="${Math.max(2,r*0.42)}"/><circle cx="${c}" cy="${c}" r="${r*0.82}" fill="none" stroke="#232323" stroke-width="0.7"/>`;
+  else if(type==='arene'){ const Ro=r*0.95, Ri=r*0.44,
+      circ=R=>`M${(c-R).toFixed(1)},${c.toFixed(1)} a${R.toFixed(1)},${R.toFixed(1)} 0 1,0 ${(2*R).toFixed(1)},0 a${R.toFixed(1)},${R.toFixed(1)} 0 1,0 ${(-2*R).toFixed(1)},0Z`;
+    shape=`<path d="${circ(Ro)} ${circ(Ri)}" fill-rule="evenodd" fill="${col}" ${ol}/>`; }
   else shape=`<circle cx="${c}" cy="${c}" r="${r*0.9}" fill="${col}" ${ol}/>`;
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${shape}</svg>`;
   const ic=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(svg),iconSize:[S,S],iconAnchor:[c,c]});
