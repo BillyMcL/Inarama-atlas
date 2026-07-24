@@ -71,7 +71,7 @@
 <div id="legend"></div>
 
 <script>
-window.INARAMA_BUILD='2026-07-24j';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-07-24k';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -96,7 +96,8 @@ const cv=L.canvas({padding:.4});
 const tOpt=m=>({minNativeZoom:0,maxNativeZoom:m,tms:false,bounds:bounds,noWrap:true});
 const bases={
   '🗺 Terrain':L.tileLayer('tiles/terrain/{z}/{x}/{y}.jpg',tOpt(7)).addTo(map),
-  '🛰 Satellite':L.tileLayer('tiles/satellite/{z}/{x}/{y}.jpg',tOpt(7))
+  '🛰 Satellite':L.tileLayer('tiles/satellite/{z}/{x}/{y}.jpg',tOpt(7)),
+  '📜 Parchemin':L.tileLayer('tiles/tolkien/{z}/{x}/{y}.jpg',tOpt(7))
 };
 
 /* ===== helpers geojson ===== */
