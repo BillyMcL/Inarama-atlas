@@ -37,6 +37,16 @@
     transform:translate(-50%,-50%);text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 1px 1px #fff}
   .provlbl.clic{pointer-events:auto;cursor:pointer;padding:12px 16px}
   .provlbl.clic:hover{text-decoration:underline}
+  /* ===== police d'époque IM Fell (OFL), appliquée au fond Parchemin ===== */
+  @font-face{font-family:'IMFell';src:url('fonts/IMFellEnglish-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+  @font-face{font-family:'IMFell';src:url('fonts/IMFellEnglish-Italic.ttf') format('truetype');font-weight:400;font-style:italic;font-display:swap}
+  @font-face{font-family:'IMFellSC';src:url('fonts/IMFellEnglishSC.ttf') format('truetype');font-weight:400;font-display:swap}
+  body.parch .roylbl{font-family:'IMFellSC',Georgia,serif;font-weight:400;font-size:21px;color:#3a2614;letter-spacing:.05em;
+    text-shadow:0 0 3px #ece0c6,0 0 3px #ece0c6,0 0 5px #ece0c6,0 1px 1px #ece0c6}
+  body.parch .provlbl{font-family:'IMFell',Georgia,serif;font-style:italic;font-weight:400;font-size:16px;color:#57422a;
+    text-shadow:0 0 2px #ece0c6,0 0 3px #ece0c6,0 1px 1px #ece0c6}
+  body.parch .lbl{font-family:'IMFell',Georgia,serif;font-weight:400;font-size:13px;color:#3f2c18;
+    text-shadow:0 0 3px #ece0c6,0 0 3px #ece0c6,0 0 4px #ece0c6,0 1px 1px #ece0c6}
   #legend{position:absolute;left:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.9);
     border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:190px;
     box-shadow:0 4px 16px rgba(0,0,0,.5)}
@@ -287,6 +297,8 @@ const overlayDefs={
 const overlays={};
 for(const n in overlayDefs) overlays[n]=overlayDefs[n].group;
 L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
+// labels calligraphiés (IM Fell) quand le fond Parchemin est actif
+map.on('baselayerchange',e=>document.body.classList.toggle('parch', /Parchemin/.test(e.name)));
 
 map.on('overlayadd',e=>overlayDefs[e.name]&&overlayDefs[e.name].add());
 map.on('overlayremove',e=>overlayDefs[e.name]&&overlayDefs[e.name].remove());
