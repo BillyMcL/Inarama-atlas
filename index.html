@@ -132,9 +132,10 @@ function tieredLine(name,parts){
 
 /* ===== RIVIÈRES (3 paliers de débit) ===== */
 const rivStyle=w=>()=>({color:'#5a97cf',weight:w,opacity:.9,lineCap:'round'});
+const rivRenderer=L.canvas({padding:.4});   // renderer dédié -> retrait propre (repaint garanti)
 let rivOn=false,rivL={};
 function rivEnsure(t){ if(rivL[t]){if(rivOn&&map.getZoom()>=rivRev[t]&&!map.hasLayer(rivL[t]))rivL[t].addTo(map);return;}
-  INARAMA.load('rivieres_'+t,d=>{rivL[t]=gj(d,{style:rivStyle(t==1?1.9:t==2?1.2:.8)});rivUpdate();}); }
+  INARAMA.load('rivieres_'+t,d=>{rivL[t]=gj(d,{renderer:rivRenderer,style:rivStyle(t==1?1.9:t==2?1.2:.8)});rivUpdate();}); }
 const rivRev={1:2.5,2:4,3:5.5};
 function rivUpdate(){ if(!rivOn){for(const t in rivL)map.removeLayer(rivL[t]);return;}
   const z=map.getZoom();
@@ -299,8 +300,9 @@ for(const n in overlayDefs) overlays[n]=overlayDefs[n].group;
 L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
 // labels calligraphiés (IM Fell) quand le fond Parchemin est actif
 // fond Parchemin : labels calligraphiés + surcouche décor (cadre/cartouches/roses) calée sur la carte
+map.createPane('decor'); map.getPane('decor').style.zIndex=680;   // au-dessus des marqueurs (600) : cache lieux/provinces sous le décor
 const parchDecor=L.imageOverlay('decor_overlay.png?v='+window.INARAMA_BUILD,
-  L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847])),{interactive:false,className:'pdecor'});
+  L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847])),{interactive:false,pane:'decor',className:'pdecor'});
 function updateDecor(){const on=document.body.classList.contains('parch')&&map.getZoom()<=5.5;
   if(on){map.hasLayer(parchDecor)||parchDecor.addTo(map);}else map.removeLayer(parchDecor);}
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
