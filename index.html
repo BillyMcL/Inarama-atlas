@@ -81,7 +81,7 @@
 <div id="legend"></div>
 
 <script>
-window.INARAMA_BUILD='2026-07-24k';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-07-24m';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -298,7 +298,13 @@ const overlays={};
 for(const n in overlayDefs) overlays[n]=overlayDefs[n].group;
 L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
 // labels calligraphiés (IM Fell) quand le fond Parchemin est actif
-map.on('baselayerchange',e=>document.body.classList.toggle('parch', /Parchemin/.test(e.name)));
+// fond Parchemin : labels calligraphiés + surcouche décor (cadre/cartouches/roses) calée sur la carte
+const parchDecor=L.imageOverlay('decor_overlay.png?v='+window.INARAMA_BUILD,
+  L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847])),{interactive:false,className:'pdecor'});
+function updateDecor(){const on=document.body.classList.contains('parch')&&map.getZoom()<=5.5;
+  if(on){map.hasLayer(parchDecor)||parchDecor.addTo(map);}else map.removeLayer(parchDecor);}
+map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
+map.on('zoomend',updateDecor);
 
 map.on('overlayadd',e=>overlayDefs[e.name]&&overlayDefs[e.name].add());
 map.on('overlayremove',e=>overlayDefs[e.name]&&overlayDefs[e.name].remove());
