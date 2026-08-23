@@ -8,6 +8,12 @@
         "value": "#ece0c6",
         "createdAt": "2026-08-23T02:46:07.437Z",
         "reason": "halo de lisibilite intentionnel: encre sepia IM Fell sur texture parchemin variable (fond Parchemin) - verifie dans le code, pas un glow decoratif"
+      },
+      {
+        "rule": "side-tab",
+        "value": "#38495a",
+        "createdAt": "2026-08-23T23:49:59.506Z",
+        "reason": "bord gauche de BLOCKQUOTE, convention typographique de la citation ; le brief impose de preserver les blockquotes du lore. Neutre sourd, pas un accent decoratif sur une carte"
       }
     ]
   }

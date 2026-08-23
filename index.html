@@ -94,6 +94,7 @@
     #tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
 </style>
 <link rel="stylesheet" href="css/search.css">
+<link rel="stylesheet" href="css/panel.css">
 </head>
 <body>
 <div id="map"></div>
@@ -111,7 +112,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-07-24m';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-24a';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -200,11 +201,6 @@ function simpleLayer(name,dataKey,make){ simple[name]=L.layerGroup();
 
 map.createPane('roy'); map.getPane('roy').style.zIndex=350;   // fond royaumes sous le reste
 const royRenderer=L.canvas({pane:'roy',padding:.4});
-function royPopup(p){
-  let h='<div class="lp"><h4>'+(p.np||p.n)+'</h4>';
-  if(p.np) h+='<div class="meta">anciennement « '+p.n+' »</div>';
-  h+='<div class="desc">'+p.d+'</div></div>'; return h;
-}
 /* superficie approx. en coords monde (formule du lacet) : sert à classer les royaumes */
 function ringArea(r){let s=0;for(let i=0,n=r.length;i<n;i++){const a=r[i],b=r[(i+1)%n];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
 function geoArea(g){ if(!g)return -1;                       // -1 = aucun polygone (Yakuvara, maritime)
@@ -231,9 +227,11 @@ const royaumes=simpleLayer('Royaumes','royaumes',(d,g)=>{
   fs.sort((x,y)=>y.a-x.a);
   const N=Math.max(1,fs.length-1);
   fs.forEach((o,i)=>{ const p=o.f.properties;
-    const m=L.marker(c2ll(p.lp),{interactive:!!p.d,keyboard:false,
-      icon:L.divIcon({className:'roylbl'+(p.d?' clic':''),html:(p.np||p.n),iconSize:[0,0]})}).addTo(g);
-    if(p.d) m.bindPopup(royPopup(p),{maxWidth:340});
+    // toujours cliquable depuis la Phase E : la fiche vaut même sans description
+    // (compte de provinces, liste des enfants, renvoi au lore)
+    const m=L.marker(c2ll(p.lp),{interactive:true,keyboard:false,
+      icon:L.divIcon({className:'roylbl clic',html:(p.np||p.n),iconSize:[0,0]})}).addTo(g);
+    m.on('click',()=>window.INARAMA_fiche.royaume(p.n));
     royLbl.push({m, rev:1.5+Math.round((i/N)*5)/2});        // 1.5 -> 4, par pas de 0.5
   });
   royZoom();
@@ -246,7 +244,8 @@ const provinces={group:L.layerGroup(),
     if(!provLayer)INARAMA.loadOnce('provinces',d=>{provLayer=gj(d,{
       style:()=>({color:'#111111',weight:.9,opacity:.85,fill:false})}); provUpdate();});
     if(!provLabelsData)INARAMA.loadOnce('prov_labels',d=>{provLabelsData=true;
-      provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n,d:o.d,s:o.s})); provUpdate();});
+      // `prov` est indispensable depuis la Phase E : c'est la clé de la fiche
+      provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n,d:o.d,s:o.s,prov:o.prov})); provUpdate();});
     provUpdate();},
   remove(){provOn=false;provUpdate();}};
 function provUpdate(){
@@ -259,18 +258,12 @@ function provLabelSync(){
   if(!show){ provLblMk.forEach(m=>map.removeLayer(m)); provLblMk.clear(); return; }
   const b=map.getBounds().pad(0.2);
   provLabels.forEach(o=>{ const vis=b.contains(o.ll); let m=provLblMk.get(o);
-    if(vis&&!m){ m=L.marker(o.ll,{interactive:!!o.d,keyboard:false,
-        icon:L.divIcon({className:'provlbl'+(o.d?' clic':''),html:o.n,iconSize:[0,0]})}).addTo(map);
-      if(o.d) m.bindPopup(provPopup(o),{maxWidth:330});
+    if(vis&&!m){ m=L.marker(o.ll,{interactive:true,keyboard:false,
+        icon:L.divIcon({className:'provlbl clic',html:o.n,iconSize:[0,0]})}).addTo(map);
+      m.on('click',()=>window.INARAMA_fiche.province(o.prov));
       provLblMk.set(o,m); }
     else if(!vis&&m){ map.removeLayer(m); provLblMk.delete(o); } });
 }
-function provPopup(o){
-  let h='<div class="lp"><h4>'+o.n+'</h4>';
-  if(o.s) h+='<div class="meta">nom proposé</div>';
-  h+='<div class="desc">'+o.d+'</div></div>'; return h;
-}
-
 const courants=simpleLayer('Courants','courants',(d,g)=>gj(d,{
   style:()=>({color:'#5fb0d8',weight:.7,opacity:.28})}).addTo(g));
 
@@ -310,17 +303,6 @@ function lieuIcon(type,niv,star,s){
                    iconSize:[S,S],iconAnchor:[c,c]});
   return iconCache[key]=ic;
 }
-function popupHtml(p){
-  let h='<div class="lp"><h4>'+(p.nom||'Sans nom')+'</h4>';
-  h+='<div class="meta">'+[p.type,p.stat].filter(Boolean).join(' · ')+'</div>';
-  const t=[];
-  if(p.royaume)t.push(p.royaume); if(p.prov_nom)t.push(p.prov_nom);
-  if(p.race)t.push(p.race); if(p.elem)t.push(p.elem);
-  if(p.ecole)t.push('École: '+p.ecole); if(p.etoile5)t.push('★ étoile');
-  h+=t.map(x=>'<span class="tag">'+x+'</span>').join('');
-  if(p.desc)h+='<div class="desc">'+p.desc+'</div>';
-  return h+'</div>';
-}
 let lieuxOn=false, lieuxFeat=[], lieuxMk=new Map(), lieuxData=false;
 function revZoom(niv){ return niv>=5?1 : niv>=4?2.5 : niv>=3?3.5 : niv>=2?4.5 : 5.5; }
 function lblRevZoom(niv){ return niv>=5?2.5 : niv>=4?4 : niv>=3?5 : niv>=2?5.5 : 6; } // noms révélés après les points
@@ -339,7 +321,7 @@ function lieuxSync(){
     let m=lieuxMk.get(f);
     if(show && !m){ m=L.marker(f.ll,{icon:lieuIcon(f.p.type,f.niv,(f.p.etoile5===1||f.p.capitale===1)?1:0,sz),
         riseOnHover:true,keyboard:false});
-      m.bindPopup(popupHtml(f.p),{maxWidth:290});
+      m.on('click',()=>window.INARAMA_fiche.lieu(f.p.id));
       if(f.p.nom)m.bindTooltip(f.p.nom,{className:'lbl',direction:'top',offset:[0,-10],permanent:true});
       m.addTo(map); lieuxMk.set(f,m);
     } else if(!show && m){ map.removeLayer(m); lieuxMk.delete(f); }
@@ -497,6 +479,7 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H });
 </script>
+<script src="js/panel.js"></script>
 <script src="js/search.js"></script>
 </body>
 </html>

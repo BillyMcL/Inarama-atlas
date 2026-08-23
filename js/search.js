@@ -139,7 +139,9 @@
   function choisir(i) {
     const e = courant[i]; if (!e) return;
     ferme();
-    if (e.k === 'A') { window.INARAMA_ouvrirArticle(e.id); return; }
+    if (e.k === 'A') { window.INARAMA_fiche.article(e.id); return; }
+    if (e.k === 'P') window.INARAMA_fiche.province(e.id);
+    if (e.k === 'R') window.INARAMA_fiche.royaume(e.id);
     const ll = window.c2ll([e.x, e.y]);
     // zoom « juste » : celui où l'entité est réellement lisible
     const z = e.k === 'L' ? Math.max(window.lblRevZoom ? window.lblRevZoom(e.rang === 6 ? 5 : e.rang) : 5, 5)
@@ -158,16 +160,9 @@
     setTimeout(ouvrir, 1200);
   }
 
-  function ouvrePopupLieu(id) {
-    if (!window.lieuxMk) return;
-    // lieuxMk associe feature -> marqueur (lieuxMk.set(f, m)), dans cet ordre.
-    for (const [f, m] of window.lieuxMk) { if (f.p && f.p.id === id) { m.openPopup(); return; } }
-  }
-
-  /* ─── ouverture d'un article : provisoire, la Phase E le fera dans le panneau ─── */
-  window.INARAMA_ouvrirArticle = function (slug) {
-    window.open('wiki/articles/' + slug + '.html', '_blank', 'noopener');
-  };
+  // Depuis la Phase E, la fiche s'ouvre dans le panneau : plus besoin d'attendre
+  // la fin du vol pour trouver le marqueur.
+  function ouvrePopupLieu(id) { window.INARAMA_fiche.lieu(id); }
 
   /* ─── UI ─── */
   let barre, champ;

@@ -125,11 +125,25 @@ INARAMA.reg('liens_lore', {
     "Astral Lumière": { affinites: "magie-celeste#1-nature-de-la-conjuration" },
     "Astral Ombre":   { affinites: "magie-celeste#1-nature-de-la-conjuration" },
 
+    /* ── Alias : le champ `elem` des LIEUX emploie un vocabulaire plus court
+       que celui des terres sauvages (l'affinité astrale y est notée « Lumière »
+       et « Ombre » tout court). Même concept, même cible. ── */
+    "Lumière":        { affinites: "magie-celeste#1-nature-de-la-conjuration" },
+    "Ombre":          { affinites: "magie-celeste#1-nature-de-la-conjuration" },
+
     /* ── Sans cible : ce ne sont pas des éléments du lore ──
        Valeurs cartographiques des zones « non formalisées » (provinces sans
-       affinité arbitrée). Ne rien afficher plutôt qu'un lien faux. */
+       affinité arbitrée), et leurs variantes en minuscules dans `lieux.elem`.
+       Ne rien afficher plutôt qu'un lien faux. */
     _sansCible: ["eau", "terre", "air", "feu", "arcane",
-                 "astral_lum", "astral_ombre", "ruine", "ecole"],
+                 "astral_lum", "astral_ombre", "ruine", "ecole",
+                 "lumiere", "ombre", "pure"],
+
+    /* ── NON RACCORDÉ, à trancher ──
+       « Pure » vient de la dérivation « énergie pure » des affinités de
+       province. Est-ce la Quintessence de magie/celeste.md §8.2, ou une
+       notion distincte ? Je ne tranche pas : aucun lien affiché. */
+    _aTrancher: ["Pure"],
   },
 
 });
