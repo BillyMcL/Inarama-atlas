@@ -1,0 +1,51 @@
+/* Recherche globale — Phase D.
+   Les couleurs reprennent le chrome existant ; la Phase G les remplacera par
+   des variables de thème (Nocturne / Grimoire). */
+
+#rechBar{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:700;
+  width:min(380px,42vw);box-sizing:border-box;display:flex;align-items:center;gap:7px;
+  background:rgba(16,20,28,.92);border:1px solid #2a3440;border-radius:9px;
+  padding:0 10px;height:34px;cursor:text;color:#8fa0b2;
+  font:13px system-ui,Arial,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.45)}
+#rechBar:hover,#rechBar.on{border-color:#43566a}
+#rechBar svg{flex:none;opacity:.7}
+#rechBar .ph{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#rechBar kbd{flex:none;font:600 10px/1 system-ui;background:#212b38;border:1px solid #35434f;
+  border-radius:4px;padding:3px 5px;color:#93a3b4}
+
+/* champ réel : masqué tant que la recherche n'est pas ouverte */
+#rechInput{position:absolute;inset:0;width:100%;height:100%;box-sizing:border-box;
+  padding:0 10px;background:transparent;border:0;outline:0;color:#e8eaed;
+  font:13px system-ui,Arial,sans-serif;display:none}
+#rechBar.on #rechInput{display:block}
+#rechBar.on .ph,#rechBar.on kbd,#rechBar.on svg{visibility:hidden}
+
+#rechRes{position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:700;
+  width:min(380px,42vw);box-sizing:border-box;display:none;
+  background:rgba(13,17,24,.97);border:1px solid #2a3440;border-radius:9px;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);overflow:hidden}
+#rechRes.on{display:block}
+#rechRes .grp{font:600 9px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;
+  color:#7d8fa1;padding:8px 11px 4px;background:#111823}
+#rechRes .it{display:flex;align-items:center;gap:8px;padding:6px 11px;cursor:pointer;
+  font:13px system-ui,Arial,sans-serif;color:#dfe6ee;border-left:2px solid transparent}
+#rechRes .it:hover{background:#18212d}
+#rechRes .it.sel{background:#1d2836;border-left-color:#7fb0e0}
+#rechRes .it .n{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#rechRes .it .n b{color:#ffffff;font-weight:700}
+#rechRes .it .meta{flex:none;font-size:11px;color:#8695a6}
+#rechRes .it .pip{flex:none;width:9px;height:9px;border-radius:50%}
+#rechRes .vide{padding:12px 11px;color:#8695a6;font:13px system-ui}
+
+@media(max-width:900px){
+  #rechBar,#rechRes{width:min(330px,54vw)}
+}
+@media(max-width:640px){
+  /* La rangée du haut est déjà prise sur toute sa largeur : marque à gauche,
+     contrôle de zoom (2 boutons, ~74px de haut) et sélecteur de couches.
+     On passe donc sous le contrôle de zoom, sur toute la largeur. */
+  #rechBar{top:82px;left:10px;right:10px;transform:none;width:auto;height:40px}
+  #rechRes{top:128px;left:10px;right:10px;transform:none;width:auto;
+    max-height:52vh;overflow-y:auto}
+  #rechBar .ph{font-size:12.5px}
+}

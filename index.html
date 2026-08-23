@@ -93,12 +93,22 @@
   @media(max-width:640px){#legend{max-height:50vh;max-width:172px}
     #tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
 </style>
+<link rel="stylesheet" href="css/search.css">
 </head>
 <body>
 <div id="map"></div>
 <div id="brand">INARAMA<small>ATLAS DU MONDE</small></div>
 <div id="legend"></div>
 <button id="legendBtn" type="button" onclick="legendToggle(true)">Légende</button>
+<div id="rechBar" role="search">
+  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+    <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 L14.5 14.5" stroke-linecap="round"/></svg>
+  <span class="ph">Rechercher un lieu, un royaume, un article…</span>
+  <kbd>Ctrl K</kbd>
+  <input id="rechInput" type="search" autocomplete="off" spellcheck="false"
+         aria-label="Rechercher dans l'atlas et le lore">
+</div>
+<div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
 window.INARAMA_BUILD='2026-07-24m';   // bump à chaque mise à jour de données (cache-busting)
@@ -480,6 +490,13 @@ function terresHover(on){ tzOn=on;
           else if(!map.hasLayer(tzLayer)) tzLayer.addTo(map); }
   else if(tzLayer) map.removeLayer(tzLayer);
 }
+
+/* ===== exposition pour les modules externes (js/*.js) =====
+   Les `const` de ce script ne sont PAS des propriétés de window : les modules
+   chargés ensuite ne les verraient pas. On expose explicitement le strict
+   nécessaire, plutôt que de tout rendre global. */
+Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H });
 </script>
+<script src="js/search.js"></script>
 </body>
 </html>
