@@ -47,7 +47,7 @@
     text-shadow:0 0 2px #ece0c6,0 0 3px #ece0c6,0 1px 1px #ece0c6}
   body.parch .lbl{font-family:'IMFell',Georgia,serif;font-weight:400;font-size:13px;color:#3f2c18;
     text-shadow:0 0 3px #ece0c6,0 0 3px #ece0c6,0 0 4px #ece0c6,0 1px 1px #ece0c6}
-  #legend{position:absolute;left:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.9);
+  #legend{position:absolute;left:10px;bottom:46px;z-index:600;background:rgba(16,20,28,.9);
     border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:190px;
     box-shadow:0 4px 16px rgba(0,0,0,.5)}
   #legend b{display:block;margin:6px 0 4px;font-size:10px;letter-spacing:.06em;color:#93a3b4;text-transform:uppercase}
@@ -72,6 +72,10 @@
   .tztip::before{border-top-color:#2a3440}
   .tzsw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;
     vertical-align:-1px;border:1px solid #0006}
+  /* échelle graphique : barre en crochet (bords gauche/droit + bas = règle) */
+  .ina-scale{border:2px solid #b9c6d4;border-top:none;background:rgba(16,20,28,.72);
+    color:#eaf0f6;font:600 10px/1 system-ui,Arial,sans-serif;letter-spacing:.03em;
+    padding:3px 2px;text-align:center;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.45)}
   @media(max-width:640px){#legend{display:none}#tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
 </style>
 </head>
@@ -82,12 +86,19 @@
 
 <script>
 window.INARAMA_BUILD='2026-07-24m';   // bump à chaque mise à jour de données (cache-busting)
-window.INARAMA={_d:{},_cb:{},_inj:{},
+window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
     (this._cb[n]=this._cb[n]||[]).push(cb);
     if(this._inj[n])return;this._inj[n]=1;
-    var s=document.createElement('script');s.src='data/'+n+'.js?v='+window.INARAMA_BUILD;s.async=true;document.body.appendChild(s);}};
+    var s=document.createElement('script');s.src='data/'+n+'.js?v='+window.INARAMA_BUILD;s.async=true;document.body.appendChild(s);},
+  // garde SYNCHRONE posée AVANT le téléchargement : si l'utilisateur (dé)coche une couche ou
+  // franchit un palier de zoom pendant le chargement, le même callback était mis en file 2 fois
+  // et s'exécutait 2 fois -> le 1er calque construit restait orphelin sur la carte (plus aucune
+  // référence JS ne le suivait), donc impossible à retirer. Une seule mise en file par clé.
+  loadOnce:function(n,cb){if(this._d[n])return cb(this._d[n]);
+    if(this._pend[n])return; this._pend[n]=1;
+    var self=this; this.load(n,function(d){self._pend[n]=0;cb(d);});}};
 </script>
 <script src="lib/leaflet.js"></script>
 <script>
@@ -126,7 +137,7 @@ function tieredLine(name,parts){
     subs.forEach(p=>{ if(z>=p.reveal){ if(!map.hasLayer(p.layer))p.layer.addTo(map);}
                       else map.removeLayer(p.layer); }); }
   return {group:L.layerGroup(),
-    add(){on=true; if(!built)INARAMA.load(name,build); else update();},
+    add(){on=true; if(!built)INARAMA.loadOnce(name,build); else update();},
     remove(){on=false;update();}, zoom(){if(on)update();}};
 }
 
@@ -135,7 +146,7 @@ const rivStyle=w=>()=>({color:'#5a97cf',weight:w,opacity:.9,lineCap:'round'});
 const rivRenderer=L.canvas({padding:.4});   // renderer dédié -> retrait propre (repaint garanti)
 let rivOn=false,rivL={};
 function rivEnsure(t){ if(rivL[t]){if(rivOn&&map.getZoom()>=rivRev[t]&&!map.hasLayer(rivL[t]))rivL[t].addTo(map);return;}
-  INARAMA.load('rivieres_'+t,d=>{rivL[t]=gj(d,{renderer:rivRenderer,style:rivStyle(t==1?1.9:t==2?1.2:.8)});rivUpdate();}); }
+  INARAMA.loadOnce('rivieres_'+t,d=>{rivL[t]=gj(d,{renderer:rivRenderer,style:rivStyle(t==1?1.9:t==2?1.2:.8)});rivUpdate();}); }
 const rivRev={1:2.5,2:4,3:5.5};
 function rivUpdate(){ if(!rivOn){for(const t in rivL)map.removeLayer(rivL[t]);return;}
   const z=map.getZoom();
@@ -185,9 +196,9 @@ let provOn=false,provLayer=null;
 let provLabels=[], provLblMk=new Map(), provLabelsData=false;
 const provinces={group:L.layerGroup(),
   add(){provOn=true;
-    if(!provLayer)INARAMA.load('provinces',d=>{provLayer=gj(d,{
+    if(!provLayer)INARAMA.loadOnce('provinces',d=>{provLayer=gj(d,{
       style:()=>({color:'#111111',weight:.9,opacity:.85,fill:false})}); provUpdate();});
-    if(!provLabelsData)INARAMA.load('prov_labels',d=>{provLabelsData=true;
+    if(!provLabelsData)INARAMA.loadOnce('prov_labels',d=>{provLabelsData=true;
       provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n,d:o.d,s:o.s})); provUpdate();});
     provUpdate();},
   remove(){provOn=false;provUpdate();}};
@@ -285,7 +296,7 @@ function lieuxSync(){
   lieuxMk.forEach((m,f)=>{ if(m.getTooltip()){ (z>=lblRevZoom(f.niv))?m.openTooltip():m.closeTooltip(); } });
 }
 const lieux={group:L.layerGroup(),
-             add(){lieuxOn=true; if(!lieuxData)INARAMA.load('lieux',lieuxBuild); else lieuxSync();},
+             add(){lieuxOn=true; if(!lieuxData)INARAMA.loadOnce('lieux',lieuxBuild); else lieuxSync();},
              remove(){lieuxOn=false;lieuxSync();}};
 
 /* ===== contrôle des couches ===== */
@@ -297,7 +308,32 @@ const overlayDefs={
 };
 const overlays={};
 for(const n in overlayDefs) overlays[n]=overlayDefs[n].group;
-L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
+const layersCtl=L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
+// le mode replié n'était évalué qu'au chargement : on le réévalue au redimensionnement.
+// Repli SEULEMENT en rétrécissant (un panneau large mangeait un viewport devenu étroit) ;
+// jamais de dépliage automatique, pour ne pas rouvrir ce que l'utilisateur a fermé.
+let scNarrow=window.innerWidth<900, scT;
+addEventListener('resize',()=>{clearTimeout(scT);scT=setTimeout(()=>{
+  const n=window.innerWidth<900; if(n&&!scNarrow)layersCtl.collapse(); scNarrow=n; },200);});
+
+/* ===== échelle graphique (km réels) =====
+   CRS.Simple : pas de distorsion de projection, l'échelle ne dépend que du zoom.
+   1 pixel natif (au zoom MAXZ) = RES km, d'où la mesure via project(...,MAXZ). */
+const ScaleKm=L.Control.extend({
+  options:{position:'bottomleft',maxWidth:130},
+  onAdd:function(m){ this._el=L.DomUtil.create('div','ina-scale');
+    m.on('zoomend',this._upd,this); this._upd(); return this._el; },
+  onRemove:function(m){ m.off('zoomend',this._upd,this); },
+  _upd:function(){ const m=this._map,y=m.getSize().y/2,W=this.options.maxWidth;
+    const a=m.project(m.containerPointToLatLng([0,y]),MAXZ),
+          b=m.project(m.containerPointToLatLng([W,y]),MAXZ);
+    const kmMax=Math.abs(b.x-a.x)*RES;                      // km couverts par W px écran
+    const p=Math.pow(10,Math.floor(Math.log10(kmMax))),f=kmMax/p;
+    const km=(f>=5?5:f>=2?2:1)*p;                           // palier « rond » 1/2/5 ×10ⁿ
+    this._el.style.width=Math.round(W*km/kmMax)+'px';
+    this._el.textContent=km.toLocaleString('fr-FR')+' km'; }
+});
+map.addControl(new ScaleKm());
 // labels calligraphiés (IM Fell) quand le fond Parchemin est actif
 // fond Parchemin : labels calligraphiés + surcouche décor (cadre/cartouches/roses) calée sur la carte
 map.createPane('decor'); map.getPane('decor').style.zIndex=680;   // au-dessus des marqueurs (600) : cache lieux/provinces sous le décor
@@ -355,7 +391,7 @@ map.createPane('tz'); map.getPane('tz').style.zIndex=450;  // au-dessus des vect
 const tzRenderer=L.canvas({pane:'tz',padding:.3});
 let tzLayer=null, tzOn=false;
 function terresHover(on){ tzOn=on;
-  if(on){ if(!tzLayer) INARAMA.load('terres_zones',d=>{ tzLayer=gj(d,{renderer:tzRenderer,pane:'tz',
+  if(on){ if(!tzLayer) INARAMA.loadOnce('terres_zones',d=>{ tzLayer=gj(d,{renderer:tzRenderer,pane:'tz',
             style:()=>({stroke:false,fill:true,fillColor:'#000',fillOpacity:0}),
             onEachFeature:(f,l)=>{ const e=f.properties.e;
               l.bindTooltip('<span class="tzsw" style="background:'+(ELEMCOL[e]||'#9aa0a6')+'"></span>'+e,

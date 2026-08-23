@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "#ece0c6",
+        "createdAt": "2026-08-23T02:46:07.437Z",
+        "reason": "halo de lisibilite intentionnel: encre sepia IM Fell sur texture parchemin variable (fond Parchemin) - verifie dans le code, pas un glow decoratif"
+      }
+    ]
+  }
+}
