@@ -60,8 +60,10 @@ const echappe = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 
 /** Slug stable, sans accents — sert d'identifiant de fichier et d'ancre. */
 function slugifie(s) {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
+  return s.toLowerCase()
+    // ligatures : non décomposables par NFD, sinon « cœur » devient « c-ur »
+    .replace(/œ/g, 'oe').replace(/æ/g, 'ae')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/['’]/g, '-')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'sans-titre';

@@ -825,7 +825,7 @@
      "texte": "8. La dualité"
     },
     {
-     "id": "9-le-c-ur-conversion-et-destruction",
+     "id": "9-le-coeur-conversion-et-destruction",
      "texte": "9. Le cœur — conversion et destruction"
     },
     {
@@ -842,7 +842,7 @@
     }
    ],
    "echelons": {},
-   "octets": 44871
+   "octets": 44872
   },
   {
    "slug": "magie-ecoles",
@@ -1456,7 +1456,7 @@
     }
    ],
    "echelons": {},
-   "octets": 36846
+   "octets": 36847
   }
  ]
 }
