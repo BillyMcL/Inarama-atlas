@@ -1,0 +1,1462 @@
+{
+ "meta": {
+  "genereePar": "tools/build-wiki.mjs",
+  "lore": {
+   "depot": "BillyMcL/Inarama-lore",
+   "commit": "acfe5e07dfca12fc159d5e11af40b6603f476d87",
+   "commitCourt": "acfe5e0",
+   "date": "2026-08-23T16:53:22+02:00"
+  },
+  "articles": 36,
+  "echelonsTotal": 106,
+  "exclus": [
+   "/^ROADMAP\\.md$/i",
+   "/^claude\\//i"
+  ]
+ },
+ "articles": [
+  {
+   "slug": "readme",
+   "titre": "Inarama — Lore",
+   "section": "racine",
+   "source": "README.md",
+   "ancres": [
+    {
+     "id": "arborescence-cible",
+     "texte": "Arborescence cible"
+    },
+    {
+     "id": "portee-du-depot",
+     "texte": "Portée du dépôt"
+    },
+    {
+     "id": "regles-de-gouvernance",
+     "texte": "Règles de gouvernance"
+    },
+    {
+     "id": "echelons-de-connaissance",
+     "texte": "Échelons de connaissance"
+    },
+    {
+     "id": "etat-des-documents-lacunes",
+     "texte": "État des documents & lacunes"
+    },
+    {
+     "id": "chantiers-en-attente",
+     "texte": "Chantiers en attente"
+    },
+    {
+     "id": "arbitrages-tranches",
+     "texte": "Arbitrages tranchés"
+    },
+    {
+     "id": "branche-geographie-faite",
+     "texte": "Branche géographie — faite"
+    },
+    {
+     "id": "journal-construction-plus-tard",
+     "texte": "Journal « construction — plus tard »"
+    }
+   ],
+   "echelons": {
+    "P": 4,
+    "C": 3,
+    "T": 4,
+    "R": 3,
+    "X": 1
+   },
+   "octets": 26989
+  },
+  {
+   "slug": "cadre-alliance",
+   "titre": "L'Alliance d'Hodolin — architecture politique",
+   "section": "cadre",
+   "source": "cadre/alliance.md",
+   "ancres": [
+    {
+     "id": "1-nature",
+     "texte": "1. Nature"
+    },
+    {
+     "id": "2-le-titre-de-regente",
+     "texte": "2. Le titre de Régente"
+    },
+    {
+     "id": "3-la-charte",
+     "texte": "3. La charte"
+    },
+    {
+     "id": "4-les-sept-voix",
+     "texte": "4. Les sept voix"
+    },
+    {
+     "id": "5-les-votes",
+     "texte": "5. Les votes"
+    },
+    {
+     "id": "6-les-instances",
+     "texte": "6. Les instances"
+    },
+    {
+     "id": "7-ordre-du-jour-et-amendements",
+     "texte": "7. Ordre du jour et amendements"
+    },
+    {
+     "id": "8-symetrie-avec-galombar",
+     "texte": "8. Symétrie avec Galombar"
+    },
+    {
+     "id": "9-thematique",
+     "texte": "9. Thématique"
+    }
+   ],
+   "echelons": {
+    "P": 1,
+    "R": 1,
+    "C": 1
+   },
+   "octets": 19002
+  },
+  {
+   "slug": "cadre-empire",
+   "titre": "L'Empire de Galombar — architecture politique",
+   "section": "cadre",
+   "source": "cadre/empire.md",
+   "ancres": [
+    {
+     "id": "1-nature",
+     "texte": "1. Nature"
+    },
+    {
+     "id": "2-la-regence-niee",
+     "texte": "2. La régence niée"
+    },
+    {
+     "id": "3-les-trois-niveaux-d-application",
+     "texte": "3. Les trois niveaux d'application"
+    },
+    {
+     "id": "4-les-ambassades-imperiales",
+     "texte": "4. Les ambassades impériales"
+    },
+    {
+     "id": "5-la-genuflexion",
+     "texte": "5. La génuflexion"
+    },
+    {
+     "id": "6-adresser-une-requete-a-l-empire",
+     "texte": "6. Adresser une requête à l'Empire"
+    },
+    {
+     "id": "7-diviser-pour-regner",
+     "texte": "7. Diviser pour régner"
+    },
+    {
+     "id": "8-abyssarath",
+     "texte": "8. Abyssarath"
+    },
+    {
+     "id": "9-les-conseillers",
+     "texte": "9. Les conseillers"
+    },
+    {
+     "id": "10-le-tribut",
+     "texte": "10. Le tribut"
+    },
+    {
+     "id": "11-ashmael-le-precedent-du-refus",
+     "texte": "11. Ashmael — le précédent du refus"
+    },
+    {
+     "id": "12-la-carte-comme-etat-final",
+     "texte": "12. La carte comme état final"
+    },
+    {
+     "id": "13-nomenclature-les-deux-champions",
+     "texte": "13. Nomenclature — les deux champions"
+    }
+   ],
+   "echelons": {
+    "C": 1,
+    "P": 1,
+    "R": 1
+   },
+   "octets": 19445
+  },
+  {
+   "slug": "cadre-figures",
+   "titre": "REGISTRE DES FIGURES — chantier B",
+   "section": "cadre",
+   "source": "cadre/figures.md",
+   "ancres": [
+    {
+     "id": "i-traites-par-les-sessions-1-2-pointeurs-pas-de-retravail",
+     "texte": "I. Traités par les sessions 1–2 (pointeurs, pas de retravail)"
+    },
+    {
+     "id": "ii-les-inventeurs-de-pratiques",
+     "texte": "II. Les inventeurs de pratiques"
+    },
+    {
+     "id": "iii-les-fondateurs-politiques",
+     "texte": "III. Les fondateurs politiques"
+    },
+    {
+     "id": "iv-les-fils-declares-du-chantier-b",
+     "texte": "IV. Les fils déclarés du chantier B"
+    },
+    {
+     "id": "v-les-figures-de-front-legs-du-chantier-a",
+     "texte": "V. Les figures de front (legs du chantier A)"
+    },
+    {
+     "id": "vi-les-fondateurs-raciaux-et-mythiques",
+     "texte": "VI. Les fondateurs raciaux et mythiques"
+    },
+    {
+     "id": "vii-les-figures-de-la-strate-royale-chantier-strate-royale",
+     "texte": "VII. Les figures de la strate royale (chantier strate royale)"
+    },
+    {
+     "id": "exclusions-actees",
+     "texte": "Exclusions actées"
+    },
+    {
+     "id": "prochaine-etape-temps-3",
+     "texte": "Prochaine étape (temps 3)"
+    }
+   ],
+   "echelons": {
+    "X": 2,
+    "P": 1
+   },
+   "octets": 21983
+  },
+  {
+   "slug": "cadre-geopolitique",
+   "titre": "GÉOPOLITIQUE D'INARAMA — les deux empires",
+   "section": "cadre",
+   "source": "cadre/geopolitique.md",
+   "ancres": [
+    {
+     "id": "i-deux-structures-opposees",
+     "texte": "I. Deux structures opposées"
+    },
+    {
+     "id": "ii-comparatif-des-deux-empires",
+     "texte": "II. Comparatif des deux empires"
+    },
+    {
+     "id": "iii-geographie-politique",
+     "texte": "III. Géographie politique"
+    },
+    {
+     "id": "iv-tensions-internes",
+     "texte": "IV. Tensions internes"
+    },
+    {
+     "id": "v-les-tiers",
+     "texte": "V. Les tiers"
+    }
+   ],
+   "echelons": {
+    "C": 1,
+    "P": 2,
+    "T": 1
+   },
+   "octets": 12632
+  },
+  {
+   "slug": "cadre-guerre",
+   "titre": "LA GUERRE ET LES PLAINES",
+   "section": "cadre",
+   "source": "cadre/guerre.md",
+   "ancres": [
+    {
+     "id": "1-ce-qu-est-cette-guerre",
+     "texte": "1. Ce qu'est cette guerre"
+    },
+    {
+     "id": "2-le-theatre",
+     "texte": "2. Le théâtre"
+    },
+    {
+     "id": "3-la-maree-le-cycle-de-cinq-mille-ans",
+     "texte": "3. La marée — le cycle de cinq mille ans"
+    },
+    {
+     "id": "4-les-arenes",
+     "texte": "4. Les Arènes"
+    },
+    {
+     "id": "5-les-champions-et-le-trone",
+     "texte": "5. Les champions et le trône"
+    },
+    {
+     "id": "6-mener-la-guerre",
+     "texte": "6. Mener la guerre"
+    },
+    {
+     "id": "7-l-economie-du-front",
+     "texte": "7. L'économie du front"
+    },
+    {
+     "id": "8-lacunes-declarees",
+     "texte": "8. Lacunes déclarées"
+    },
+    {
+     "id": "corrections-a-repercuter-ailleurs",
+     "texte": "Corrections à répercuter ailleurs"
+    },
+    {
+     "id": "raccord-au-codex-renvois",
+     "texte": "Raccord au Codex & renvois"
+    }
+   ],
+   "echelons": {
+    "X": 2
+   },
+   "octets": 45570
+  },
+  {
+   "slug": "cadre-langues",
+   "titre": "LES LANGUES D'INARAMA",
+   "section": "cadre",
+   "source": "cadre/langues.md",
+   "ancres": [
+    {
+     "id": "1-arbre-genealogique",
+     "texte": "1. ARBRE GÉNÉALOGIQUE"
+    },
+    {
+     "id": "2-les-langues-une-par-une",
+     "texte": "2. LES LANGUES, UNE PAR UNE"
+    },
+    {
+     "id": "3-les-deux-chaines-de-contact",
+     "texte": "3. LES DEUX CHAÎNES DE CONTACT"
+    },
+    {
+     "id": "4-synthese",
+     "texte": "4. SYNTHÈSE"
+    },
+    {
+     "id": "lacunes-connues-a-construire",
+     "texte": "Lacunes connues (à construire)"
+    }
+   ],
+   "echelons": {},
+   "octets": 15363
+  },
+  {
+   "slug": "cadre-observateurs",
+   "titre": "LES OBSERVATEURS — Le Duo Cosmique",
+   "section": "cadre",
+   "source": "cadre/observateurs.md",
+   "ancres": [
+    {
+     "id": "nature-et-role",
+     "texte": "Nature et rôle"
+    },
+    {
+     "id": "l-observateur-du-temps-l-immobile",
+     "texte": "L'Observateur du Temps — L'Immobile"
+    },
+    {
+     "id": "l-observateur-de-l-espace-l-errant",
+     "texte": "L'Observateur de l'Espace — L'Errant"
+    },
+    {
+     "id": "doctrine-de-non-intervention",
+     "texte": "Doctrine de non-intervention"
+    },
+    {
+     "id": "la-conseillere-l-hybride-de-l-espace-temps",
+     "texte": "La Conseillère — l'hybride de l'Espace-Temps"
+    },
+    {
+     "id": "leurs-arts-chronomancie-spatiomancie",
+     "texte": "Leurs arts — Chronomancie & Spatiomancie"
+    },
+    {
+     "id": "raccord-au-codex",
+     "texte": "Raccord au Codex"
+    }
+   ],
+   "echelons": {
+    "T": 1,
+    "R": 1,
+    "P": 2,
+    "X": 3
+   },
+   "octets": 22045
+  },
+  {
+   "slug": "cadre-trones",
+   "titre": "LES TRÔNES — la mécanique du pouvoir céleste",
+   "section": "cadre",
+   "source": "cadre/trones.md",
+   "ancres": [
+    {
+     "id": "le-prisme-la-mecanique-commune",
+     "texte": "Le Prisme — la mécanique commune"
+    },
+    {
+     "id": "hodolin-le-trone-est-le-prisme",
+     "texte": "Hodolin — le trône est le Prisme"
+    },
+    {
+     "id": "galombar-le-trone-et-le-prisme-separes",
+     "texte": "Galombar — le trône et le Prisme séparés"
+    },
+    {
+     "id": "le-conseil-des-anciennes",
+     "texte": "Le Conseil des Anciennes"
+    },
+    {
+     "id": "la-ponction-verite-r",
+     "texte": "La ponction — vérité [R]"
+    },
+    {
+     "id": "l-effectif",
+     "texte": "L'effectif"
+    },
+    {
+     "id": "le-miroir-celeste",
+     "texte": "Le miroir céleste"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {
+    "P": 5,
+    "C": 5,
+    "T": 3,
+    "R": 7,
+    "X": 8
+   },
+   "octets": 23351
+  },
+  {
+   "slug": "chronologie",
+   "titre": "CHRONOLOGIE COSMIQUE",
+   "section": "racine",
+   "source": "chronologie.md",
+   "ancres": [
+    {
+     "id": "la-table-des-eons",
+     "texte": "La table des Éons"
+    },
+    {
+     "id": "esperances-de-vie-par-race",
+     "texte": "Espérances de vie par race"
+    },
+    {
+     "id": "les-eons-mythiques-avant-le-temps-mesure-an-an-0",
+     "texte": "Les Éons mythiques — avant le temps mesuré (An -∞ → An 0)"
+    },
+    {
+     "id": "eons-3-4-reconstruction-premieres-civilisations-an-0-20000",
+     "texte": "Éons 3 & 4 — Reconstruction & premières civilisations (An 0 → 20000)"
+    },
+    {
+     "id": "eon-5-separation-emergence-des-dieux-an-20000-30000",
+     "texte": "Éon 5 — Séparation & émergence des dieux (An 20000 → 30000)"
+    },
+    {
+     "id": "eon-6-les-deux-empires-an-30000-35000",
+     "texte": "Éon 6 — Les deux empires (An 30000 → 35000)"
+    },
+    {
+     "id": "eon-7-l-education-des-celestes-an-35000-45000",
+     "texte": "Éon 7 — L'éducation des Célestes (An 35000 → 45000)"
+    },
+    {
+     "id": "eons-8-9-reconquete-consolidation-an-45000-50000",
+     "texte": "Éons 8 & 9 — Reconquête & consolidation (An 45000 → 50000+)"
+    },
+    {
+     "id": "la-lignee-des-eveillees-la-grille-des-vingt-epoques-an-45000-55000",
+     "texte": "La lignée des Éveillées — la grille des vingt Époques (An 45000 → 55000)"
+    },
+    {
+     "id": "l-an-55000-la-chute-des-deux-fondateurs",
+     "texte": "L'An 55000 — la chute des deux fondateurs"
+    },
+    {
+     "id": "au-dela-la-renaissance-d-inarama-an-55000-65000",
+     "texte": "Au-delà — la renaissance d'Inarama (An 55000 → 65000)"
+    },
+    {
+     "id": "les-grands-paralleles-narratifs",
+     "texte": "Les grands parallèles narratifs"
+    },
+    {
+     "id": "raccord-au-codex-lacunes",
+     "texte": "Raccord au Codex & lacunes"
+    }
+   ],
+   "echelons": {
+    "X": 11,
+    "P": 10,
+    "R": 10
+   },
+   "octets": 41960
+  },
+  {
+   "slug": "codex",
+   "titre": "CODEX D'INARAMA",
+   "section": "racine",
+   "source": "codex.md",
+   "ancres": [
+    {
+     "id": "livre-i-le-cadre-commun",
+     "texte": "LIVRE I — LE CADRE COMMUN"
+    },
+    {
+     "id": "livre-ii-les-peuples",
+     "texte": "LIVRE II — LES PEUPLES"
+    }
+   ],
+   "echelons": {
+    "C": 1,
+    "P": 2,
+    "R": 1,
+    "X": 1
+   },
+   "octets": 68893
+  },
+  {
+   "slug": "geographie-readme",
+   "titre": "LA GÉOGRAPHIE D'INARAMA — système",
+   "section": "geographie",
+   "source": "geographie/README.md",
+   "ancres": [
+    {
+     "id": "0-le-modele-de-lecture-a-ne-jamais-perdre",
+     "texte": "0. Le modèle de lecture — à ne jamais perdre"
+    },
+    {
+     "id": "1-la-hierarchie",
+     "texte": "1. La hiérarchie"
+    },
+    {
+     "id": "2-les-identifiants",
+     "texte": "2. Les identifiants"
+    },
+    {
+     "id": "3-les-attributs-d-un-lieu",
+     "texte": "3. Les attributs d'un lieu"
+    },
+    {
+     "id": "4-les-reperes-de-coordonnees",
+     "texte": "4. Les repères de coordonnées"
+    },
+    {
+     "id": "5-les-faces-primordiales",
+     "texte": "5. Les faces primordiales"
+    },
+    {
+     "id": "6-ce-qui-fait-foi-sur-quoi",
+     "texte": "6. Ce qui fait foi sur quoi"
+    },
+    {
+     "id": "7-lacunes-decisions-ouvertes",
+     "texte": "7. Lacunes & décisions ouvertes"
+    },
+    {
+     "id": "8-nommage-acte",
+     "texte": "8. Nommage acté"
+    }
+   ],
+   "echelons": {},
+   "octets": 18013
+  },
+  {
+   "slug": "geographie-biomes",
+   "titre": "LES BIOMES & LES TERRES SAUVAGES",
+   "section": "geographie",
+   "source": "geographie/biomes.md",
+   "ancres": [
+    {
+     "id": "le-principe-les-terres-sauvages",
+     "texte": "Le principe — les terres sauvages"
+    },
+    {
+     "id": "trois-familles-remarquables",
+     "texte": "Trois familles remarquables"
+    },
+    {
+     "id": "le-climat-par-dessus",
+     "texte": "Le climat par-dessus"
+    },
+    {
+     "id": "frontiere-lore-jeu",
+     "texte": "Frontière lore / jeu"
+    },
+    {
+     "id": "raccord-au-codex-renvois",
+     "texte": "Raccord au Codex & renvois"
+    }
+   ],
+   "echelons": {},
+   "octets": 4973
+  },
+  {
+   "slug": "geographie-reperes",
+   "titre": "LES REPÈRES CANONIQUES",
+   "section": "geographie",
+   "source": "geographie/reperes.md",
+   "ancres": [
+    {
+     "id": "1-les-8-academies-de-magie",
+     "texte": "1. Les 8 Académies de Magie"
+    },
+    {
+     "id": "2-les-8-sanctuaires-raciaux",
+     "texte": "2. Les 8 sanctuaires raciaux"
+    },
+    {
+     "id": "3-les-8-guildes-de-quadrant",
+     "texte": "3. Les 8 guildes de quadrant"
+    },
+    {
+     "id": "4-l-arene-de-rhodalia",
+     "texte": "4. L'arène de Rhodalia"
+    },
+    {
+     "id": "5-les-46-capitales",
+     "texte": "5. Les 46 capitales"
+    },
+    {
+     "id": "6-les-faces-primordiales",
+     "texte": "6. Les faces primordiales"
+    },
+    {
+     "id": "7-decisions-ouvertes",
+     "texte": "7. Décisions ouvertes"
+    }
+   ],
+   "echelons": {},
+   "octets": 16652
+  },
+  {
+   "slug": "geographie-toponymie",
+   "titre": "TOPONYMIE — les registres de nommage",
+   "section": "geographie",
+   "source": "geographie/toponymie.md",
+   "ancres": [
+    {
+     "id": "1-le-principe",
+     "texte": "1. Le principe"
+    },
+    {
+     "id": "2-registres-par-royaume",
+     "texte": "2. Registres par royaume"
+    },
+    {
+     "id": "3-morphemes-en-usage-deduits-du-corpus",
+     "texte": "3. Morphèmes en usage — déduits du corpus"
+    },
+    {
+     "id": "4-ce-que-le-nom-encode",
+     "texte": "4. Ce que le nom encode"
+    },
+    {
+     "id": "5-creer-un-nom",
+     "texte": "5. Créer un nom"
+    },
+    {
+     "id": "6-lacunes",
+     "texte": "6. Lacunes"
+    }
+   ],
+   "echelons": {},
+   "octets": 18044
+  },
+  {
+   "slug": "magie-affinites",
+   "titre": "LES AFFINITÉS ÉLÉMENTAIRES — cartographie",
+   "section": "magie",
+   "source": "magie/affinites.md",
+   "ancres": [
+    {
+     "id": "1-principes",
+     "texte": "1. Principes"
+    },
+    {
+     "id": "2-index-element-peuples",
+     "texte": "2. Index élément → peuples"
+    },
+    {
+     "id": "3-lecture-par-hemisphere",
+     "texte": "3. Lecture par hémisphère"
+    },
+    {
+     "id": "raccord-au-codex-lacunes",
+     "texte": "Raccord au Codex & lacunes"
+    }
+   ],
+   "echelons": {},
+   "octets": 9975
+  },
+  {
+   "slug": "magie-alchimie",
+   "titre": "CODEX ALCHIMIQUE — le système des éléments",
+   "section": "magie",
+   "source": "magie/alchimie.md",
+   "ancres": [
+    {
+     "id": "1-les-quatre-principes",
+     "texte": "1. Les quatre principes"
+    },
+    {
+     "id": "2-les-35-elements",
+     "texte": "2. Les 35 éléments"
+    },
+    {
+     "id": "3-l-energie-pure-la-combinaison-d-equilibre",
+     "texte": "3. L'énergie pure — la combinaison d'équilibre"
+    },
+    {
+     "id": "4-le-principe-de-transformation",
+     "texte": "4. Le principe de transformation"
+    },
+    {
+     "id": "raccord-au-codex-lacunes",
+     "texte": "Raccord au Codex & lacunes"
+    }
+   ],
+   "echelons": {},
+   "octets": 10946
+  },
+  {
+   "slug": "magie-arcane",
+   "titre": "L'ARCANE — le système glyphique",
+   "section": "magie",
+   "source": "magie/arcane.md",
+   "ancres": [
+    {
+     "id": "1-nature-de-l-arcane",
+     "texte": "1. Nature de l'Arcane"
+    },
+    {
+     "id": "2-la-composante-glyphique",
+     "texte": "2. La composante glyphique"
+    },
+    {
+     "id": "3-l-alphabet-les-neuf-formes",
+     "texte": "3. L'alphabet — les neuf formes"
+    },
+    {
+     "id": "4-architecture-d-un-glyphe",
+     "texte": "4. Architecture d'un glyphe"
+    },
+    {
+     "id": "5-le-noyau-les-douze-dimensions",
+     "texte": "5. Le noyau — les douze dimensions"
+    },
+    {
+     "id": "6-les-onze-criteres",
+     "texte": "6. Les onze critères"
+    },
+    {
+     "id": "7-le-cout",
+     "texte": "7. Le coût"
+    },
+    {
+     "id": "8-la-trame-arbitre",
+     "texte": "8. La trame arbitre"
+    },
+    {
+     "id": "9-le-glyphe-vide-l-atome-de-l-arcane",
+     "texte": "9. Le glyphe vide — l'atome de l'Arcane"
+    },
+    {
+     "id": "10-l-artisanat-et-l-economie-des-composantes",
+     "texte": "10. L'artisanat et l'économie des composantes"
+    },
+    {
+     "id": "11-raccords-lacunes-et-pistes-non-tranchees",
+     "texte": "11. Raccords, lacunes, et pistes non tranchées"
+    }
+   ],
+   "echelons": {},
+   "octets": 106221
+  },
+  {
+   "slug": "magie-celeste",
+   "titre": "LA CONJURATION CÉLESTE — l'énergie astrale",
+   "section": "magie",
+   "source": "magie/celeste.md",
+   "ancres": [
+    {
+     "id": "1-nature-de-la-conjuration",
+     "texte": "1. Nature de la Conjuration"
+    },
+    {
+     "id": "2-les-trois-sources",
+     "texte": "2. Les trois sources"
+    },
+    {
+     "id": "3-les-deux-formes",
+     "texte": "3. Les deux formes"
+    },
+    {
+     "id": "4-la-continuite-reserve-receptacles-reseau",
+     "texte": "4. La continuité — réserve, réceptacles, réseau"
+    },
+    {
+     "id": "5-le-reseau-celeste-une-eglise",
+     "texte": "5. Le Réseau Céleste — une Église"
+    },
+    {
+     "id": "6-les-limites",
+     "texte": "6. Les limites"
+    },
+    {
+     "id": "7-le-cycle-et-la-geographie-mouvante-de-la-ferveur",
+     "texte": "7. Le cycle, et la géographie mouvante de la ferveur"
+    },
+    {
+     "id": "8-la-dualite",
+     "texte": "8. La dualité"
+    },
+    {
+     "id": "9-le-c-ur-conversion-et-destruction",
+     "texte": "9. Le cœur — conversion et destruction"
+    },
+    {
+     "id": "10-les-batteries-vivantes-et-l-incarnation",
+     "texte": "10. Les batteries vivantes, et l'incarnation"
+    },
+    {
+     "id": "11-la-place-de-la-magie-hybride",
+     "texte": "11. La place de la Magie hybride"
+    },
+    {
+     "id": "12-raccords-lacunes-et-pistes-non-tranchees",
+     "texte": "12. Raccords, lacunes, et pistes non tranchées"
+    }
+   ],
+   "echelons": {},
+   "octets": 44871
+  },
+  {
+   "slug": "magie-ecoles",
+   "titre": "LES ÉCOLES — arcanistes et élémentaires",
+   "section": "magie",
+   "source": "magie/ecoles.md",
+   "ancres": [
+    {
+     "id": "1-ce-qu-est-une-ecole",
+     "texte": "1. Ce qu'est une école"
+    },
+    {
+     "id": "2-ce-qui-lie-une-ecole",
+     "texte": "2. Ce qui lie une école"
+    },
+    {
+     "id": "3-naitre-vivre-mourir",
+     "texte": "3. Naître, vivre, mourir"
+    },
+    {
+     "id": "4-les-greffes",
+     "texte": "4. Les greffes"
+    },
+    {
+     "id": "5-ce-sur-quoi-on-diverge",
+     "texte": "5. Ce sur quoi on diverge"
+    },
+    {
+     "id": "6-le-champ-politique",
+     "texte": "6. Le champ politique"
+    },
+    {
+     "id": "7-la-mixite-disparue",
+     "texte": "7. La mixité disparue"
+    },
+    {
+     "id": "8-quatre-doctrines",
+     "texte": "8. Quatre doctrines"
+    },
+    {
+     "id": "9-raccords-lacunes-et-pistes-non-tranchees",
+     "texte": "9. Raccords, lacunes, et pistes non tranchées"
+    }
+   ],
+   "echelons": {},
+   "octets": 32447
+  },
+  {
+   "slug": "magie-elementaire",
+   "titre": "LA MAÎTRISE ÉLÉMENTAIRE — la face matière",
+   "section": "magie",
+   "source": "magie/elementaire.md",
+   "ancres": [
+    {
+     "id": "1-nature-de-la-maitrise-elementaire",
+     "texte": "1. Nature de la Maîtrise Élémentaire"
+    },
+    {
+     "id": "2-ce-que-fait-un-maitre",
+     "texte": "2. Ce que fait un maître"
+    },
+    {
+     "id": "3-le-corps-et-la-volonte",
+     "texte": "3. Le corps et la volonté"
+    },
+    {
+     "id": "4-la-reserve-intrinseque",
+     "texte": "4. La réserve intrinsèque"
+    },
+    {
+     "id": "5-le-terrain",
+     "texte": "5. Le terrain"
+    },
+    {
+     "id": "6-l-echelle-de-maitrise",
+     "texte": "6. L'échelle de maîtrise"
+    },
+    {
+     "id": "7-les-risques",
+     "texte": "7. Les risques"
+    },
+    {
+     "id": "8-la-trace",
+     "texte": "8. La trace"
+    },
+    {
+     "id": "9-les-peuples-et-la-diffusion",
+     "texte": "9. Les peuples et la diffusion"
+    },
+    {
+     "id": "10-les-deux-sommets",
+     "texte": "10. Les deux sommets"
+    },
+    {
+     "id": "11-raccords-lacunes-et-pistes-non-tranchees",
+     "texte": "11. Raccords, lacunes, et pistes non tranchées"
+    }
+   ],
+   "echelons": {},
+   "octets": 41582
+  },
+  {
+   "slug": "magie-magie",
+   "titre": "LA MAGIE — la synthèse des trois sources",
+   "section": "magie",
+   "source": "magie/magie.md",
+   "ancres": [
+    {
+     "id": "1-nature-de-la-magie",
+     "texte": "1. Nature de la Magie"
+    },
+    {
+     "id": "2-les-trois-composantes-une-par-energie",
+     "texte": "2. Les trois composantes — une par énergie"
+    },
+    {
+     "id": "3-le-glyphe-hybride",
+     "texte": "3. Le glyphe hybride"
+    },
+    {
+     "id": "4-l-echelle-du-mage",
+     "texte": "4. L'échelle du mage"
+    },
+    {
+     "id": "5-les-trois-sources-astrales-et-le-prix-de-la-discretion",
+     "texte": "5. Les trois sources astrales, et le prix de la discrétion"
+    },
+    {
+     "id": "6-l-artisanat",
+     "texte": "6. L'artisanat"
+    },
+    {
+     "id": "7-ce-que-ca-coute-et-ce-que-ca-rapporte",
+     "texte": "7. Ce que ça coûte, et ce que ça rapporte"
+    },
+    {
+     "id": "8-histoire-la-plus-ancienne-des-syntheses",
+     "texte": "8. Histoire — la plus ancienne des synthèses"
+    },
+    {
+     "id": "9-politique",
+     "texte": "9. Politique"
+    },
+    {
+     "id": "10-raccords-lacunes-et-pistes-non-tranchees",
+     "texte": "10. Raccords, lacunes, et pistes non tranchées"
+    }
+   ],
+   "echelons": {},
+   "octets": 26738
+  },
+  {
+   "slug": "magie-systemes",
+   "titre": "LES SYSTÈMES MAGIQUES",
+   "section": "magie",
+   "source": "magie/systemes.md",
+   "ancres": [
+    {
+     "id": "1-les-trois-sources-et-la-trame",
+     "texte": "1. Les trois sources et la trame"
+    },
+    {
+     "id": "2-les-quatre-pratiques",
+     "texte": "2. Les quatre pratiques"
+    },
+    {
+     "id": "3-le-reseau-celeste",
+     "texte": "3. Le Réseau Céleste"
+    },
+    {
+     "id": "4-l-energie-superactive",
+     "texte": "4. L'énergie superactive"
+    },
+    {
+     "id": "5-les-lieux-de-magie-etat-actuel-eon-9",
+     "texte": "5. Les lieux de magie (état actuel, Éon 9)"
+    },
+    {
+     "id": "6-deux-prolongements",
+     "texte": "6. Deux prolongements"
+    },
+    {
+     "id": "7-les-arts-rares-chronomancie-spatiomancie",
+     "texte": "7. Les arts rares — chronomancie & spatiomancie"
+    },
+    {
+     "id": "raccord-au-codex-lacunes",
+     "texte": "Raccord au Codex & lacunes"
+    }
+   ],
+   "echelons": {
+    "X": 1
+   },
+   "octets": 15758
+  },
+  {
+   "slug": "mythologie-i-creation",
+   "titre": "MYTHOLOGIE I — Création, Astres, Épopées divines & Mythes des races",
+   "section": "mythologie",
+   "source": "mythologie/I-creation.md",
+   "ancres": [
+    {
+     "id": "preambule-la-mythologie-comme-memoire-vivante",
+     "texte": "Préambule — la mythologie comme mémoire vivante"
+    },
+    {
+     "id": "i-le-mythe-de-creation",
+     "texte": "I. Le mythe de création"
+    },
+    {
+     "id": "ii-les-mythes-des-astres",
+     "texte": "II. Les mythes des astres"
+    },
+    {
+     "id": "iii-l-epopee-d-ira-et-nama",
+     "texte": "III. L'épopée d'Ira et Nama"
+    },
+    {
+     "id": "iv-les-mythes-des-races",
+     "texte": "IV. Les mythes des races"
+    },
+    {
+     "id": "v-les-pantheons-culturels",
+     "texte": "V. Les panthéons culturels"
+    },
+    {
+     "id": "vi-conclusion-la-mythologie-comme-outil-politique",
+     "texte": "VI. Conclusion — la mythologie comme outil politique"
+    },
+    {
+     "id": "raccord-au-codex",
+     "texte": "Raccord au Codex"
+    }
+   ],
+   "echelons": {},
+   "octets": 24836
+  },
+  {
+   "slug": "mythologie-ii-arbres",
+   "titre": "MYTHOLOGIE II — Les Arbres primordiaux, le Bandeau & les cultes naturels",
+   "section": "mythologie",
+   "source": "mythologie/II-arbres.md",
+   "ancres": [
+    {
+     "id": "i-les-arbres-primordiaux-nomenclature",
+     "texte": "I. Les Arbres primordiaux — nomenclature"
+    },
+    {
+     "id": "ii-cosmologie-des-arbres",
+     "texte": "II. Cosmologie des Arbres"
+    },
+    {
+     "id": "iii-alde-les-mythes-de-sylvara-et-radin",
+     "texte": "III. Alde — les mythes de Sylvara et Radin"
+    },
+    {
+     "id": "iv-fenir-les-mythes-d-elorn-et-mordorn",
+     "texte": "IV. Fenir — les mythes d'Elorn et Mordorn"
+    },
+    {
+     "id": "v-le-bois-et-la-foret-mythes-sylvestres",
+     "texte": "V. Le bois et la forêt — mythes sylvestres"
+    },
+    {
+     "id": "vi-le-bandeau-oceanique-mythes-et-croyances",
+     "texte": "VI. Le bandeau océanique — mythes et croyances"
+    },
+    {
+     "id": "vii-les-cultes-des-arbres-primordiaux",
+     "texte": "VII. Les cultes des Arbres primordiaux"
+    },
+    {
+     "id": "viii-tensions-et-croisements",
+     "texte": "VIII. Tensions et croisements"
+    },
+    {
+     "id": "ix-les-forces-naturelles-personnifiees",
+     "texte": "IX. Les forces naturelles personnifiées"
+    },
+    {
+     "id": "raccord-au-codex",
+     "texte": "Raccord au Codex"
+    }
+   ],
+   "echelons": {},
+   "octets": 23826
+  },
+  {
+   "slug": "mythologie-iii-elements",
+   "titre": "MYTHOLOGIE III — Mythes élémentaires & sous-cultures",
+   "section": "mythologie",
+   "source": "mythologie/III-elements.md",
+   "ancres": [
+    {
+     "id": "i-introduction-quand-l-element-parle-plus-fort-que-le-sang",
+     "texte": "I. Introduction — quand l'élément parle plus fort que le sang"
+    },
+    {
+     "id": "ii-famille-du-feu-le-feu-3-parts",
+     "texte": "II. Famille du Feu (le Feu ≥ 3 parts)"
+    },
+    {
+     "id": "iii-famille-de-la-terre-la-terre-3-parts",
+     "texte": "III. Famille de la Terre (la Terre ≥ 3 parts)"
+    },
+    {
+     "id": "iv-famille-de-l-eau-l-eau-3-parts",
+     "texte": "IV. Famille de l'Eau (l'Eau ≥ 3 parts)"
+    },
+    {
+     "id": "v-famille-de-l-air-l-air-3-parts",
+     "texte": "V. Famille de l'Air (l'Air ≥ 3 parts)"
+    },
+    {
+     "id": "vi-combinaisons-bi-elementaires-equilibrees-2-2-la-tension-pure",
+     "texte": "VI. Combinaisons bi-élémentaires équilibrées (2/2 — la tension pure)"
+    },
+    {
+     "id": "vii-combinaisons-tri-elementaires-2-1-1-la-complexite",
+     "texte": "VII. Combinaisons tri-élémentaires (2/1/1 — la complexité)"
+    },
+    {
+     "id": "viii-les-ponts-inter-hemispheriques",
+     "texte": "VIII. Les ponts inter-hémisphériques"
+    },
+    {
+     "id": "conclusion-ce-que-les-mythes-elementaires-enseignent",
+     "texte": "Conclusion — ce que les mythes élémentaires enseignent"
+    },
+    {
+     "id": "raccord-au-codex-corrections",
+     "texte": "Raccord au Codex & corrections"
+    }
+   ],
+   "echelons": {},
+   "octets": 30905
+  },
+  {
+   "slug": "peuples-celestes",
+   "titre": "LIVRE III — LES ROYAUMES · IX. Célestes",
+   "section": "peuples",
+   "source": "peuples/celestes.md",
+   "ancres": [
+    {
+     "id": "les-deux-cours",
+     "texte": "Les deux cours"
+    },
+    {
+     "id": "demographie",
+     "texte": "Démographie"
+    },
+    {
+     "id": "la-conversion",
+     "texte": "La conversion"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {
+    "C": 1,
+    "P": 1,
+    "X": 1
+   },
+   "octets": 10833
+  },
+  {
+   "slug": "peuples-draconiens",
+   "titre": "LIVRE III — LES ROYAUMES · III. Draconiens",
+   "section": "peuples",
+   "source": "peuples/draconiens.md",
+   "ancres": [
+    {
+     "id": "hodolin",
+     "texte": "Hodolin"
+    },
+    {
+     "id": "le-regime-draconien-d-hodolin",
+     "texte": "Le régime draconien d'Hodolin"
+    },
+    {
+     "id": "galombar",
+     "texte": "Galombar"
+    },
+    {
+     "id": "le-regime-draconien-de-galombar",
+     "texte": "Le régime draconien de Galombar"
+    },
+    {
+     "id": "les-quatre-ponts-recapitulatif",
+     "texte": "Les quatre ponts (récapitulatif)"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {
+    "P": 1
+   },
+   "octets": 50289
+  },
+  {
+   "slug": "peuples-elfes",
+   "titre": "LIVRE III — LES ROYAUMES · II. Elfes",
+   "section": "peuples",
+   "source": "peuples/elfes.md",
+   "ancres": [
+    {
+     "id": "hodolin",
+     "texte": "Hodolin"
+    },
+    {
+     "id": "le-regime-elfe-d-hodolin",
+     "texte": "Le régime elfe d'Hodolin"
+    },
+    {
+     "id": "galombar",
+     "texte": "Galombar"
+    },
+    {
+     "id": "le-regime-elfe-de-galombar",
+     "texte": "Le régime elfe de Galombar"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 35385
+  },
+  {
+   "slug": "peuples-halfelins",
+   "titre": "LIVRE III — LES ROYAUMES · VII. Halfelins & Gnomes",
+   "section": "peuples",
+   "source": "peuples/halfelins.md",
+   "ancres": [
+    {
+     "id": "organisation-deux-anneaux-concentriques",
+     "texte": "Organisation — deux anneaux concentriques"
+    },
+    {
+     "id": "le-regime-halfelin",
+     "texte": "Le régime halfelin"
+    },
+    {
+     "id": "les-16-principautes",
+     "texte": "Les 16 principautés"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 15945
+  },
+  {
+   "slug": "peuples-humains",
+   "titre": "LIVRE III — LES ROYAUMES · V. Humains",
+   "section": "peuples",
+   "source": "peuples/humains.md",
+   "ancres": [
+    {
+     "id": "hodolin",
+     "texte": "Hodolin"
+    },
+    {
+     "id": "le-regime-humain-d-hodolin",
+     "texte": "Le régime humain d'Hodolin"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 20138
+  },
+  {
+   "slug": "peuples-nains",
+   "titre": "LIVRE III — LES ROYAUMES · I. Nains",
+   "section": "peuples",
+   "source": "peuples/nains.md",
+   "ancres": [
+    {
+     "id": "hodolin",
+     "texte": "Hodolin"
+    },
+    {
+     "id": "le-regime-nain-d-hodolin",
+     "texte": "Le régime nain d'Hodolin"
+    },
+    {
+     "id": "galombar",
+     "texte": "Galombar"
+    },
+    {
+     "id": "le-regime-nain-de-galombar",
+     "texte": "Le régime nain de Galombar"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 38014
+  },
+  {
+   "slug": "peuples-orcs",
+   "titre": "LIVRE III — LES ROYAUMES · VI. Orcs & Gobelins",
+   "section": "peuples",
+   "source": "peuples/orcs.md",
+   "ancres": [
+    {
+     "id": "galombar",
+     "texte": "Galombar"
+    },
+    {
+     "id": "le-regime-orc-de-galombar",
+     "texte": "Le régime orc de Galombar"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 17679
+  },
+  {
+   "slug": "peuples-territoires",
+   "titre": "LIVRE III — LES ROYAUMES · Territoires particuliers",
+   "section": "peuples",
+   "source": "peuples/territoires.md",
+   "ancres": [
+    {
+     "id": "carceris-la-geole-de-galombar",
+     "texte": "Carceris — la geôle de Galombar"
+    },
+    {
+     "id": "les-independantes-cites-franches",
+     "texte": "Les Indépendantes — cités franches"
+    },
+    {
+     "id": "le-bandeau-oceanique",
+     "texte": "Le Bandeau océanique"
+    },
+    {
+     "id": "les-rhodaliens-livre-ii-xi",
+     "texte": "Les Rhodaliens (Livre II §XI)"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 9027
+  },
+  {
+   "slug": "peuples-thieflins",
+   "titre": "LIVRE III — LES ROYAUMES · VIII. Thieflins",
+   "section": "peuples",
+   "source": "peuples/thieflins.md",
+   "ancres": [
+    {
+     "id": "galombar",
+     "texte": "Galombar"
+    },
+    {
+     "id": "le-regime-thieflin",
+     "texte": "Le régime thieflin"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 16648
+  },
+  {
+   "slug": "peuples-zoo",
+   "titre": "LIVRE III — LES ROYAUMES · IV. Zoo",
+   "section": "peuples",
+   "source": "peuples/zoo.md",
+   "ancres": [
+    {
+     "id": "hodolin-vivara-et-ses-branches",
+     "texte": "Hodolin — Vivara et ses branches"
+    },
+    {
+     "id": "le-regime-zoo-d-hodolin",
+     "texte": "Le régime zoo d'Hodolin"
+    },
+    {
+     "id": "galombar-quatre-royaumes-cardinaux",
+     "texte": "Galombar — quatre royaumes cardinaux"
+    },
+    {
+     "id": "le-regime-zoo-de-galombar",
+     "texte": "Le régime zoo de Galombar"
+    },
+    {
+     "id": "lacunes-registre",
+     "texte": "Lacunes (registre)"
+    }
+   ],
+   "echelons": {},
+   "octets": 36846
+  }
+ ]
+}

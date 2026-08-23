@@ -1,0 +1,12 @@
+{
+  "name": "inarama-atlas-tools",
+  "private": true,
+  "type": "module",
+  "description": "Build hors ligne : lore markdown -> wiki HTML statique. N'ecrit que dans le depot atlas.",
+  "scripts": {
+    "build:wiki": "node build-wiki.mjs"
+  },
+  "dependencies": {
+    "markdown-it": "14.1.0"
+  }
+}

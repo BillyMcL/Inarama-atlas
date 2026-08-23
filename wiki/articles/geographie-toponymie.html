@@ -1,0 +1,491 @@
+<!-- Inarama wiki — généré par tools/build-wiki.mjs
+     source : geographie/toponymie.md
+     lore   : acfe5e07dfca12fc159d5e11af40b6603f476d87 (2026-08-23T16:53:22+02:00) -->
+<article class="wiki-art" data-slug="geographie-toponymie" data-section="geographie">
+<h1 id="toponymie-les-registres-de-nommage">TOPONYMIE — les registres de nommage</h1>
+<blockquote>
+<p><strong>Satellite de <a class="wiki-ref" href="geographie-readme.html"><code>geographie/README.md</code></a>.</strong> Ce document fait foi sur <strong>comment se nomment les lieux</strong> : quel registre linguistique s'applique où, quels morphèmes sont en usage, et ce que le nom encode — ou n'encode pas. Les registres dérivent de <a class="wiki-ref" href="cadre-langues.html"><code>cadre/langues.md</code></a> (la filiation des langues) ; les noms eux-mêmes vivent dans <code>geographie/data/</code>.</p>
+<p><strong>Méthode.</strong> Les tableaux de morphèmes ci-dessous ne sont pas inventés : ils sont <strong>déduits du corpus des 4 234 noms existants</strong>. Le corpus contenait déjà la règle ; ce document l'explicite.</p>
+</blockquote>
+<hr>
+<h2 id="1-le-principe">1. Le principe</h2>
+<p><strong>Le registre onomastique d'un lieu est celui du peuple qui s'y est fixé, pas celui de sa province.</strong> Un lieu nain en territoire elfique porte un nom nain. Le rattachement administratif n'entre pas en compte.</p>
+<p>Pour les lieux <strong>sans royaume</strong> — Bandeau, territoires francs, isolés — deux cas :</p>
+<ul>
+<li><strong>Bandeau</strong> : registre <strong>proto-rhodalien</strong>, souche archaïque commune (voir §4).</li>
+<li><strong>Franc / isolé</strong> : registre du <strong>voisinage culturel</strong> le plus proche. C'est pourquoi les 557 lieux « Indépendante » n'ont pas de registre propre : ils empruntent celui de leurs voisins, et leur morphologie est en conséquence la plus hétérogène du corpus.</li>
+</ul>
+<p><strong>Filiation.</strong> Trois souches issues de la langue divine (<a class="wiki-ref" href="cadre-langues.html"><code>cadre/langues.md</code></a>) : <strong>Alde</strong> → nain et elfique · <strong>Fenir</strong> → zoo et draconien · <strong>Rhodalien</strong> → socle universel, et → humain, orc, base du céleste. Les registres de surface peuvent être opposés là où les structures profondes sont proches : nain et elfique sont cousins et se ressemblent le moins.</p>
+<hr>
+<h2 id="2-registres-par-royaume">2. Registres par royaume</h2>
+<h3 id="nains-norrois-gaelique-registre-consonantique-et-martele">Nains — <em>norrois / gaélique, registre consonantique et martelé</em></h3>
+<table>
+<thead>
+<tr>
+<th>Royaume</th>
+<th>Capitale</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eldvarr</td>
+<td>Brynmork</td>
+<td>vieux norrois / scandinave / saxon</td>
+</tr>
+<tr>
+<td>Jarnheim</td>
+<td>Skaldholt</td>
+<td>vieux norrois / gaélique / viking</td>
+</tr>
+<tr>
+<td>Steinmark</td>
+<td>Greymdal</td>
+<td>vieux norrois / gaélique archaïque <em>(le plus archaïque)</em></td>
+</tr>
+<tr>
+<td>Gjallvik</td>
+<td>Brumfjord</td>
+<td>féroïen / islandais</td>
+</tr>
+<tr>
+<td>Ceomhar</td>
+<td>Sliabhglas</td>
+<td>irlandais ancien / gaélique écossais</td>
+</tr>
+<tr>
+<td>Melkarthos</td>
+<td>Salimor</td>
+<td>maltais / araméen insulaire</td>
+</tr>
+<tr>
+<td>Nebeshaat</td>
+<td>Kemathor</td>
+<td>copte / éthiopien</td>
+</tr>
+<tr>
+<td>Jarnfjord</td>
+<td>Magnetvik</td>
+<td>vieux norrois côtier / féroïen</td>
+</tr>
+</tbody>
+</table>
+<h3 id="elfes-tolkien-en-inspiration-stylistique-voyelles-longues-fluidite">Elfes — <em>Tolkien en inspiration stylistique ; voyelles longues, fluidité</em></h3>
+<table>
+<thead>
+<tr>
+<th>Royaume</th>
+<th>Capitale</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Luminaris</td>
+<td>Solvarath</td>
+<td>latin sacré</td>
+</tr>
+<tr>
+<td>Selvorn</td>
+<td>Arboranthis</td>
+<td>vieux espagnol / latin rustique</td>
+</tr>
+<tr>
+<td>Thalassorn</td>
+<td>Pelagimyr</td>
+<td>grec ancien / maritime</td>
+</tr>
+<tr>
+<td>Ignareth</td>
+<td>Fulgurath</td>
+<td>latin / perse</td>
+</tr>
+<tr>
+<td>Damaveth</td>
+<td>Sheol-Aram</td>
+<td>hébreu ancien / araméen</td>
+</tr>
+<tr>
+<td>Bathyalos</td>
+<td>Erebonos</td>
+<td>grec ionien / phénicien</td>
+</tr>
+<tr>
+<td>Ghabarat</td>
+<td>Ramlahar</td>
+<td>arabe désertique / berbère</td>
+</tr>
+<tr>
+<td>Ashmael</td>
+<td>Chloraneth</td>
+<td>variable <em>(territoire exilé)</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="draconiens-mongol-turco-persan-gutturale-vibrante-kh-gh-dr">Draconiens — <em>mongol / turco-persan ; gutturale-vibrante, « kh / gh / dr »</em></h3>
+<table>
+<thead>
+<tr>
+<th>Clan</th>
+<th>Capitale</th>
+<th>Hém.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ignar'Khan</td>
+<td>Embrath</td>
+<td>H</td>
+</tr>
+<tr>
+<td>Thal'Drak</td>
+<td>Azureth</td>
+<td>H</td>
+</tr>
+<tr>
+<td>Gorn'Var</td>
+<td>Terrath</td>
+<td>H</td>
+</tr>
+<tr>
+<td>Ven'Karath</td>
+<td>Skyraeth</td>
+<td>H</td>
+</tr>
+<tr>
+<td>Ortok'Var</td>
+<td>Kozmrath</td>
+<td>G <em>(turco-mongol archaïque / ouïghour)</em></td>
+</tr>
+<tr>
+<td>Sulkh'Drak</td>
+<td>Gormath</td>
+<td>G</td>
+</tr>
+<tr>
+<td>Borkh'Nar</td>
+<td>Tomrath</td>
+<td>G</td>
+</tr>
+<tr>
+<td>Yol'Karath</td>
+<td>Ruzgath</td>
+<td>G</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zoo-quechua-guarani-africain-nomenclature-naturaliste">Zoo — <em>quechua / guarani / africain / nomenclature naturaliste</em></h3>
+<table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Capitale</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vivara <em>(terrestre)</em></td>
+<td>Naturis</td>
+<td>africain / sud-américain / scientifique</td>
+</tr>
+<tr>
+<td><strong>Wayravara</strong> <em>(volants)</em></td>
+<td>Sacsatlantlan</td>
+<td>andin, héritage Vivari</td>
+</tr>
+<tr>
+<td><strong>Yakuvara</strong> <em>(aquatiques)</em></td>
+<td>Sigrune <em>(immergée)</em></td>
+<td>andin + champ lexical marin</td>
+</tr>
+<tr>
+<td><strong>Ritivara</strong> <em>(polaires)</em></td>
+<td>Quchariti</td>
+<td>andin, héritage Vivari</td>
+</tr>
+<tr>
+<td>Tupavar · Guaravar · Amavara · Whanavara</td>
+<td>Kausath · Yvarath · Quilometh · Pachamis</td>
+<td>quechua / guarani</td>
+</tr>
+</tbody>
+</table>
+<h3 id="humains">Humains</h3>
+<table>
+<thead>
+<tr>
+<th>Royaume</th>
+<th>Capitale</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Siksik-Nunavaar</td>
+<td>Qaiyaan</td>
+<td>inuktitut / iakoute / sami</td>
+</tr>
+<tr>
+<td>Aethermonde</td>
+<td>Zephyrion</td>
+<td>grec / latin / asiatique</td>
+</tr>
+<tr>
+<td>Karambar</td>
+<td>Tizireth</td>
+<td>latin / maghrébin / méditerranéen / africain</td>
+</tr>
+<tr>
+<td>Viranthis</td>
+<td>Pollenara</td>
+<td>latin naturaliste / taxonomique</td>
+</tr>
+</tbody>
+</table>
+<h3 id="orcs-percussif-monosyllabique-econome">Orcs — <em>percussif, monosyllabique, économe</em></h3>
+<table>
+<thead>
+<tr>
+<th>Royaume</th>
+<th>Capitale</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bukharak</td>
+<td>Gorzheim</td>
+<td>proto-germanique / bantou</td>
+</tr>
+<tr>
+<td>Gorzgul</td>
+<td>Mudhrak</td>
+<td>bantou / nahuatl</td>
+</tr>
+<tr>
+<td>Obskar</td>
+<td>Darkrak</td>
+<td>proto-germanique / mongol-brut</td>
+</tr>
+<tr>
+<td>Magmarak</td>
+<td>Infernak</td>
+<td>nahuatl / mongol-brut</td>
+</tr>
+</tbody>
+</table>
+<h3 id="thieflins-akkadien-babylonien-ornemente-a-castes-marquees">Thieflins — <em>akkadien / babylonien ; ornementé, à castes marquées</em></h3>
+<table>
+<thead>
+<tr>
+<th>Royaume</th>
+<th>Capitale</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rimalkhet</td>
+<td>Sabulath</td>
+<td>akkadien / babylonien</td>
+</tr>
+<tr>
+<td>Kazarak</td>
+<td>Naramsin</td>
+<td>persan / araméen</td>
+</tr>
+<tr>
+<td>Ashkareth</td>
+<td>Umbraneth</td>
+<td>akkadien sombre / babylonien tardif</td>
+</tr>
+<tr>
+<td>Nepharak</td>
+<td>Ammoneth</td>
+<td>araméen / babylonien <em>(variation amoindrie)</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="halfelins-deux-registres-et-c-est-une-regle">Halfelins — <strong>deux registres, et c'est une règle</strong></h3>
+<p>La coupure est confirmée par le corpus : les <strong>6 principautés intérieures</strong> portent des capitales <strong>grecques</strong>, les <strong>10 extérieures</strong> des noms <strong>germano-industriels</strong>. <a class="wiki-ref" href="cadre-langues.html"><code>cadre/langues.md</code></a> le pressentait en hypothèse (« les Gnomes ont probablement un sociolecte technique distinct ») ; les données l'établissent.</p>
+<table>
+<thead>
+<tr>
+<th>Anneau</th>
+<th>Principautés (capitale)</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Intérieur</strong> (6)</td>
+<td>Chrysoveil (Leucanthis) · Miralos (Velanthos) · Sophantis (Argyros) · Kalanthis (Phaedros) · Eudaimon (Philonos) · Theomaris (Leucothea)</td>
+<td><strong>grec byzantin / latin médiéval</strong></td>
+</tr>
+<tr>
+<td><strong>Extérieur</strong> (10)</td>
+<td>Ferranthis (Malleora) · Cogworth (Gearheim) · Mechanis (Bronzium) · Torqueval (Springholt) · Gearlund (Voltheim) · Arcanomech (Pistonmark) · Forgenthal (Hammerstone) · Gildenmoor (Brasswick) · Springvault (Coilhaven) · Ironwatch (Gearstone)</td>
+<td><strong>germano-industriel (gnome)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="celestes-imperiaux">Célestes &amp; impériaux</h3>
+<table>
+<thead>
+<tr>
+<th>Empire</th>
+<th>Capitale</th>
+<th>Registre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hodolin</td>
+<td><strong>Astrelior</strong></td>
+<td>grec / latin ésotérique</td>
+</tr>
+<tr>
+<td>Galombar</td>
+<td><strong>Abyssarath</strong></td>
+<td>sumérien</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-morphemes-en-usage-deduits-du-corpus">3. Morphèmes en usage — déduits du corpus</h2>
+<p>Relevé sur les 4 234 noms. Les nombres sont les occurrences constatées.</p>
+<table>
+<thead>
+<tr>
+<th>Famille</th>
+<th>Suffixes caractéristiques</th>
+<th>Amorces récurrentes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nain</strong> <em>(461 noms)</em></td>
+<td>-vang · -tofta · -rune · -nes · -gard · -heim · -fjord · -dal · -borg · -holt · -mork · -skar · -fell · -strand · -vik</td>
+<td>kald- · vatn- · grim- · skald- · ragn- · vest- · eik- · brynn-</td>
+</tr>
+<tr>
+<td><strong>Elfe</strong> <em>(534)</em></td>
+<td>-ath · -ano · -ica · -ova · -anum · -ros · -kar · -ena · -reth · -esh · -ium · -entia</td>
+<td>lars- · adab- · erid- · sipp- · zala- · tibe- · nova- · solar-</td>
+</tr>
+<tr>
+<td><strong>Draconien</strong> <em>(257)</em></td>
+<td>-saray · -nor · -baatar · -gerel · -dagh · -gol · -tepe · -bayan · -khoto · -orda · -tai · -mür · -ulus</td>
+<td>galt- · khan- · tengr- · tuva- · bayan- · sary- · altan- · kök-</td>
+</tr>
+<tr>
+<td><strong>Zoo / andin</strong> <em>(347)</em></td>
+<td>-nantli · -tambo · -api · -yacu · -pampa · -runa · -wasi/-huasi · -coatl · -qucha · -tzin · -marca</td>
+<td>sacsa- · mara- · coatl- · huaca- · inti- · pacha- · ollanta- · teotl- · xochi- · quri- · tenoch- · cusqa-</td>
+</tr>
+<tr>
+<td><strong>Humain</strong> <em>(243)</em></td>
+<td>-anum · -arjuk · -ova · -aluk · -ssuaq · -araq · -ozi · -ium · -alik · -anga</td>
+<td>sila- · kang- · nuna- · serm- · vela- · pang-</td>
+</tr>
+<tr>
+<td><strong>Orc</strong> <em>(169)</em></td>
+<td>-heim · -funda · -hrak · -grok · -orak · -mür · -rak</td>
+<td>tlal- · olla- · kong- · xoch- · teotl- · wayn-</td>
+</tr>
+<tr>
+<td><strong>Thieflin</strong> <em>(184)</em></td>
+<td>-esh · -anu · -zal · -arath · -gal · -aneth · -orath · -lath · -dapp · -kar</td>
+<td>nipp- · mara- · erid- · lars- · akka- · chin-</td>
+</tr>
+<tr>
+<td><strong>Impérial Hodolin</strong> <em>(138)</em></td>
+<td>-heim · -mork · -rune · -fell · -anthis · -fjord · -haven · -skar · -wick · -mark</td>
+<td>fros- · norr- · hrod- · hrafn- · sval- · grim-</td>
+</tr>
+<tr>
+<td><strong>Impérial Galombar</strong> <em>(143)</em></td>
+<td>-kar · -arim · -eth · -esh · -arath · -dapp · -gal · -zal · -nipur · -shur</td>
+<td>tell- · akka- · sipp- · zigg- · uruk- · mara-</td>
+</tr>
+<tr>
+<td><strong>Bandeau</strong> <em>(506)</em></td>
+<td>-aru · -nua · -wos · -rax · -ros · -anu · -eth · -resh</td>
+<td>baal- · dher- · dheg- · abzu- · bhel- · anem-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="l-agglutination-andine">L'agglutination andine</h3>
+<p>Les registres zoo et orc-nahuatl sont <strong>agglutinants</strong> : <strong>168 noms sur 347</strong> combinent au moins deux briques. <code>Wayna·coatl·tambo</code>, <code>Ollanta·runa·coatl</code>, <code>Sacsa·marca·runa</code>, <code>Cusqa·coatl·marca</code>.</p>
+<p>Briques les plus productives : <strong>tambo</strong> (55) · <strong>atl</strong> (51) · <strong>coatl</strong> (38) · <strong>pacha</strong> (30) · <strong>tzin</strong> (25) · <strong>marca</strong> (24) · <strong>nantli</strong> (21) · <strong>api</strong> (18) · <strong>runa</strong> (16) · <strong>sacsa</strong> (15) · <strong>qucha</strong> (15) · <strong>huasi</strong> (15) · <strong>anta</strong> (15) · <strong>huaca</strong> (14) · <strong>inti</strong> (14) · <strong>apu</strong> (14) · <strong>yacu</strong> (13) · <strong>pampa</strong> (12).</p>
+<hr>
+<h2 id="4-ce-que-le-nom-encode">4. Ce que le nom encode</h2>
+<h3 id="il-encode-la-culture">Il encode la culture</h3>
+<p>C'est le déterminant principal, et le seul systématique. Le registre suffit à situer un lieu dans le monde sans autre information.</p>
+<h3 id="il-encode-faiblement-le-rang">Il encode faiblement le rang</h3>
+<table>
+<thead>
+<tr>
+<th>Catégorie</th>
+<th>Longueur moyenne</th>
+<th>Noms longs (≥ 13 car.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Capitales (46)</td>
+<td>8,2</td>
+<td>2 %</td>
+</tr>
+<tr>
+<td>Niveau 5 hors capitale (28)</td>
+<td><strong>9,9</strong></td>
+<td><strong>21 %</strong></td>
+</tr>
+<tr>
+<td>Niveau 1 (1 938)</td>
+<td>8,0</td>
+<td>1 %</td>
+</tr>
+<tr>
+<td>Ruines (523)</td>
+<td>7,3</td>
+<td>0 %</td>
+</tr>
+</tbody>
+</table>
+<p>Deux règles se dégagent :</p>
+<ul>
+<li><strong>Les capitales sont courtes.</strong> Un nom de capitale se prononce d'un souffle. Les composés longs sont réservés aux grands lieux <em>non</em> capitales — un <code>Waynacoatltambo</code> peut être une académie majeure, jamais un siège de royaume.</li>
+<li><strong>Les capitales draconiennes finissent toutes en <code>-ath</code>/<code>-eth</code></strong> : Embrath, Azureth, Terrath, Skyraeth, Kozmrath, Gormath, Tomrath, Ruzgath. <strong>Huit sur huit, sans exception.</strong> C'est la seule règle morphologique absolue du corpus.
+<blockquote>
+<p>⚠️ <strong>L'implication n'est pas réciproque.</strong> 196 lieux du corpus finissent en <code>-ath</code>/<code>-eth</code>, dont dix autres capitales (Solvarath, Fulgurath, Sabulath, Yvarath, Kausath, Quilometh, Umbraneth, Ammoneth, Chloraneth, Tizireth). La règle se lit dans un seul sens : <em>toute capitale draconienne porte cette terminaison</em>, jamais <em>toute terminaison en -ath désigne une capitale draconienne</em>. C'est une <strong>contrainte de création</strong>, pas un critère de reconnaissance.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="il-n-encode-pas-le-type-de-lieu">Il n'encode PAS le type de lieu</h3>
+<blockquote>
+<p><strong>Constat, et il vaut décision.</strong> Le corpus ne distingue pas morphologiquement une arène d'un sanctuaire, une académie d'un comptoir. La toponymie n'a <strong>qu'une dimension culturelle</strong> (plus une marque faible de rang).</p>
+<p>C'était la lacune ouverte — « comment un fleuve, un col ou une ruine se nomment à l'intérieur d'un registre ». La réponse est : <strong>de la même façon</strong>. Ce n'est pas un oubli, c'est cohérent avec la §3.1 du README : les cinq types sont une grille de rangement, non des institutions que la langue distinguerait. Un nom dit <strong>d'où l'on est</strong>, pas <strong>ce qu'on fait</strong>.</p>
+</blockquote>
+<h3 id="il-n-encode-pas-non-plus-la-geographie">Il n'encode pas non plus la géographie</h3>
+<p>Testé et écarté : <code>-strand</code> (« rivage ») n'est littoral qu'à <strong>34 %</strong>, <code>-vik</code> (« baie ») à <strong>33 %</strong>, contre une base de 21 %. Le signal existe mais reste trop faible pour faire règle. Les suffixes géographiques sont des <strong>fossiles de registre</strong>, pas des descripteurs de terrain.</p>
+<hr>
+<h2 id="5-creer-un-nom">5. Créer un nom</h2>
+<ol>
+<li><strong>Identifier le peuple</strong> qui occupe le lieu — jamais la province.</li>
+<li><strong>Prendre le registre</strong> du §2, et les morphèmes du §3.</li>
+<li><strong>Calibrer la longueur</strong> : court pour une capitale, composé long autorisé pour un grand lieu non capital, court pour une ruine.</li>
+<li><strong>Ne pas chercher à faire dire au nom le type de lieu</strong> (§4).</li>
+<li><strong>Vérifier l'unicité</strong> contre <code>geographie/data/</code> : les 4 234 noms de lieux, 476 de provinces et 47 de royaumes sont <strong>tous distincts</strong>, et cette propriété doit être maintenue. C'est la contrainte la plus contraignante en pratique — les registres saturent vite.</li>
+<li><strong>Cas particuliers</strong> : capitale draconienne → terminaison <code>-ath</code>/<code>-eth</code> obligatoire ; principauté halfeline → registre grec si anneau intérieur, germano-industriel si extérieur ; lieu du Bandeau → proto-rhodalien.</li>
+</ol>
+<hr>
+<h2 id="6-lacunes">6. Lacunes</h2>
+<ul>
+<li><strong>Registres des territoires francs</strong> non formalisés : Carceris emprunte au nain (Vestnes, Eikstad, Grimstad), les 557 lieux « Indépendante » à leurs voisins. C'est un usage constaté, pas une règle écrite.</li>
+<li><strong>Endonymes des langues</strong> : seul le nain en possède un (<em>Dvergmål</em>, <a class="wiki-ref" href="cadre-langues.html"><code>cadre/langues.md</code></a>). Les autres restent à proposer.</li>
+<li><strong>Règle de dérive diachronique</strong> : rien ne distingue un toponyme ancien d'un toponyme récent. Utile si l'on veut que les ruines et les sites primordiaux sonnent plus vieux que les fondations tardives.</li>
+</ul>
+</article>

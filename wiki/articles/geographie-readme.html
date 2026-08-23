@@ -1,0 +1,420 @@
+<!-- Inarama wiki — généré par tools/build-wiki.mjs
+     source : geographie/README.md
+     lore   : acfe5e07dfca12fc159d5e11af40b6603f476d87 (2026-08-23T16:53:22+02:00) -->
+<article class="wiki-art" data-slug="geographie-readme" data-section="geographie">
+<h1 id="la-geographie-d-inarama-systeme">LA GÉOGRAPHIE D'INARAMA — système</h1>
+<blockquote>
+<p><strong>Satellite de <a class="wiki-ref" href="codex.html"><code>codex.md</code></a> §3.</strong> Le Codex fait foi sur les grands traits (coquille fendue, deux hémisphères, bandeau océanique). <strong>Ce document fait foi sur le système</strong> : comment le monde est découpé, identifié, mesuré et lu. Les <strong>données</strong> (4 234 lieux, 476 provinces, 47 royaumes) vivent en JSON dans <code>geographie/data/</code> ; le présent document fait foi sur les <strong>règles</strong>, le JSON sur les <strong>entrées</strong>.</p>
+<p>Documents frères : <a class="wiki-ref" href="geographie-toponymie.html"><code>toponymie.md</code></a> (registres onomastiques), <a class="wiki-ref" href="geographie-reperes.html"><code>reperes.md</code></a> (les lieux canoniques), <a class="wiki-ref" href="geographie-biomes.html"><code>biomes.md</code></a> (terres sauvages ↔ affinités).</p>
+</blockquote>
+<hr>
+<h2 id="0-le-modele-de-lecture-a-ne-jamais-perdre">0. Le modèle de lecture — à ne jamais perdre</h2>
+<p>Le monde n'est pas projeté comme une carte terrestre. La planète est une <strong>coquille creuse fendue</strong>, et chaque hémisphère se lit comme une <strong>cuvette vue depuis son ouverture équatoriale</strong> :</p>
+<ul>
+<li>le <strong>pôle de chaque hémisphère est au CENTRE de son ovale</strong> — c'est le fond de la cuvette, la perforation polaire, où se dresse la capitale impériale ;</li>
+<li>le <strong>bord de l'ovale est l'équateur</strong>, occupé par le <strong>Bandeau océanique</strong> ;</li>
+<li>la carte a donc la silhouette d'un <strong>8 vertical</strong>, les deux ovales réunis par le <strong>pincement</strong> du Bandeau, où se trouve <strong>Rhodalia</strong>.</li>
+</ul>
+<blockquote>
+<p>⚠️ <strong>Les pôles ne sont pas en haut et en bas de la carte.</strong> Le haut et le bas sont les deux faces de <strong>Nobunaga</strong>. Les pôles — et les capitales — sont au cœur des deux ovales. Alde est sur le flanc gauche, Fenir sur le flanc droit.</p>
+</blockquote>
+<p><strong>Le climat n'est pas latitudinal.</strong> Il suit l'axe <strong>Rhodalia (brûlant) → Nobunaga (glacial)</strong> : du pincement central vers les extrémités. Aux pôles-capitales, l'influence astrale directe rend les terres extrêmes.</p>
+<hr>
+<h2 id="1-la-hierarchie">1. La hiérarchie</h2>
+<pre><code>ZONE            Hodolin · Galombar · Bandeau
+  └── PROVINCE  476 unités, identifiant préfixé (H/G/B)
+        └── LIEU  4 234 unités, identifiant préfixé (HL/GL/BL)
+</code></pre>
+<p>À cela se superpose un découpage <strong>politique</strong> indépendant : les <strong>47 royaumes</strong>, qui ne recoupent pas exactement les provinces. Un lieu peut appartenir à une province sans royaume, ou à un royaume sans province.</p>
+<table>
+<thead>
+<tr>
+<th>Fait structurel</th>
+<th>Volume</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lieux rattachés à une province</td>
+<td>3 425</td>
+</tr>
+<tr>
+<td>Lieux <strong>hors province</strong> (franges du Bandeau, isolés)</td>
+<td>810</td>
+</tr>
+<tr>
+<td>Lieux rattachés à un royaume</td>
+<td>3 083</td>
+</tr>
+<tr>
+<td>Lieux <strong>hors royaume</strong> (Bandeau, territoires francs)</td>
+<td>1 152</td>
+</tr>
+</tbody>
+</table>
+<p>Ce n'est pas une lacune : l'absence de rattachement est une <strong>information</strong> — elle dit qu'un lieu ne relève d'aucune couronne.</p>
+<hr>
+<h2 id="2-les-identifiants">2. Les identifiants</h2>
+<p><strong>Règle d'or : le préfixe fait foi sur l'hémisphère.</strong> <code>id[0]</code> suffit à classer n'importe quelle entrée, sans calcul géométrique.</p>
+<table>
+<thead>
+<tr>
+<th>Préfixe</th>
+<th>Zone</th>
+<th>Provinces</th>
+<th>Lieux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H</strong> / <strong>HL</strong></td>
+<td>Hodolin</td>
+<td><code>H001</code>–<code>H200</code> (200)</td>
+<td>1 994</td>
+</tr>
+<tr>
+<td><strong>G</strong> / <strong>GL</strong></td>
+<td>Galombar</td>
+<td><code>G001</code>–<code>G182</code> (157)</td>
+<td>1 733</td>
+</tr>
+<tr>
+<td><strong>B</strong> / <strong>BL</strong></td>
+<td>Bandeau</td>
+<td><code>B001</code>–<code>B120</code> (119)</td>
+<td>507</td>
+</tr>
+</tbody>
+</table>
+<p>Les identifiants de lieux portent <strong>quatre chiffres</strong> (<code>HL0000</code>, <code>GL3438</code>, <code>BL4224</code>), ceux de provinces <strong>trois</strong> (<code>H050</code>, <code>G182</code>, <code>B060</code>). Les plages G et B comportent des trous : le numéro est un identifiant, pas un compteur.</p>
+<p><strong>Les identifiants sont stables et font autorité.</strong> <code>inventaire_noms.json</code> est la liste maîtresse : rien ne s'ajoute ni ne se renomme sans y passer. Le jeu, l'atlas et le lore accrochent tous leur contenu sur ces clés.</p>
+<hr>
+<h2 id="3-les-attributs-d-un-lieu">3. Les attributs d'un lieu</h2>
+<p>Trois fichiers portent des attributs complémentaires, chacun faisant foi sur son domaine.</p>
+<p><strong><code>inventaire_noms.json</code> — l'identité</strong> <em>(fait foi)</em>
+<code>id</code> · <code>nom</code> · <code>type</code> · <code>niveau</code> · <code>royaume</code> · <code>prov</code> · <code>prov_nom</code> · <code>zone</code></p>
+<p><strong><code>plateau.js</code> — la géométrie et le rôle</strong> <em>(fait foi)</em>
+<code>x</code> <code>y</code> (repère jeu) · <code>hex</code> (case) · <code>prov</code> · <code>zone</code> · <code>elem</code> · <code>niveau</code> · <code>stat</code> · <code>capitale</code> · <code>chef_lieu</code> · <code>ruine</code> · <code>merveille</code></p>
+<p><strong><code>geo_enrichment.json</code> — le terrain</strong> <em>(fait foi)</em>
+<code>alt_m</code> · <code>relief</code> · <code>pente_deg</code> · <code>littoral</code> · <code>dist_cote_km</code> · <code>hydro</code> · <code>temp_c</code> · <code>temp_band</code> · <code>biome_code</code> · <code>biome_label</code></p>
+<h3 id="3-1-le-type-cinq-categories-pas-cinq-realites">3.1 Le type — cinq catégories, pas cinq réalités</h3>
+<p>Cinq types, en distribution presque égale. Chacun correspond <strong>exactement</strong> à une caractéristique de personnage : la correspondance est de 1 pour 1, sans une exception sur 4 234 lieux.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Caractéristique</th>
+<th>Volume</th>
+<th>Ce que la catégorie recouvre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>civil</strong></td>
+<td>charisme</td>
+<td>883</td>
+<td>tout lieu habité — hameau, cité, campement, port</td>
+</tr>
+<tr>
+<td><strong>sanctuaire</strong></td>
+<td>savoir</td>
+<td>843</td>
+<td>tout lieu de culte — dogmes, cultes locaux, sagesses orales</td>
+</tr>
+<tr>
+<td><strong>academie</strong></td>
+<td>magie</td>
+<td>839</td>
+<td>tout lieu d'apprentissage — école, atelier de maître, transmission de veillée</td>
+</tr>
+<tr>
+<td><strong>guilde</strong></td>
+<td>exploration</td>
+<td>835</td>
+<td>tout lieu de service marchand — comptoir, placement, escorte</td>
+</tr>
+<tr>
+<td><strong>arene</strong></td>
+<td>force</td>
+<td>834</td>
+<td>tout lieu d'affrontement réglé — cercle, tribunal par combat, jeux</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Frontière lore / jeu — à comprendre correctement.</strong> Ces cinq types sont une <strong>abstraction de travail</strong>, pas un inventaire d'institutions. Le monde ne contient pas 839 académies au sens des <strong>huit Académies de Magie</strong> canoniques : « academie » recouvre <em>tout ce qui transmet un savoir</em>, de la haute école impériale au maître qui forme trois élèves sous un arbre. « Sanctuaire » range sous un mot unique une multitude de dogmes, de cultes et de cultures qui ne se reconnaîtraient pas entre eux.</p>
+<p>L'univers a été <strong>simplifié en cinq catégories pour le rendre travaillable</strong>. Ce sont des catégories, non des réalités figées : elles servent à ranger et à jouer, jamais à décrire exhaustivement. Le lore garde le droit d'être plus riche que sa grille de rangement — et la distribution presque égale (≈ 847 par caractéristique) est un équilibrage de partie, non un fait du monde.</p>
+<p>Conséquence pratique : une description doit être <strong>cohérente</strong> avec sa catégorie, sans jamais se limiter au mot. Un <code>sanctuaire</code> peut être un temple, un cercle de pierres, une barge, un arbre ou un silence — pourvu qu'on y révère quelque chose. Les grands lieux nommés du lore sont recensés à part (<a class="wiki-ref" href="geographie-reperes.html"><code>reperes.md</code></a>).</p>
+</blockquote>
+<h3 id="3-2-le-niveau-l-importance">3.2 Le niveau — l'importance</h3>
+<table>
+<thead>
+<tr>
+<th>Niveau</th>
+<th>Volume</th>
+<th>Calibre de description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>5</strong></td>
+<td>74</td>
+<td>paragraphe</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>242</td>
+<td>paragraphe</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>488</td>
+<td>2-3 phrases</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>970</td>
+<td>1-2 phrases</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>1 938</td>
+<td>1-2 phrases</td>
+</tr>
+<tr>
+<td><em>(nul)</em></td>
+<td>523</td>
+<td><strong>ruine</strong> — récit au passé, quel que soit le rang</td>
+</tr>
+</tbody>
+</table>
+<p>Un <code>niveau</code> nul <strong>signifie ruine</strong> : les deux champs sont redondants et doivent rester cohérents.</p>
+<h3 id="3-3-les-marqueurs-de-rang">3.3 Les marqueurs de rang</h3>
+<table>
+<thead>
+<tr>
+<th>Marqueur</th>
+<th>Volume</th>
+<th>Sens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capitale</code></td>
+<td>46</td>
+<td>capitale de royaume — toutes <code>civil</code> / niveau 5</td>
+</tr>
+<tr>
+<td><code>chef_lieu</code></td>
+<td>474</td>
+<td>chef-lieu de province</td>
+</tr>
+<tr>
+<td><code>merveille</code></td>
+<td>25</td>
+<td>repère canonique du lore → <a class="wiki-ref" href="geographie-reperes.html"><code>reperes.md</code></a></td>
+</tr>
+<tr>
+<td><code>ruine</code></td>
+<td>523</td>
+<td>lieu mort</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-l-element">3.4 L'élément</h3>
+<p><code>elem</code> porte la maîtresse élémentaire du lieu, distincte du biome.</p>
+<table>
+<thead>
+<tr>
+<th>Valeur</th>
+<th>Volume</th>
+<th>Nature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>terre · air · eau · feu</td>
+<td>1 140 · 746 · 744 · 704</td>
+<td>élémentaire (→ <a class="wiki-ref" href="geographie-biomes.html"><code>biomes.md</code></a>, <a class="wiki-ref" href="magie-affinites.html"><code>magie/affinites.md</code></a>)</td>
+</tr>
+<tr>
+<td><strong>pure</strong></td>
+<td>254</td>
+<td>énergie pure — Bandeau, îles primordiales</td>
+</tr>
+<tr>
+<td><strong>lumiere</strong> / <strong>ombre</strong></td>
+<td>192 / 147</td>
+<td>astral — abords des capitales impériales</td>
+</tr>
+<tr>
+<td><em>(nul)</em></td>
+<td>307</td>
+<td>non déterminé</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-5-le-terrain">3.5 Le terrain</h3>
+<p><strong>Relief</strong> (6) : plaine 2 872 · côte 864 · plateau 255 · montagne 176 · haute-montagne 55 · colline 12.
+<strong>Bande thermique</strong> (6) : froid 1 726 · tempéré 1 508 · glacial 412 · chaud 372 · aride 171 · brûlant 45.
+<strong>Hydrographie</strong> (3) : aucun 3 760 · rivière 466 · lac 8.
+<strong>Biomes</strong> (10) : plaine · toundra · banquise · Taïga · forêt tempérée · savane · jungle · désert aride · marais · montagne.
+<strong>Altitudes</strong> : de <strong>−16 092 m</strong> (fosses) à <strong>+12 749 m</strong> (sommets) — échelle fantasy, environ le double de la Terre, niveau de la mer à 0.</p>
+<blockquote>
+<p>Les altitudes négatives ne sont pas des erreurs : Sigrune, capitale des Zoo aquatiques, se tient à <strong>−7 037 m</strong>, entièrement immergée.</p>
+<p>⚠️ La <strong>température n'est pas mesurée</strong> : elle est dérivée de l'axe climatique vertical (Rhodalia chaud → Nobunaga froid, hémisphères en miroir) plus le refroidissement d'altitude. C'est une estimation, pas un relevé.</p>
+</blockquote>
+<hr>
+<h2 id="4-les-reperes-de-coordonnees">4. Les repères de coordonnées</h2>
+<p><strong>Trois repères coexistent.</strong> Ne jamais mélanger sans conversion explicite.</p>
+<table>
+<thead>
+<tr>
+<th>Repère</th>
+<th>Dimensions</th>
+<th>Frontière hémisphérique</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Master jeu</strong> (<code>plateau.js</code>, <code>*_formes.js</code>)</td>
+<td>3 260 × 4 650</td>
+<td>milieu = 2 325</td>
+<td>géométrie de référence</td>
+</tr>
+<tr>
+<td><strong>Canevas atlas</strong> (PNG, exports)</td>
+<td>3 425 × 4 730</td>
+<td><strong>y = 2 365</strong></td>
+<td>rendu, illustrations</td>
+</tr>
+<tr>
+<td><strong>Repère wiki_geo</strong></td>
+<td>X 130→3 275, Y 130→4 600</td>
+<td>—</td>
+<td>base atlas historique</td>
+</tr>
+</tbody>
+</table>
+<p>Dans tous les cas <strong>Y croît vers le bas</strong>, et la frontière entre hémisphères est le <strong>milieu vertical du canevas de travail</strong>. Le viewBox interne du SVG master est de 107 992 × 154 155 unités.</p>
+<p><strong>Grille hexagonale</strong> (<code>plateau.grille</code>) : <code>hex_w = 5.191161</code> · <code>hex_vs = 4.477379</code> · <code>ox = 71.94195</code> · <code>oy = 52.1675</code>. Cases de <code>[4, 4]</code> à <code>[621, 1028]</code>. Le lattice réel est <strong>légèrement anisotrope</strong> — ne pas l'idéaliser vers des valeurs rondes, la dérive atteindrait une demi-case aux bords. Les <code>x</code>/<code>y</code> sont la vérité SVG ; <code>hex</code> en est recalculé.</p>
+<hr>
+<h2 id="5-les-faces-primordiales">5. Les faces primordiales</h2>
+<p>Trois lieux primordiaux existent <strong>en deux faces</strong>, une par hémisphère. Chaque face est une province distincte.</p>
+<table>
+<thead>
+<tr>
+<th>Lieu</th>
+<th>Face Hodolin</th>
+<th>Face Galombar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Alde</strong></td>
+<td><code>B015</code> <strong>Sylvara</strong> (les branches)</td>
+<td><code>B075</code> <strong>Radin</strong> (les racines)</td>
+</tr>
+<tr>
+<td><strong>Fenir</strong></td>
+<td><code>B045</code> <strong>Elorn</strong> (branches chaotiques)</td>
+<td><code>B105</code> <strong>Mordorn</strong> (racines-griffes)</td>
+</tr>
+<tr>
+<td><strong>Nobunaga</strong></td>
+<td><code>B030</code></td>
+<td><code>B090</code></td>
+</tr>
+<tr>
+<td><strong>Rhodalia</strong></td>
+<td><code>B060</code> <strong>Plaines de Guerres</strong> (surface)</td>
+<td><em>la <strong>Cité de Rhodalia</strong> — absente de la carte</em></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Lacune connue</strong> : la <strong>face cachée de Rhodalia</strong> porte la <strong>Cité de Rhodalia</strong>, seul lieu primordial encore sans emplacement cartographique. Il n'y a pas de demeure d'Observateur à placer — celle de l'Observateur de l'Espace est la face <strong>exposée</strong>, les Plaines de Guerres (<a class="wiki-ref" href="cadre-guerre.html"><code>cadre/guerre.md</code></a> §1.2). Toutes les autres faces existent.</p>
+</blockquote>
+<hr>
+<h2 id="6-ce-qui-fait-foi-sur-quoi">6. Ce qui fait foi sur quoi</h2>
+<table>
+<thead>
+<tr>
+<th>Domaine</th>
+<th>Autorité</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identifiants, existence d'un lieu</td>
+<td><code>inventaire_noms.json</code></td>
+</tr>
+<tr>
+<td>Géométrie, position, rôle de jeu</td>
+<td><code>plateau.js</code></td>
+</tr>
+<tr>
+<td>Terrain (relief, climat, biome)</td>
+<td><code>geo_enrichment.json</code></td>
+</tr>
+<tr>
+<td>Noms et descriptions</td>
+<td><code>geographie/data/*.json</code></td>
+</tr>
+<tr>
+<td>Registres onomastiques</td>
+<td><a class="wiki-ref" href="geographie-toponymie.html"><code>toponymie.md</code></a></td>
+</tr>
+<tr>
+<td>Lieux canoniques du lore</td>
+<td><a class="wiki-ref" href="geographie-reperes.html"><code>reperes.md</code></a></td>
+</tr>
+<tr>
+<td>Modèle de projection, nomenclature</td>
+<td><strong>le présent document</strong></td>
+</tr>
+<tr>
+<td>Cosmologie, grands traits</td>
+<td><a class="wiki-ref" href="codex.html"><code>codex.md</code></a> §3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Règle de résolution.</strong> Quand une description contredit un attribut, <strong>l'attribut gagne</strong> et le texte est refondu. L'inverse a produit, dans l'atlas historique, des académies de lave sur banquise et des tourbières à cinq mille mètres.</p>
+<hr>
+<h2 id="7-lacunes-decisions-ouvertes">7. Lacunes &amp; décisions ouvertes</h2>
+<ol>
+<li><strong><code>B120</code></strong> — province présente à l'inventaire, <strong>sans géométrie</strong> dans <code>plateau.js</code>. À digitaliser.</li>
+<li><strong>Face cachée de Rhodalia</strong> — elle porte la <strong>Cité de Rhodalia</strong>, qui reste absente de la carte (§5). Seul lieu primordial sans emplacement ; ce n'est pas une « cité d'Observateur ».</li>
+</ol>
+<hr>
+<h2 id="8-nommage-acte">8. Nommage acté</h2>
+<p>Les <strong>trois royaumes Zoo</strong> sont nommés (validé le 2026-07-24) :</p>
+<table>
+<thead>
+<tr>
+<th>Branche</th>
+<th>Nom canonique</th>
+<th>Capitale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zoo polaires</td>
+<td><strong>Ritivara</strong></td>
+<td>Quchariti</td>
+</tr>
+<tr>
+<td>Zoo volants</td>
+<td><strong>Wayravara</strong></td>
+<td>Sacsatlantlan <em>(<code>HL0021</code>)</em></td>
+</tr>
+<tr>
+<td>Zoo aquatiques</td>
+<td><strong>Yakuvara</strong></td>
+<td>Sigrune <em>(immergée, −7 037 m)</em></td>
+</tr>
+</tbody>
+</table>
+<p>Les <strong>65 provinces du Bandeau</strong> proposées au registre proto-rhodalien de facto sont également <strong>validées</strong> (2026-07-24). L'ensemble des 476 provinces porte désormais un nom canonique.</p>
+</article>
