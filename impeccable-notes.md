@@ -259,11 +259,21 @@ Faux positif du détecteur (`dark-glow` l.45, halo de lisibilité du fond Parche
 
 ### Constats nouveaux, apparus en testant (non corrigés)
 
-**N1. Les libellés de ROYAUME n'ont aucun seuil de zoom — chevauchement massif au dézoom.**
-Très visible sur mobile au zoom 1 : « Empire Hodolin », « Thalassorn », « Karambar »… se superposent en un bloc illisible. Les provinces ont pourtant un seuil (`provLabelSync`, z≥4) et les lieux aussi (`lblRevZoom`), mais les royaumes sont créés une fois dans `simpleLayer` **sans aucun filtrage par zoom** — ils s'affichent donc à tous les niveaux, y compris là où le monde entier tient dans 300 px.
-→ Leur appliquer un seuil (masquer sous z≈2,5), ou réduire la taille de police au dézoom.
-IMPACT : **FORT** (c'est le premier écran que voit un visiteur mobile) — EFFORT : **FAIBLE**
-*Préexistant, sans lien avec les correctifs de cette passe.*
+**N1. ✅ Les libellés de ROYAUME n'avaient aucun seuil de zoom — chevauchement massif au dézoom. CORRIGÉ.**
+Très visible sur mobile au zoom 1 : « Empire Hodolin », « Thalassorn », « Karambar »… en un bloc illisible. Les provinces ont pourtant un seuil (`provLabelSync`, z≥4) et les lieux aussi (`lblRevZoom`) ; les royaumes étaient créés une fois dans `simpleLayer` **sans aucun filtrage**.
+**Correctif retenu — révélation progressive par SUPERFICIE**, plutôt qu'un seuil uniforme : superficie calculée par la formule du lacet sur la géométrie, puis seuil échelonné de z1,5 (les plus vastes) à z4 (les plus petits), par pas de 0,5. Cohérent avec le langage déjà en place (lieux révélés par rareté, routes par classe). Les royaumes sans polygone (Yakuvara, maritime) reçoivent le rang médian.
+Effet narratif heureux : les **deux Empires apparaissent en premier** (Galombar, Hodolin, puis Gjallvik, Vivara, Eldvarr).
+
+Chevauchement mesuré (paires de libellés qui se recouvrent) :
+
+| zoom | avant | après |
+|---|---|---|
+| 1 | **96 %** des libellés touchés, 64 paires | 0 libellé affiché (aplats seuls) |
+| 1,5 | 77 %, 32 paires | 5 affichés, **0 chevauchement** |
+| 2 | 36 %, 11 paires | 14 affichés, **1 paire** |
+| 3 | 4 %, 1 paire | 33 affichés, **0 chevauchement** |
+
+Vérifié aussi : les seuils sont réappliqués après un décochage/recochage de la couche (Leaflet recrée les icônes).
 
 **N2. Deux 404 préexistants et sans gravité** : `lib/images/layers-2x.png` (icône rétine du sélecteur de couches, jamais livrée avec Leaflet ici) et `favicon.ico` (absent). Aucun des deux n'est référencé par `index.html`. IMPACT : **FAIBLE** — EFFORT : **FAIBLE**
 

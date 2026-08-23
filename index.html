@@ -195,17 +195,38 @@ function royPopup(p){
   if(p.np) h+='<div class="meta">anciennement « '+p.n+' »</div>';
   h+='<div class="desc">'+p.d+'</div></div>'; return h;
 }
+/* superficie approx. en coords monde (formule du lacet) : sert à classer les royaumes */
+function ringArea(r){let s=0;for(let i=0,n=r.length;i<n;i++){const a=r[i],b=r[(i+1)%n];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+function geoArea(g){ if(!g)return -1;                       // -1 = aucun polygone (Yakuvara, maritime)
+  if(g.type==='Polygon')return ringArea(g.coordinates[0]);
+  if(g.type==='MultiPolygon')return g.coordinates.reduce((s,p)=>s+ringArea(p[0]),0);
+  return -1; }
+let royLbl=[];                                              // {m, rev} : libellé + seuil de zoom
+function royZoom(){ const z=map.getZoom();
+  royLbl.forEach(o=>{ if(o.m._icon) o.m._icon.style.display = z>=o.rev ? '' : 'none'; }); }
 const royaumes=simpleLayer('Royaumes','royaumes',(d,g)=>{
   gj(d,{ renderer:royRenderer, pane:'roy',
     style:f=>{const c=f.properties.c||[136,136,136];
       return {color:'#20242c',weight:.7,opacity:.45,
               fillColor:'rgb('+c[0]+','+c[1]+','+c[2]+')',fillOpacity:.5};}
   }).addTo(g);
-  d.features.forEach(f=>{const p=f.properties; if(!p.lp)return;
+  // Les libellés n'avaient AUCUN seuil de zoom : en vue monde, 47 noms en 18px se
+  // superposaient en un bloc illisible (provinces et lieux, eux, se révèlent au zoom).
+  // Révélation progressive par SUPERFICIE : les plus vastes d'abord (z 1.5), les plus
+  // petits en dernier (z 4) -> la vue monde ne garde que les grands ensembles.
+  const fs=d.features.filter(f=>f.properties.lp).map(f=>({f,a:geoArea(f.geometry)}));
+  const pos=fs.map(o=>o.a).filter(a=>a>0).sort((x,y)=>x-y);
+  const med=pos.length?pos[Math.floor(pos.length/2)]:0;
+  fs.forEach(o=>{ if(o.a<0)o.a=med; });                     // sans polygone -> rang médian
+  fs.sort((x,y)=>y.a-x.a);
+  const N=Math.max(1,fs.length-1);
+  fs.forEach((o,i)=>{ const p=o.f.properties;
     const m=L.marker(c2ll(p.lp),{interactive:!!p.d,keyboard:false,
       icon:L.divIcon({className:'roylbl'+(p.d?' clic':''),html:(p.np||p.n),iconSize:[0,0]})}).addTo(g);
     if(p.d) m.bindPopup(royPopup(p),{maxWidth:340});
+    royLbl.push({m, rev:1.5+Math.round((i/N)*5)/2});        // 1.5 -> 4, par pas de 0.5
   });
+  royZoom();
 });
 
 let provOn=false,provLayer=null;
@@ -368,9 +389,10 @@ function updateDecor(){const on=document.body.classList.contains('parch')&&map.g
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
 
-map.on('overlayadd',e=>{overlayDefs[e.name]&&overlayDefs[e.name].add(); buildLegend();});
+// royZoom() : réafficher la couche recrée les icônes -> il faut réappliquer les seuils
+map.on('overlayadd',e=>{overlayDefs[e.name]&&overlayDefs[e.name].add(); buildLegend(); royZoom();});
 map.on('overlayremove',e=>{overlayDefs[e.name]&&overlayDefs[e.name].remove(); buildLegend();});
-map.on('zoomend',()=>{rivUpdate();routes.zoom&&routes.zoom();routesMer.zoom&&routesMer.zoom();provUpdate();lieuxSync();});
+map.on('zoomend',()=>{rivUpdate();routes.zoom&&routes.zoom();routesMer.zoom&&routesMer.zoom();provUpdate();lieuxSync();royZoom();});
 map.on('moveend',()=>{lieuxSync(); provLabelSync();});
 
 /* ===== couches actives par défaut ===== */
