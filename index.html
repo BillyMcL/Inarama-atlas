@@ -48,14 +48,26 @@
   body.parch .lbl{font-family:'IMFell',Georgia,serif;font-weight:400;font-size:13px;color:#3f2c18;
     text-shadow:0 0 3px #ece0c6,0 0 3px #ece0c6,0 0 4px #ece0c6,0 1px 1px #ece0c6}
   #legend{position:absolute;left:10px;bottom:46px;z-index:600;background:rgba(16,20,28,.9);
-    border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:190px;
-    box-shadow:0 4px 16px rgba(0,0,0,.5)}
-  #legend b{display:block;margin:6px 0 4px;font-size:10px;letter-spacing:.06em;color:#93a3b4;text-transform:uppercase}
-  #legend b:first-child{margin-top:0}
+    box-sizing:border-box;  /* sinon max-width ne compte pas padding+bordure (+24px) */
+    border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:196px;
+    max-height:58vh;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+  #legend b{display:block;margin:7px 0 4px;font-size:10px;letter-spacing:.06em;color:#93a3b4;text-transform:uppercase}
+  #legend b:first-of-type{margin-top:0}
   #legend .row{display:flex;align-items:center;gap:6px;margin:2px 0}
   #legend .sw{width:14px;height:14px;flex:none;display:flex;align-items:center;justify-content:center}
   #legend .dot{width:11px;height:11px;border-radius:50%;flex:none}
-  #legend .hide{cursor:pointer;position:absolute;right:8px;top:6px;opacity:.6}
+  #legend .swi{width:21px;height:21px;flex:none;margin:-3px 0}
+  #legend .swl{width:24px;height:10px;flex:none}
+  #legend .note{color:#8fa0b2;font-size:10px;line-height:1.35;margin:1px 0 2px}
+  #legend .hd{font-weight:700;color:#e8eaed;font-size:12px;margin-bottom:5px;position:sticky;top:0;
+    background:rgba(16,20,28,.98);padding-bottom:3px}
+  #legend .hd span{cursor:pointer;float:right;opacity:.6;padding:0 2px}
+  /* bouton de réouverture : la légende n'était refermable que définitivement */
+  #legendBtn{position:absolute;left:10px;bottom:46px;z-index:600;display:none;
+    background:rgba(16,20,28,.9);border:1px solid #2a3440;border-radius:9px;color:#c9d3de;
+    font:600 11px/1 system-ui,Arial,sans-serif;padding:0 14px;min-height:40px;cursor:pointer;
+    box-sizing:border-box;box-shadow:0 4px 16px rgba(0,0,0,.5)}   /* 40px : cible tactile */
+  #legendBtn.on{display:block}
   #tlegend{position:absolute;right:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.92);
     border:1px solid #2a3440;border-radius:9px;padding:8px 6px 8px 11px;font-size:11px;
     max-height:62vh;overflow-y:auto;width:150px;box-shadow:0 4px 16px rgba(0,0,0,.5);display:none}
@@ -76,13 +88,17 @@
   .ina-scale{border:2px solid #b9c6d4;border-top:none;background:rgba(16,20,28,.72);
     color:#eaf0f6;font:600 10px/1 system-ui,Arial,sans-serif;letter-spacing:.03em;
     padding:3px 2px;text-align:center;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.45)}
-  @media(max-width:640px){#legend{display:none}#tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
+  /* mobile : la légende n'est plus SUPPRIMÉE (on perdait toute clé de lecture) mais
+     simplement repliée par défaut, rouvrable par #legendBtn */
+  @media(max-width:640px){#legend{max-height:50vh;max-width:172px}
+    #tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="brand">INARAMA<small>ATLAS DU MONDE</small></div>
 <div id="legend"></div>
+<button id="legendBtn" type="button" onclick="legendToggle(true)">Légende</button>
 
 <script>
 window.INARAMA_BUILD='2026-07-24m';   // bump à chaque mise à jour de données (cache-busting)
@@ -237,10 +253,12 @@ function sizeForZoom(z){return Math.round(Math.min(23, 11 + Math.max(0,z-2)*2.0)
 function ptsPoly(cx,cy,r,n,rot){let a=[];for(let i=0;i<n;i++){let t=rot+i*2*Math.PI/n;a.push((cx+r*Math.cos(t)).toFixed(1)+','+(cy+r*Math.sin(t)).toFixed(1));}return a.join(' ');}
 function ptsStar(cx,cy,r,n,rot,f){let a=[];for(let i=0;i<2*n;i++){let rr=i%2?r*f:r;let t=rot+i*Math.PI/n;a.push((cx+rr*Math.cos(t)).toFixed(1)+','+(cy+rr*Math.sin(t)).toFixed(1));}return a.join(' ');}
 const iconCache={};
-function lieuIcon(type,niv,star,s){
-  const key=type+'|'+niv+'|'+star+'|'+s;
-  if(iconCache[key])return iconCache[key];
-  const col=rarCol(niv), pad=3, S=Math.ceil(s+pad*2), c=S/2, r=s/2;
+const HIT=32;   // zone de clic minimale (px). L'icône VISIBLE garde sa taille : on n'élargit
+                // que la boîte transparente autour. Compromis assumé : 44px (recommandation
+                // tactile) masquerait trop les libellés de province en zone dense.
+// dessine la forme (taille visuelle s) centrée dans une boîte S ; S>s = marge transparente
+function lieuSvg(type,niv,star,s,S){
+  const col=rarCol(niv), c=S/2, r=s/2;
   const ol='stroke="#232323" stroke-width="1.1"';
   let shape;
   if(star===1) shape=`<polygon points="${ptsStar(c,c,r*1.05,5,-Math.PI/2,0.42)}" fill="${col}" ${ol}/>`;
@@ -251,8 +269,14 @@ function lieuIcon(type,niv,star,s){
       circ=R=>`M${(c-R).toFixed(1)},${c.toFixed(1)} a${R.toFixed(1)},${R.toFixed(1)} 0 1,0 ${(2*R).toFixed(1)},0 a${R.toFixed(1)},${R.toFixed(1)} 0 1,0 ${(-2*R).toFixed(1)},0Z`;
     shape=`<path d="${circ(Ro)} ${circ(Ri)}" fill-rule="evenodd" fill="${col}" ${ol}/>`; }
   else shape=`<circle cx="${c}" cy="${c}" r="${r*0.9}" fill="${col}" ${ol}/>`;
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${shape}</svg>`;
-  const ic=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(svg),iconSize:[S,S],iconAnchor:[c,c]});
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${shape}</svg>`;
+}
+function lieuIcon(type,niv,star,s){
+  const key=type+'|'+niv+'|'+star+'|'+s;
+  if(iconCache[key])return iconCache[key];
+  const S=Math.max(Math.ceil(s+6),HIT), c=S/2;
+  const ic=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(lieuSvg(type,niv,star,s,S)),
+                   iconSize:[S,S],iconAnchor:[c,c]});
   return iconCache[key]=ic;
 }
 function popupHtml(p){
@@ -344,8 +368,8 @@ function updateDecor(){const on=document.body.classList.contains('parch')&&map.g
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
 
-map.on('overlayadd',e=>overlayDefs[e.name]&&overlayDefs[e.name].add());
-map.on('overlayremove',e=>overlayDefs[e.name]&&overlayDefs[e.name].remove());
+map.on('overlayadd',e=>{overlayDefs[e.name]&&overlayDefs[e.name].add(); buildLegend();});
+map.on('overlayremove',e=>{overlayDefs[e.name]&&overlayDefs[e.name].remove(); buildLegend();});
 map.on('zoomend',()=>{rivUpdate();routes.zoom&&routes.zoom();routesMer.zoom&&routesMer.zoom();provUpdate();lieuxSync();});
 map.on('moveend',()=>{lieuxSync(); provLabelSync();});
 
@@ -354,15 +378,49 @@ map.on('moveend',()=>{lieuxSync(); provLabelSync();});
   overlays[n].addTo(map); o.add();
 });
 
-/* ===== légende ===== */
-const shapeSwatch={civil:'●',arene:'○',academie:'▲',guilde:'◆',sanctuaire:'✷'};
-document.getElementById('legend').innerHTML=
-  '<span class="hide" onclick="this.parentNode.style.display=\'none\'">✕</span>'+
-  '<b>Rareté (niveau)</b>'+
-  [[5,'légendaire'],[4,'très rare'],[3,'rare'],[2,'peu commun'],[1,'commun']].map(([n,t])=>
-    '<div class="row"><span class="dot" style="background:'+RAR[n]+'"></span>'+n+' — '+t+'</div>').join('')+
-  '<b>Type de lieu</b>'+
-  Object.entries(shapeSwatch).map(([k,s])=>'<div class="row"><span class="sw">'+s+'</span>'+k+'</div>').join('');
+/* ===== légende CONTEXTUELLE : n'affiche que les couches réellement actives =====
+   (avant : une seule section « Lieux », figée, pour 8 couches — et refermable
+   définitivement, sans aucun moyen de la rouvrir) */
+let legendOpen=window.innerWidth>640;   // mobile : repliée par défaut, PLUS jamais supprimée
+function legendToggle(v){ legendOpen=v;
+  document.getElementById('legend').style.display=v?'block':'none';
+  document.getElementById('legendBtn').classList.toggle('on',!v); }
+// échantillons conformes aux styles réels des couches
+function swLine(col,w,dash,op){ return '<svg class="swl" viewBox="0 0 24 10">'+
+  '<line x1="1" y1="5" x2="23" y2="5" stroke="'+col+'" stroke-width="'+Math.max(w,1.1)+'"'+
+  (dash?' stroke-dasharray="'+dash+'"':'')+' stroke-linecap="round" opacity="'+(op||1)+'"/></svg>'; }
+// vignette générée par lieuSvg = le marqueur RÉEL (les glyphes texte ● ▲ ✷ n'y correspondaient pas)
+function swMk(type,star){ return '<img class="swi" alt="" src="data:image/svg+xml,'+
+  encodeURIComponent(lieuSvg(type,3,star,15,21))+'">'; }
+// déclaration de fonction (hoistée) : buildLegend est appelée par overlayadd DÈS l'init,
+// avant ce bloc — un const/arrow serait en zone morte temporelle
+function legRow(sw,txt){ return '<div class="row">'+sw+'<span>'+txt+'</span></div>'; }
+
+function buildLegend(){
+  const el=document.getElementById('legend'); if(!el)return;
+  const on=n=>overlays[n]&&map.hasLayer(overlays[n]), S=[];
+  if(on('Lieux')){
+    S.push('<b>Rareté du lieu</b>'+[[5,'légendaire'],[4,'très rare'],[3,'rare'],[2,'peu commun'],[1,'commun']]
+      .map(([n,t])=>legRow('<span class="dot" style="background:'+RAR[n]+'"></span>',n+' — '+t)).join(''));
+    S.push('<b>Type de lieu</b>'+[['civil','civil'],['arene','arène'],['academie','académie'],
+      ['guilde','guilde'],['sanctuaire','sanctuaire']].map(([k,t])=>legRow(swMk(k,0),t)).join('')+
+      legRow(swMk('civil',1),'capitale / étoile'));
+  }
+  if(on('Royaumes')) S.push('<b>Royaumes</b><div class="note">Aplat coloré, un ton par royaume ; le nom est gravé sur le territoire.</div>');
+  if(on('Provinces')) S.push('<b>Provinces</b>'+legRow(swLine('#111111',1.4,0,.85),'limite de province'));
+  if(on('Rivières')) S.push('<b>Rivières (débit)</b>'+legRow(swLine('#5a97cf',1.9,0,.9),'fort')+
+    legRow(swLine('#5a97cf',1.2,0,.9),'moyen')+legRow(swLine('#5a97cf',.8,0,.9),'faible'));
+  if(on('Routes')) S.push('<b>Routes</b>'+legRow(swLine(rtCol,1.9,0,.85),'grand axe')+
+    legRow(swLine(rtCol,1.2,0,.8),'secondaire')+legRow(swLine(rtCol,.7,0,.75),'locale')+
+    legRow(swLine(rtCol,.5,'2,3',.7),'piste'));
+  if(on('Routes maritimes')) S.push('<b>Routes maritimes</b>'+legRow(swLine('#3f8fa0',1.4,'5,5',.8),'grande ligne')+
+    legRow(swLine('#3f8fa0',1,'4,5',.75),'secondaire')+legRow(swLine('#3f8fa0',.7,'3,4',.7),'cabotage'));
+  if(on('Courants marins')) S.push('<b>Courants marins</b>'+legRow(swLine('#5fb0d8',1.4,0,.6),'sens du courant'));
+  if(on('Terres sauvages')) S.push('<b>Terres sauvages</b><div class="note">Élément par couleur : voir le panneau dédié, à droite.</div>');
+  if(!S.length) S.push('<div class="note">Aucune couche active — ouvrez le sélecteur en haut à droite.</div>');
+  el.innerHTML='<div class="hd">Légende<span onclick="legendToggle(false)" title="Masquer">✕</span></div>'+S.join('');
+}
+buildLegend(); legendToggle(legendOpen);
 
 /* ===== légende Terres sauvages (élément → couleur, exact QGIS) ===== */
 const TERRES_LEG=[

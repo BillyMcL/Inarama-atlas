@@ -228,8 +228,8 @@ IMPACT : **FAIBLE** — EFFORT : **FAIBLE**
 1. ✅ **C1 — Corriger la race condition de toggle rapide** (garde synchrone avant `INARAMA.load`). Protège Lieux/Provinces/Routes/Rivières/Terres sauvages contre des calques fantômes définitivement non retirables. **FAIT.**
 2. ✅ **H1 — Ajouter l'échelle graphique**. Comble un manque fondamental pour un outil dont la mission est l'info géographique. **FAIT** (contrôle sur mesure : `L.control.scale` suppose des mètres géographiques, incompatible avec `CRS.Simple` — calcul en km réels via `RES`).
 3. ✅ **C7 — Réévaluer le repli du contrôle de couches au redimensionnement**. **FAIT** (repli seulement en rétrécissant, jamais de dépliage automatique).
-4. **L1 + L3 — Étendre et sécuriser la légende** (couvrir les couleurs Royaumes/Provinces + classes Routes ; ne plus la faire disparaître intégralement sous 640px sans repli). Deux correctifs liés, même zone de code.
-5. **E1 — Agrandir la zone de clic tactile des marqueurs** sans changer leur taille visuelle. Correctif ciblé (iconSize/marqueur transparent superposé), impact direct sur le taux de faux-clics mobile.
+4. ✅ **L1 + L3 — Étendre et sécuriser la légende**. **FAIT** — légende désormais **contextuelle** (une section par couche active, 8 couches couvertes), plus jamais supprimée sur mobile (repliée + bouton de réouverture). Emporte aussi **L2** (fermeture irréversible) et **L4** (vignettes = vrais marqueurs).
+5. ✅ **E1 — Agrandir la zone de clic tactile des marqueurs**. **FAIT** — boîte portée à 32 px, visuel strictement inchangé.
 
 ---
 
@@ -244,8 +244,27 @@ Tous vérifiés en navigateur sur serveur local, pas seulement relus.
 | C7 | Repli du contrôle de couches au `resize` (débounce 200 ms) | Passage 1014 px → 375 px : contrôle replié ✔ |
 | — | `#legend` remonté de `bottom:14px` → `46px` | Aucune collision échelle/légende/attribution (18 px d'écart mesuré) |
 
-Effet de bord favorable : l'échelle **reste visible sur mobile**, là où `#legend` est masquée (`display:none` sous 640 px) — un repère de lecture subsiste en attendant le correctif L3.
+| L1 | Légende **contextuelle** : `buildLegend()` reconstruit sur `overlayadd`/`overlayremove`, une section par couche réellement active. Les 8 couches sont couvertes (rareté, types, royaumes, provinces, rivières ×3 débits, routes ×4 classes, maritimes ×3, courants) | 2 couches actives → 3 sections ; 8 actives → 9 sections + **12 échantillons de lignes** ; 0 active → message explicite. Réactif dans les deux sens |
+| L2+L3 | Légende **repliable et rouvrable** (`#legendBtn`), repliée par défaut sous 640 px au lieu d'être supprimée | Mobile : repliée au chargement, bouton **73×40 px** (cible tactile), réouverture OK, tient dans l'écran (46 % de la largeur) |
+| L4 | Vignettes de la légende générées par `lieuSvg()` = **les marqueurs réels** (les glyphes texte `●▲✷` ne correspondaient pas aux SVG dessinés) | 6 vignettes rendues, formes conformes ; ligne « capitale / étoile » ajoutée (absente avant) |
+| E1 | Zone de clic des marqueurs portée à **32 px** via marge transparente ; refactor `lieuSvg(type,niv,star,s,S)` partagé | Boîte 17 → 32 px (**×1,88** en largeur, ≈×3,5 en surface) ; rayon dessiné mesuré **5,8** = attendu 5,78 → **visuel strictement inchangé** |
+
+Effet de bord favorable : l'échelle **reste visible sur mobile**, là où `#legend` était auparavant purement supprimée.
+
+**Deux pièges rencontrés (et corrigés) pendant l'implémentation, à retenir :**
+- `buildLegend()` est appelée par `overlayadd` **dès l'initialisation**, avant le bloc légende : tout `const`/arrow utilisé dedans est en **zone morte temporelle**. `legRow` a dû passer en déclaration de fonction (hoistée), et les `getElementById` être faits *dans* les fonctions. Erreur trouvée en console, pas à la relecture.
+- `max-width` s'applique à la **boîte de contenu** : la légende faisait 196 px au lieu des 172 attendus (+24 px de padding/bordure). Corrigé par `box-sizing:border-box`.
 
 Faux positif du détecteur (`dark-glow` l.45, halo de lisibilité du fond Parchemin) sanctionné explicitement via `hook-admin.mjs ignore-value dark-glow "#ece0c6"`.
+
+### Constats nouveaux, apparus en testant (non corrigés)
+
+**N1. Les libellés de ROYAUME n'ont aucun seuil de zoom — chevauchement massif au dézoom.**
+Très visible sur mobile au zoom 1 : « Empire Hodolin », « Thalassorn », « Karambar »… se superposent en un bloc illisible. Les provinces ont pourtant un seuil (`provLabelSync`, z≥4) et les lieux aussi (`lblRevZoom`), mais les royaumes sont créés une fois dans `simpleLayer` **sans aucun filtrage par zoom** — ils s'affichent donc à tous les niveaux, y compris là où le monde entier tient dans 300 px.
+→ Leur appliquer un seuil (masquer sous z≈2,5), ou réduire la taille de police au dézoom.
+IMPACT : **FORT** (c'est le premier écran que voit un visiteur mobile) — EFFORT : **FAIBLE**
+*Préexistant, sans lien avec les correctifs de cette passe.*
+
+**N2. Deux 404 préexistants et sans gravité** : `lib/images/layers-2x.png` (icône rétine du sélecteur de couches, jamais livrée avec Leaflet ici) et `favicon.ico` (absent). Aucun des deux n'est référencé par `index.html`. IMPACT : **FAIBLE** — EFFORT : **FAIBLE**
 
 Questions skipped: rapport livré tel quel par contrainte explicite du brief (« ne me demande pas de valider quoi que ce soit en cours de route »).
