@@ -42,7 +42,7 @@
                    carte dessus. Pas de fondu non plus : une carte posee a un
                    bord. */
   const FOND_CARTE = {
-    Parchemin: { mode: 'scene',     img: 'img/table-bois.jpg',  col: '#4d341e', fondu: 0 },
+    Parchemin: { mode: 'scene',     img: null,                  col: '#0c0603', fondu: 0 },  // au-dela de la video : noir chaud, pas l'ancienne table
     Satellite: { mode: 'adaptatif',                             col: '#05122e', fondu: 0.06 },
     Terrain:   { mode: 'texture',   img: 'img/fond-terrain.jpg', col: '#040317', pas: 2048, fondu: 0.06 },
   };
@@ -70,14 +70,13 @@
     if (f.mode === 'adaptatif') {
       c.style.backgroundImage = 'none';
     } else {
-      c.style.backgroundImage = "url('" + f.img + v + "')";
       if (f.mode === 'scene') {
-        // la table ne bouge pas : c'est la carte qui glisse dessus
-        c.style.backgroundRepeat = 'no-repeat';
-        c.style.backgroundSize = 'cover';
-        c.style.backgroundPosition = 'center center';
-        c.style.backgroundAttachment = 'scroll';
+        // la table est portee par la VIDEO (qui zoome avec la carte) ; au-dela
+        // d'elle, on ne veut pas l'ancienne texture claire mais le noir chaud
+        // de son propre bord vignette, pour que le hors-champ se fonde.
+        c.style.backgroundImage = 'none';
       } else {
+        c.style.backgroundImage = "url('" + f.img + v + "')";
         c.style.backgroundRepeat = 'repeat';
         c.style.backgroundSize = f.pas + 'px ' + f.pas + 'px';
         caleFond();
