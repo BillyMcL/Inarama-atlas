@@ -13,7 +13,10 @@
      theme.js pose la couleur en style inline sur cet élément — c'est la
      seule portée qui ne se fasse pas écraser par les variables de <body>. */
   .leaflet-container{background:#000;font-family:var(--f-ui);
-    transition:background .25s ease}
+    /* PAS le raccourci "background" : il couvrirait background-size et
+       background-position, que theme.js recale a chaque frame du deplacement —
+       le fond traînerait un quart de seconde derriere la carte. */
+    transition:background-color .25s ease}
   /* le chevron du sélecteur de couches : image absente du dépôt, on la dessine */
   a.leaflet-control-layers-toggle{background-image:none}
   a.leaflet-control-layers-toggle::before{content:"\2630";font-size:19px;
@@ -43,7 +46,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-24b">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -64,7 +67,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-24a';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-24b';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -433,9 +436,9 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js"></script>
-<script src="js/panel.js"></script>
-<script src="js/explo.js"></script>
-<script src="js/search.js"></script>
+<script src="js/theme.js?v=2026-08-24b"></script>
+<script src="js/panel.js?v=2026-08-24b"></script>
+<script src="js/explo.js?v=2026-08-24b"></script>
+<script src="js/search.js?v=2026-08-24b"></script>
 </body>
 </html>

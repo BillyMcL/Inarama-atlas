@@ -28,19 +28,23 @@
   }
 
   /* Fond derrière la carte. Il dépend du FOND DE CARTE, jamais du thème :
-     Nocturne/Grimoire n'ont rien à voir là-dedans.
-     Valeurs = médiane de l'anneau de bord du contenu, mesurée sur la mosaïque
-     complète du zoom 3 — c'est exactement ce qui touche le fond de page.
-     Pas de texture répétée : le motif se voyait, et à l'échelle où ce fond est
-     visible (dézoomé) le grain de la carte ne se lit pas. */
-  /* Le fond reprend la TEXTURE même des tuiles, prélevée au zoom 7 (détail
-     maximal) et rendue répétable par décalage-fondu — pas par miroir, qui
-     fabriquait un motif en losange bien visible. Un aplat ne pouvait pas
-     se raccorder : les trois fonds ont du grain. */
+     Nocturne/Grimoire n'ont rien à voir là-dedans. Un aplat ne pouvait pas
+     se raccorder — les trois fonds ont du grain.
+
+     Terrain et Satellite : texture prélevée sur les tuiles au zoom 7 (détail
+     maximal), rendue répétable par décalage-fondu — pas par miroir, qui
+     fabriquait un motif en losange bien visible.
+     Parchemin : régénéré procéduralement (base + fBm à spectre périodique),
+     parce que l'échantillon prélevé attrapait les vaguelettes de l'océan et
+     les transformait en stries.
+
+     Troisième valeur = largeur du motif en pixels du zoom 7, c'est-à-dire en
+     pixels du raster d'origine. C'est elle qui permet de suivre l'échelle. */
+  const MAXZ = 7;
   const FOND_CARTE = {
-    Parchemin: ['#d2b689', 'img/fond-parchemin.jpg'],
-    Satellite: ['#04152e', 'img/fond-satellite.jpg'],
-    Terrain:   ['#050418', 'img/fond-terrain.jpg'],
+    Parchemin: ['#d5b98c', 'img/fond-parchemin.jpg', 512],
+    Satellite: ['#04152e', 'img/fond-satellite.jpg', 256],
+    Terrain:   ['#050418', 'img/fond-terrain.jpg',   256],
   };
   let baseCourante = 'Terrain';
 
@@ -50,7 +54,27 @@
     const c = document.querySelector('.leaflet-container');
     if (!c) return;
     const [col, img] = FOND_CARTE[baseCourante];
-    c.style.background = col + " url('" + img + "') repeat";
+    // le fichier image change de contenu sans changer de nom : on le version,
+    // sinon un visiteur deja venu garde l'ancienne texture en cache
+    const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
+    c.style.background = col + " url('" + img + v + "') repeat";  // écrase taille et position
+    caleFond();
+  }
+
+  /* La texture de la carte GRANDIT avec le zoom et GLISSE quand on déplace.
+     Une texture de fond figée en pixels d'écran ne peut donc coller qu'à un
+     seul zoom : d'où la couture qui réapparaissait dès qu'on zoomait.
+     On la met à la même échelle que la carte, et on la fait suivre le même
+     décalage que le volet des tuiles. Le navigateur filtre lui-même la
+     réduction, exactement comme les tuiles des zooms bas sont sous-échantillonnées. */
+  function caleFond() {
+    const c = document.querySelector('.leaflet-container'); if (!c) return;
+    const m = window.map; if (!m) return;
+    const ref = FOND_CARTE[baseCourante][2];
+    const t = Math.max(6, Math.min(8192, ref * Math.pow(2, m.getZoom() - MAXZ)));
+    c.style.backgroundSize = t.toFixed(2) + 'px ' + t.toFixed(2) + 'px';
+    const o = L.DomUtil.getPosition(m.getPane('mapPane'));
+    c.style.backgroundPosition = o ? (o.x % t) + 'px ' + (o.y % t) + 'px' : '';
   }
 
   /* Le remplissage NOIR est cuit dans les tuiles JPEG (la grille est carrée, le
@@ -107,8 +131,11 @@
       majFondCarte(document.body.classList.contains('parch') ? 'Parchemin' : 'Terrain');
       window.map.on('overlayadd overlayremove', () => setTimeout(placeTlegend, 30));
       // le rognage suit le zoom ; le fond aussi (Parchemin change au seuil du décor)
-      window.map.on('zoomend', () => { rogneTuiles(); majFondCarte(); });
-      window.map.on('viewreset', rogneTuiles);
+      window.map.on('zoomend', () => { rogneTuiles(); caleFond(); });
+      window.map.on('viewreset', () => { rogneTuiles(); caleFond(); });
+      // le fond suit le glissement de la carte : sans ca, la carte defile
+      // devant une texture immobile et la jonction se voit au moindre deplacement
+      window.map.on('move zoom', caleFond);
       rogneTuiles();
     }
     placeTlegend();
