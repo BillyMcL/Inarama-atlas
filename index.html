@@ -10,10 +10,12 @@
     font-family:var(--f-ui);color:var(--txt);
     transition:background .3s ease,color var(--tr)}
   #map{position:absolute;inset:0}
-  /* le fond DOIT se confondre avec la tuile : sinon une bordure nette
-     encadre le monde. Valeur pilotée par theme.js selon le fond actif. */
-  .leaflet-container{background:var(--fond-carte);font-family:var(--f-ui);
-    transition:background .3s ease}
+  /* Le fond doit CONTINUER la carte, pas l'approcher : un aplat ne se raccorde
+     jamais à une texture. On répète un échantillon réel du fond actif (abysse
+     pour Terrain/Satellite, parchemin pour Grimoire), piloté par theme.js. */
+  .leaflet-container{background-color:var(--fond-carte);
+    background-image:var(--fond-tex,none);background-repeat:repeat;
+    font-family:var(--f-ui)}
   /* le chevron du sélecteur de couches : image absente du dépôt, on la dessine */
   a.leaflet-control-layers-toggle{background-image:none}
   a.leaflet-control-layers-toggle::before{content:"\2630";font-size:19px;

@@ -27,12 +27,22 @@
     applique(courant === 'grimoire' ? 'nocturne' : 'grimoire', true);
   }
 
-  /* Fond derrière la carte : relevé sur les tuiles réelles de chaque base.
-     Sans ça, une bordure nette encadre le monde au lieu de s'y fondre. */
-  const FOND_CARTE = { Parchemin: '#c5aa7f', Satellite: '#05132e', Terrain: '#133465' };
+  /* Fond derrière la carte. Un APLAT ne peut pas se raccorder : les fonds ont
+     du grain. On répète donc un échantillon réel, extrait des tuiles elles-mêmes
+     (zone la plus uniforme au bord du monde : l'abysse, ou le parchemin), rendu
+     répétable par miroir. La couleur reste en repli si l'image manque. */
+  const FOND_CARTE = {
+    Parchemin: ['#d7ba8d', 'img/fond-parchemin.jpg'],
+    Satellite: ['#05132d', 'img/fond-satellite.jpg'],
+    Terrain:   ['#060519', 'img/fond-terrain.jpg'],
+  };
   function majFondCarte(nomFond) {
     const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
-    if (cle) document.documentElement.style.setProperty('--fond-carte', FOND_CARTE[cle]);
+    if (!cle) return;
+    const [col, img] = FOND_CARTE[cle];
+    const s = document.documentElement.style;
+    s.setProperty('--fond-carte', col);
+    s.setProperty('--fond-tex', "url('" + img + "')");
   }
 
   /* Le panneau des terres sauvages passait SOUS le sélecteur de couches, qui est
@@ -71,7 +81,8 @@
     if (window.map) {
       window.map.on('baselayerchange', e => surFond(e.name));
       if (!choixManuel && document.body.classList.contains('parch')) applique('grimoire', false);
-      if (document.body.classList.contains('parch')) majFondCarte('Parchemin');
+      // baselayerchange ne se déclenche pas au chargement : on pose le fond actif
+      majFondCarte(document.body.classList.contains('parch') ? 'Parchemin' : 'Terrain');
       window.map.on('overlayadd overlayremove', () => setTimeout(placeTlegend, 30));
     }
     placeTlegend();

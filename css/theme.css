@@ -40,10 +40,10 @@
   --ombre-1:0 2px 10px rgba(0,0,0,.55);
   --ombre-2:0 10px 34px rgba(0,0,0,.7);
   --voile:rgba(11,11,12,.95);
-  /* Fond DERRIÈRE la carte : il doit se confondre avec la tuile, sinon on voit
-     une bordure nette autour du monde. Valeur relevée sur les tuiles réelles
-     (océan profond du Terrain) ; theme.js la réajuste selon le fond actif. */
-  --fond-carte:#133465;
+  /* Fond DERRIÈRE la carte : texture réelle répétée, pas un aplat (Terrain par
+     défaut, l'abysse du bord du monde). La couleur sert de repli. */
+  --fond-carte:#060519;
+  --fond-tex:url('../img/fond-terrain.jpg');
   --lien:      #f5d98a;   /* le renvoi prend l'or : rien d'autre n'est coloré */
   --code:      #c9b98f;
   --sur-fort:  #ffffff;   /* contraste maximal : surlignage de recherche */
@@ -78,7 +78,8 @@ body.grimoire{
   --f-lire:'IMFell',Georgia,serif;
   --titre-espace:.045em;
   --titre-poids:400;
-  --fond-carte:#c5aa7f;   /* parchemin relevé sur les tuiles du fond Parchemin */
+  --fond-carte:#d7ba8d;                            /* parchemin, repli */
+  --fond-tex:url('../img/fond-parchemin.jpg');
   --lien:      #8c2f1f;   /* le renvoi prend la couleur de la rubrique */
   --code:      #6b4a22;
   --sur-fort:  #23150a;
