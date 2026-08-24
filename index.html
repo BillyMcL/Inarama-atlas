@@ -95,6 +95,7 @@
 </style>
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
+<link rel="stylesheet" href="css/explo.css">
 </head>
 <body>
 <div id="map"></div>
@@ -317,7 +318,9 @@ function lieuxSync(){
   if(!lieuxOn){ lieuxMk.forEach(m=>map.removeLayer(m)); lieuxMk.clear(); return; }
   const z=map.getZoom(), b=map.getBounds().pad(0.25), sz=sizeForZoom(z);
   lieuxFeat.forEach(f=>{
-    const show = z>=revZoom(f.niv) && b.contains(f.ll);
+    // INARAMA_filtre : posé par js/explo.js (Phase F). Null = aucun filtre actif.
+    const show = z>=revZoom(f.niv) && b.contains(f.ll)
+                 && (!window.INARAMA_filtre || window.INARAMA_filtre(f.p));
     let m=lieuxMk.get(f);
     if(show && !m){ m=L.marker(f.ll,{icon:lieuIcon(f.p.type,f.niv,(f.p.etoile5===1||f.p.capitale===1)?1:0,sz),
         riseOnHover:true,keyboard:false});
@@ -477,9 +480,10 @@ function terresHover(on){ tzOn=on;
    Les `const` de ce script ne sont PAS des propriétés de window : les modules
    chargés ensuite ne les verraient pas. On expose explicitement le strict
    nécessaire, plutôt que de tout rendre global. */
-Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H });
+Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
 <script src="js/panel.js"></script>
+<script src="js/explo.js"></script>
 <script src="js/search.js"></script>
 </body>
 </html>

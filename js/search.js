@@ -70,8 +70,15 @@
       mot: new RegExp('(^|[\\s\'\\-])' + nq.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
       tol: nq.length >= 7 ? 2 : 1,
     };
+    // Phase F : les filtres actifs restreignent aussi la recherche, mais
+    // seulement pour les LIEUX — un filtre sur la rareté n'a pas de sens pour
+    // un article de lore, et le masquer rendrait le wiki introuvable.
+    const fl = window.INARAMA_rechF;
+    const admis = e => !fl || e.k !== 'L' || fl({ royaume: e.roy, type: e.type,
+                                                  niveau: e.rang === 6 ? 5 : e.rang });
     let res = [];
     for (const e of corpus) {
+      if (!admis(e)) continue;
       const s = score(e, ctx, false);
       if (s) res.push({ e, s });
     }
@@ -79,7 +86,7 @@
     if (res.length < MAX) {
       const vus = new Set(res.map(r => r.e));
       for (const e of corpus) {
-        if (vus.has(e)) continue;
+        if (vus.has(e) || !admis(e)) continue;
         const s = score(e, ctx, true);
         if (s) res.push({ e, s });
       }
