@@ -27,42 +27,42 @@
     applique(courant === 'grimoire' ? 'nocturne' : 'grimoire', true);
   }
 
-  /* Fond derrière la carte. Il dépend du FOND DE CARTE, jamais du thème :
-     Nocturne/Grimoire n'ont rien à voir là-dedans. Un aplat ne pouvait pas
-     se raccorder — les trois fonds ont du grain.
+  /* Fond derriere la carte. Il depend du FOND DE CARTE, jamais du theme :
+     Nocturne et Grimoire n'ont rien a voir la-dedans.
 
-     Terrain et Satellite : grain preleve sur les tuiles au zoom 7, la ou le
-     detail est maximal. Parchemin : regenere procedurement, parce que
-     l'echantillon preleve attrapait les vaguelettes de l'ocean et les
-     etirait en stries.
+     Les valeurs ci-dessous ne sont pas choisies, elles sont RELEVEES sur les
+     pixels de la carte a son propre bord, terres ecartees (on ne garde que le
+     coeur bas de la distribution, entre le 10e et le 55e percentile, sinon
+     l'anneau d'iles qui touche le rectangle du monde fausse tout).
 
-     Deux couches, parce qu'une seule ne peut pas tenir les deux exigences.
+       couleur     grain  variation lente
+       #06061a      1.05       0.00     terrain  (moyenne des zooms 2/5/7)
+       #05132e      0.00       0.00     satellite
+       #d4b78b      2.84       0.46     parchemin
 
-     1. Le GRAIN, a l'echelle de la carte, pour que la jonction ne se voie pas.
-        Il est passe-haut au-dessus de ~24 px : tout ce qui etait plus grand a
-        ete efface. Une tuile repetee ne peut porter aucune grande structure
-        sans se trahir — l'oeil ne repere pas une periode, il repere une FORME
-        qui revient. Residu mesure a 0.04 / 0.06 / 0.01 niveau de gris.
+     Enseignement principal : a son bord, la carte est quasiment PLATE. La
+     texture qu'on voit sur la carte, c'est l'ocean avec son relief, pas la
+     matiere du bord. Vouloir un fond visiblement texture ET une jonction
+     invisible est contradictoire — les mouchetures que j'avais ajoutees
+     etaient 8 a 30 fois trop fortes, et c'est leur arret net a la limite qui
+     dessinait le trait vertical.
 
-     2. Les MOUCHETURES, qui redonnent la matiere que le grain seul ne porte
-        pas. Elles echappent a la repetition par un autre moyen : leur periode
-        est plus grande que la fenetre, donc on n'en voit jamais deux copies a
-        la fois. Amplitudes 1.74 / 4.43 / 4.16 niveaux de gris, mesurees apres
-        composition alpha, calees sur ce que les tuiles portent reellement.
+     Donc : grain seul, aux amplitudes mesurees, passe-haut au-dessus de 24 px
+     pour qu'aucune forme ne puisse se repeter. Une nappe lente n'est ajoutee
+     que la ou la carte en porte une, c'est-a-dire le parchemin seul.
 
-     Troisieme valeur = largeur du grain en pixels du zoom 7, c'est-a-dire en
-     pixels du raster d'origine. C'est elle qui permet de suivre l'echelle. */
+     3e valeur = largeur du grain en pixels du zoom 7 (pixels du raster) ;
+     4e = presence d'une nappe lente. */
   const MAXZ = 7;
   const FOND_CARTE = {
-    Parchemin: ['#d5b88c', 'parchemin', 256],
-    Satellite: ['#03142e', 'satellite', 256],
-    Terrain:   ['#040417', 'terrain',   256],
+    Parchemin: ['#d4b78b', 'parchemin', 256, true],
+    Satellite: ['#05132e', 'satellite', 256, false],
+    Terrain:   ['#06061a', 'terrain',   256, false],
   };
   let baseCourante = 'Terrain';
 
-  /* Periode des mouchetures : toujours plus large que la diagonale de la
-     fenetre. C'est toute l'astuce — la nappe se repete, mais jamais dans le
-     champ de vision. */
+  /* Pas de la nappe : toujours plus large que la diagonale de la fenetre, pour
+     qu'on n'en voie jamais deux copies a la fois. */
   function pasNappe() {
     return Math.max(2600, Math.round(1.3 * Math.hypot(innerWidth, innerHeight)));
   }
@@ -72,36 +72,38 @@
     if (cle) baseCourante = cle;
     const c = document.querySelector('.leaflet-container');
     if (!c) return;
-    const [col, nom] = FOND_CARTE[baseCourante];
+    const [col, nom, , nappe] = FOND_CARTE[baseCourante];
     // les fichiers changent de contenu sans changer de nom : on les versionne,
     // sinon un visiteur deja venu garde l'ancienne texture en cache
     const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
     c.style.backgroundColor = col;
-    // la premiere listee est AU-DESSUS : les mouchetures par-dessus le grain
-    c.style.backgroundImage = "url('img/nappe-" + nom + ".png" + v + "'),"
-                            + "url('img/fond-"  + nom + ".jpg" + v + "')";
+    c.style.backgroundImage = (nappe ? "url('img/nappe-" + nom + ".png" + v + "')," : '')
+                            + "url('img/fond-" + nom + ".png" + v + "')";
     c.style.backgroundRepeat = 'repeat';
     caleFond();
   }
 
-  /* La texture de la carte GRANDIT avec le zoom et GLISSE quand on deplace.
-     Un fond fige en pixels d'ecran ne peut donc coller qu'a un seul zoom :
-     d'ou la couture qui reapparaissait des qu'on zoomait. Le grain suit
-     l'echelle de la carte ; les mouchetures gardent leur pas, mais les deux
-     suivent le meme decalage que le volet des tuiles. */
+  /* Le grain de la carte GRANDIT avec le zoom et GLISSE quand on deplace. Un
+     fond fige en pixels d'ecran ne peut donc coller qu'a un seul zoom : d'ou
+     la couture qui reapparaissait des qu'on zoomait. */
   function caleFond() {
     const c = document.querySelector('.leaflet-container'); if (!c) return;
     const m = window.map; if (!m) return;
-    // plancher a 32 px : plus bas, reduire une tuile de 512 px fabrique du
-    // moire, et de toute facon le grain de la carte n'est plus lisible la-bas
-    const g = Math.max(32, Math.min(8192,
-      FOND_CARTE[baseCourante][2] * Math.pow(2, m.getZoom() - MAXZ)));
+    const nappe = FOND_CARTE[baseCourante][3];
+    // Le grain ne suit PAS le zoom. Mesure sur les tuiles : il est constant en
+    // pixels d'ecran (parchemin 2.85 au zoom 2 contre 2.22 au zoom 7, terrain
+    // 0.70 contre 1.52). C'est du bruit de pixel — compression, trame du
+    // raster — pas de la matiere du monde. Le mettre a l'echelle le faisait
+    // disparaitre au dezoom, la ou justement le fond occupe tout l'ecran.
+    const g = FOND_CARTE[baseCourante][2];
     const n = pasNappe();
-    c.style.backgroundSize = n + 'px ' + n + 'px,' + g.toFixed(2) + 'px ' + g.toFixed(2) + 'px';
+    const gt = g.toFixed(2) + 'px ' + g.toFixed(2) + 'px';
+    c.style.backgroundSize = nappe ? n + 'px ' + n + 'px,' + gt : gt;
     const o = L.DomUtil.getPosition(m.getPane('mapPane'));
     if (!o) { c.style.backgroundPosition = ''; return; }
-    c.style.backgroundPosition = (o.x % n) + 'px ' + (o.y % n) + 'px,'
-                               + (o.x % g) + 'px ' + (o.y % g) + 'px';
+    const gp = (o.x % g) + 'px ' + (o.y % g) + 'px';
+    c.style.backgroundPosition = nappe
+      ? (o.x % n) + 'px ' + (o.y % n) + 'px,' + gp : gp;
   }
 
   /* Le remplissage NOIR est cuit dans les tuiles JPEG (la grille est carrée, le
