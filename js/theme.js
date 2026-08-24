@@ -31,60 +31,77 @@
      Nocturne/Grimoire n'ont rien à voir là-dedans. Un aplat ne pouvait pas
      se raccorder — les trois fonds ont du grain.
 
-     Terrain et Satellite : texture prélevée sur les tuiles au zoom 7 (détail
-     maximal), rendue répétable par décalage-fondu — pas par miroir, qui
-     fabriquait un motif en losange bien visible.
-     Parchemin : régénéré procéduralement (base + fBm à spectre périodique),
-     parce que l'échantillon prélevé attrapait les vaguelettes de l'océan et
-     les transformait en stries.
+     Terrain et Satellite : grain preleve sur les tuiles au zoom 7, la ou le
+     detail est maximal. Parchemin : regenere procedurement, parce que
+     l'echantillon preleve attrapait les vaguelettes de l'ocean et les
+     etirait en stries.
 
-     Les trois textures sont passe-haut : tout ce qui est plus grand que ~24 px
-     est efface, il ne reste que le grain. C'est la seule facon de repeter une
-     tuile sans que la repetition se voie — l'oeil ne repere pas une periode,
-     il repere une FORME qui revient. Residu de grande echelle mesure a 0.04 /
-     0.06 / 0.01 niveau de gris, soit sous le seuil d'un ecran 8 bits.
-     Contrepartie assumee : le fond ne reproduit pas les grandes moucheture de
-     la carte, il n'en garde que la couleur exacte et le grain.
+     Deux couches, parce qu'une seule ne peut pas tenir les deux exigences.
 
-     Troisième valeur = largeur du motif en pixels du zoom 7, c'est-à-dire en
-     pixels du raster d'origine. C'est elle qui permet de suivre l'échelle. */
+     1. Le GRAIN, a l'echelle de la carte, pour que la jonction ne se voie pas.
+        Il est passe-haut au-dessus de ~24 px : tout ce qui etait plus grand a
+        ete efface. Une tuile repetee ne peut porter aucune grande structure
+        sans se trahir — l'oeil ne repere pas une periode, il repere une FORME
+        qui revient. Residu mesure a 0.04 / 0.06 / 0.01 niveau de gris.
+
+     2. Les MOUCHETURES, qui redonnent la matiere que le grain seul ne porte
+        pas. Elles echappent a la repetition par un autre moyen : leur periode
+        est plus grande que la fenetre, donc on n'en voit jamais deux copies a
+        la fois. Amplitudes 1.74 / 4.43 / 4.16 niveaux de gris, mesurees apres
+        composition alpha, calees sur ce que les tuiles portent reellement.
+
+     Troisieme valeur = largeur du grain en pixels du zoom 7, c'est-a-dire en
+     pixels du raster d'origine. C'est elle qui permet de suivre l'echelle. */
   const MAXZ = 7;
   const FOND_CARTE = {
-    Parchemin: ['#d5b88c', 'img/fond-parchemin.jpg', 256],
-    Satellite: ['#03142e', 'img/fond-satellite.jpg', 256],
-    Terrain:   ['#040417', 'img/fond-terrain.jpg',   256],
+    Parchemin: ['#d5b88c', 'parchemin', 256],
+    Satellite: ['#03142e', 'satellite', 256],
+    Terrain:   ['#040417', 'terrain',   256],
   };
   let baseCourante = 'Terrain';
+
+  /* Periode des mouchetures : toujours plus large que la diagonale de la
+     fenetre. C'est toute l'astuce — la nappe se repete, mais jamais dans le
+     champ de vision. */
+  function pasNappe() {
+    return Math.max(2600, Math.round(1.3 * Math.hypot(innerWidth, innerHeight)));
+  }
 
   function majFondCarte(nomFond) {
     const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
     if (cle) baseCourante = cle;
     const c = document.querySelector('.leaflet-container');
     if (!c) return;
-    const [col, img] = FOND_CARTE[baseCourante];
-    // le fichier image change de contenu sans changer de nom : on le version,
+    const [col, nom] = FOND_CARTE[baseCourante];
+    // les fichiers changent de contenu sans changer de nom : on les versionne,
     // sinon un visiteur deja venu garde l'ancienne texture en cache
     const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
-    c.style.background = col + " url('" + img + v + "') repeat";  // écrase taille et position
+    c.style.backgroundColor = col;
+    // la premiere listee est AU-DESSUS : les mouchetures par-dessus le grain
+    c.style.backgroundImage = "url('img/nappe-" + nom + ".png" + v + "'),"
+                            + "url('img/fond-"  + nom + ".jpg" + v + "')";
+    c.style.backgroundRepeat = 'repeat';
     caleFond();
   }
 
-  /* La texture de la carte GRANDIT avec le zoom et GLISSE quand on déplace.
-     Une texture de fond figée en pixels d'écran ne peut donc coller qu'à un
-     seul zoom : d'où la couture qui réapparaissait dès qu'on zoomait.
-     On la met à la même échelle que la carte, et on la fait suivre le même
-     décalage que le volet des tuiles. Le navigateur filtre lui-même la
-     réduction, exactement comme les tuiles des zooms bas sont sous-échantillonnées. */
+  /* La texture de la carte GRANDIT avec le zoom et GLISSE quand on deplace.
+     Un fond fige en pixels d'ecran ne peut donc coller qu'a un seul zoom :
+     d'ou la couture qui reapparaissait des qu'on zoomait. Le grain suit
+     l'echelle de la carte ; les mouchetures gardent leur pas, mais les deux
+     suivent le meme decalage que le volet des tuiles. */
   function caleFond() {
     const c = document.querySelector('.leaflet-container'); if (!c) return;
     const m = window.map; if (!m) return;
-    const ref = FOND_CARTE[baseCourante][2];
     // plancher a 32 px : plus bas, reduire une tuile de 512 px fabrique du
     // moire, et de toute facon le grain de la carte n'est plus lisible la-bas
-    const t = Math.max(32, Math.min(8192, ref * Math.pow(2, m.getZoom() - MAXZ)));
-    c.style.backgroundSize = t.toFixed(2) + 'px ' + t.toFixed(2) + 'px';
+    const g = Math.max(32, Math.min(8192,
+      FOND_CARTE[baseCourante][2] * Math.pow(2, m.getZoom() - MAXZ)));
+    const n = pasNappe();
+    c.style.backgroundSize = n + 'px ' + n + 'px,' + g.toFixed(2) + 'px ' + g.toFixed(2) + 'px';
     const o = L.DomUtil.getPosition(m.getPane('mapPane'));
-    c.style.backgroundPosition = o ? (o.x % t) + 'px ' + (o.y % t) + 'px' : '';
+    if (!o) { c.style.backgroundPosition = ''; return; }
+    c.style.backgroundPosition = (o.x % n) + 'px ' + (o.y % n) + 'px,'
+                               + (o.x % g) + 'px ' + (o.y % g) + 'px';
   }
 
   /* Le remplissage NOIR est cuit dans les tuiles JPEG (la grille est carrée, le
@@ -149,7 +166,7 @@
       rogneTuiles();
     }
     placeTlegend();
-    addEventListener('resize', () => setTimeout(placeTlegend, 60));
+    addEventListener('resize', () => { caleFond(); setTimeout(placeTlegend, 60); });
     // le sélecteur de couches change de hauteur quand on le déplie
     const ctl = document.querySelector('.leaflet-control-layers');
     if (ctl) ['mouseenter', 'click'].forEach(ev =>
