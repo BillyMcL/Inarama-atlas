@@ -38,13 +38,21 @@
      parce que l'échantillon prélevé attrapait les vaguelettes de l'océan et
      les transformait en stries.
 
+     Les trois textures sont passe-haut : tout ce qui est plus grand que ~24 px
+     est efface, il ne reste que le grain. C'est la seule facon de repeter une
+     tuile sans que la repetition se voie — l'oeil ne repere pas une periode,
+     il repere une FORME qui revient. Residu de grande echelle mesure a 0.04 /
+     0.06 / 0.01 niveau de gris, soit sous le seuil d'un ecran 8 bits.
+     Contrepartie assumee : le fond ne reproduit pas les grandes moucheture de
+     la carte, il n'en garde que la couleur exacte et le grain.
+
      Troisième valeur = largeur du motif en pixels du zoom 7, c'est-à-dire en
      pixels du raster d'origine. C'est elle qui permet de suivre l'échelle. */
   const MAXZ = 7;
   const FOND_CARTE = {
-    Parchemin: ['#d5b98c', 'img/fond-parchemin.jpg', 512],
-    Satellite: ['#04152e', 'img/fond-satellite.jpg', 256],
-    Terrain:   ['#050418', 'img/fond-terrain.jpg',   256],
+    Parchemin: ['#d5b88c', 'img/fond-parchemin.jpg', 256],
+    Satellite: ['#03142e', 'img/fond-satellite.jpg', 256],
+    Terrain:   ['#040417', 'img/fond-terrain.jpg',   256],
   };
   let baseCourante = 'Terrain';
 
@@ -71,7 +79,9 @@
     const c = document.querySelector('.leaflet-container'); if (!c) return;
     const m = window.map; if (!m) return;
     const ref = FOND_CARTE[baseCourante][2];
-    const t = Math.max(6, Math.min(8192, ref * Math.pow(2, m.getZoom() - MAXZ)));
+    // plancher a 32 px : plus bas, reduire une tuile de 512 px fabrique du
+    // moire, et de toute facon le grain de la carte n'est plus lisible la-bas
+    const t = Math.max(32, Math.min(8192, ref * Math.pow(2, m.getZoom() - MAXZ)));
     c.style.backgroundSize = t.toFixed(2) + 'px ' + t.toFixed(2) + 'px';
     const o = L.DomUtil.getPosition(m.getPane('mapPane'));
     c.style.backgroundPosition = o ? (o.x % t) + 'px ' + (o.y % t) + 'px' : '';
