@@ -64,7 +64,9 @@
     const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
     c.style.backgroundColor = f.col;
     if (window.INARAMA_fond) window.INARAMA_fond.actif(f.mode === 'adaptatif');
-    if (window.INARAMA_brulure) window.INARAMA_brulure.actif(f.mode === 'scene');
+    // le bord decoupe est desormais porte par la video du fond Parchemin :
+    // plus de clip cote tuiles, la video l'encadre. brulure.js reste inerte.
+    if (window.INARAMA_brulure) window.INARAMA_brulure.actif(false);
     if (f.mode === 'adaptatif') {
       c.style.backgroundImage = 'none';
     } else {
