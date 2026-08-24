@@ -33,12 +33,37 @@
      complète du zoom 3 — c'est exactement ce qui touche le fond de page.
      Pas de texture répétée : le motif se voyait, et à l'échelle où ce fond est
      visible (dézoomé) le grain de la carte ne se lit pas. */
-  const FOND_CARTE = { Parchemin: '#d5b98c', Satellite: '#05132e', Terrain: '#08091f' };
+  // Parchemin a DEUX valeurs : sous le seuil du décor c'est lui qui borde la vue
+  // (son parchemin est plus sourd), au-delà ce sont les tuiles.
+  const FOND_CARTE = {
+    Parchemin: ['#b09874', '#d5b98c'],   // [décor visible, décor masqué]
+    Satellite: ['#05132e'],
+    Terrain:   ['#030412'],
+  };
+  let baseCourante = 'Terrain';
+
   function majFondCarte(nomFond) {
     const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
+    if (cle) baseCourante = cle;
     const c = document.querySelector('.leaflet-container');
-    if (!cle || !c) return;
-    c.style.background = FOND_CARTE[cle];   // inline : aucune variable ne l'écrase
+    if (!c || !window.map) return;
+    const v = FOND_CARTE[baseCourante];
+    const z = window.map.getZoom();
+    c.style.background = (v.length > 1 && z > 5.5) ? v[1] : v[0];
+  }
+
+  /* Le remplissage NOIR est cuit dans les tuiles JPEG (la grille est carrée, le
+     monde est un rectangle portrait). On ne peut pas l'effacer, mais on peut
+     rogner la couche de tuiles aux limites exactes du monde. Les coordonnées
+     sont en « layer points », le repère propre du volet : elles ne bougent pas
+     au déplacement, seulement au zoom. */
+  function rogneTuiles() {
+    const m = window.map; if (!m || !window.bounds) return;
+    const p = m.getPane('tilePane'); if (!p) return;
+    const a = m.latLngToLayerPoint(window.bounds.getNorthWest());
+    const b = m.latLngToLayerPoint(window.bounds.getSouthEast());
+    p.style.clipPath = 'polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'
+                     + b.x + 'px ' + b.y + 'px,' + a.x + 'px ' + b.y + 'px)';
   }
 
   /* Le panneau des terres sauvages passait SOUS le sélecteur de couches, qui est
@@ -80,6 +105,10 @@
       // baselayerchange ne se déclenche pas au chargement : on pose le fond actif
       majFondCarte(document.body.classList.contains('parch') ? 'Parchemin' : 'Terrain');
       window.map.on('overlayadd overlayremove', () => setTimeout(placeTlegend, 30));
+      // le rognage suit le zoom ; le fond aussi (Parchemin change au seuil du décor)
+      window.map.on('zoomend', () => { rogneTuiles(); majFondCarte(); });
+      window.map.on('viewreset', rogneTuiles);
+      rogneTuiles();
     }
     placeTlegend();
     addEventListener('resize', () => setTimeout(placeTlegend, 60));
