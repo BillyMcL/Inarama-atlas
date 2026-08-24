@@ -1,7 +1,16 @@
-/* Bord brule de la carte au parchemin.
+/* Bord VIVANT de la carte au parchemin.
  *
  * La carte est posee sur une table d'auberge : elle ne peut pas s'arreter sur un
- * rectangle net.
+ * rectangle net. Il ne s'agit PAS de la brûler — un bord noirci mange le dessin
+ * et fait faux. Il s'agit de lui donner un bord qui a vecu : irregulier, un peu
+ * ambre, comme un papier manipule.
+ *
+ * ⚠️ CONTRAINTE MESUREE. L'encre du decor court jusqu'a 1.1% du bord de la
+ * planche, et la marge de papier nu est en dessous de 2% sur la moitie du tour
+ * (mediane 2.2%). Une morsure uniforme mange donc l'ornement : c'est exactement
+ * ce qui s'est produit avec une morsure a 10.5%. La profondeur est desormais
+ * BORNEE en chaque point par la place reellement disponible, mesuree sur
+ * decor_overlay.png et livree dans js/marge_decor.js.
  *
  *   1. La DECHIRURE. Le rectangle de decoupe des tuiles devient une courbe
  *      fermee continue : un rectangle aux coins arrondis, dont chaque point est
@@ -25,7 +34,8 @@
   'use strict';
 
   const N = 640;            // points du contour
-  const MORSURE = 0.105;    // profondeur de la dechirure, en fraction du petit cote
+  const MORSURE = 0.045;    // profondeur VOULUE, avant bornage par la marge
+  const GARDE   = 0.60;     // on n'entame jamais plus que 60% de la place libre
   const RAYON = 0.028;      // arrondi des coins, meme unite
   let cv, ctx, profil = null, langues = null, actif = false;
 
@@ -54,7 +64,11 @@
       const n = (0.66 * o1(t) + 0.34 * o2(t) + 1) / 2;
       // exposant eleve : l'essentiel du bord est a peine roussi, quelques
       // endroits sont profondement manges. Un papier brule par morsures.
-      d.push(MORSURE * (0.04 + 0.96 * Math.pow(Math.max(0, Math.min(1, n)), 1.6)));
+      let v = MORSURE * (0.04 + 0.96 * Math.pow(Math.max(0, Math.min(1, n)), 1.6));
+      // bornage : la ou l'ornement s'approche du bord, on n'entame presque rien
+      const m = window.INARAMA_margeDecor;
+      if (m && m.length === N) v = Math.min(v, GARDE * m[i]);
+      d.push(v);
     }
     return d;
   }
@@ -169,12 +183,14 @@
     ctx.save();
     ctx.clip();                                  // tout reste a l'INTERIEUR du papier
 
-    // le charbon se mesure sur la morsure : large la ou le feu a mange
-    const e = Math.max(2, Math.min(200, 0.30 * MORSURE * k));
+    // Pas de charbon : un ambre discret, comme un papier jauni par le bord.
+    // Il se mesure sur la morsure REELLE, donc il reste mince partout ou
+    // l'ornement approche — il ne peut pas deborder sur le dessin.
+    const e = Math.max(1.5, Math.min(60, 0.55 * MORSURE * k));
     const couches = [
-      [e * 3.0, 'rgba(146, 101, 52, 0.34)', e * 0.70],   // roussi qui s'enfonce
-      [e * 1.5, 'rgba(82, 46, 19, 0.62)',  e * 0.34],   // brun profond
-      [e * 0.55, 'rgba(20, 10, 4, 0.95)',  e * 0.10],   // charbon au bord meme
+      [e * 1.6, 'rgba(150, 112, 66, 0.26)', e * 0.60],   // ambre, qui s'estompe
+      [e * 0.7, 'rgba(104, 72, 36, 0.38)',  e * 0.28],   // brun doux
+      [e * 0.25, 'rgba(62, 40, 18, 0.55)',  e * 0.08],   // arete du papier
     ];
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     for (let i = 0; i < couches.length; i++) {
