@@ -30,80 +30,64 @@
   /* Fond derriere la carte. Il depend du FOND DE CARTE, jamais du theme :
      Nocturne et Grimoire n'ont rien a voir la-dedans.
 
-     Les valeurs ci-dessous ne sont pas choisies, elles sont RELEVEES sur les
-     pixels de la carte a son propre bord, terres ecartees (on ne garde que le
-     coeur bas de la distribution, entre le 10e et le 55e percentile, sinon
-     l'anneau d'iles qui touche le rectangle du monde fausse tout).
+     Ces textures ne sont pas fabriquees, elles sont PRELEVEES.
 
-       couleur     grain  variation lente
-       #06061a      1.05       0.00     terrain  (moyenne des zooms 2/5/7)
-       #05132e      0.00       0.00     satellite
-       #d4b78b      2.84       0.46     parchemin
+       terrain, satellite : bloc de 8x8 tuiles du zoom 7 (2048 px) pris dans
+         l'abysse le plus uniforme du monde — trouve en balayant le zoom 4, ou
+         une tuile couvre exactement le bloc cherche. C'est la matiere que la
+         carte affiche, pas une imitation.
+       parchemin : le fichier source fond_parchemin.png, a l'echelle ou la
+         carte l'emploie (x2.5), donc le meme papier.
 
-     Enseignement principal : a son bord, la carte est quasiment PLATE. La
-     texture qu'on voit sur la carte, c'est l'ocean avec son relief, pas la
-     matiere du bord. Vouloir un fond visiblement texture ET une jonction
-     invisible est contradictoire — les mouchetures que j'avais ajoutees
-     etaient 8 a 30 fois trop fortes, et c'est leur arret net a la limite qui
-     dessinait le trait vertical.
+     Rendues raccordables par decomposition periodique + lisse (Moisan) : on
+     retire la seule composante qui ne boucle pas, et rien d'autre. Ni miroir
+     ni fondu — les deux fabriquaient un motif visible. Coutures mesurees a
+     0.67 / 0.31 / 0.31 niveau pour des grains de 2.24 / 1.00 / 5.39.
 
-     Donc : grain seul, aux amplitudes mesurees, passe-haut au-dessus de 24 px
-     pour qu'aucune forme ne puisse se repeter. Une nappe lente n'est ajoutee
-     que la ou la carte en porte une, c'est-a-dire le parchemin seul.
+     Couleurs et grains cales sur le MODE de l'histogramme a la lisiere du
+     monde. Le mode, pas un percentile : sur le parchemin, filtrer le bas de la
+     distribution ne retenait pas le papier mais l'encre du decor, ce qui
+     m'avait fait poser un fond trop sombre et deux fois trop lisse.
 
-     3e valeur = largeur du grain en pixels du zoom 7 (pixels du raster) ;
-     4e = presence d'une nappe lente. */
-  const MAXZ = 7;
+       terrain   #040317  mode 12  grain 2.24
+       satellite #05122e  mode 23  grain 1.00
+       parchemin #d5b78a  mode 181 grain 5.39
+
+     Taille d'affichage : la taille native, 2048 px. Pas de mise a l'echelle au
+     zoom — mesure faite sur les tuiles, le grain de la carte est constant en
+     pixels d'ecran (parchemin 2.85 au zoom 2 contre 2.22 au zoom 7). C'est du
+     bruit de pixel, pas de la matiere du monde. */
+  const TUILE = 2048;
   const FOND_CARTE = {
-    Parchemin: ['#d4b78b', 'parchemin', 256, true],
-    Satellite: ['#05132e', 'satellite', 256, false],
-    Terrain:   ['#06061a', 'terrain',   256, false],
+    Parchemin: ['#d5b78a', 'parchemin'],
+    Satellite: ['#05122e', 'satellite'],
+    Terrain:   ['#040317', 'terrain'],
   };
   let baseCourante = 'Terrain';
-
-  /* Pas de la nappe : toujours plus large que la diagonale de la fenetre, pour
-     qu'on n'en voie jamais deux copies a la fois. */
-  function pasNappe() {
-    return Math.max(2600, Math.round(1.3 * Math.hypot(innerWidth, innerHeight)));
-  }
 
   function majFondCarte(nomFond) {
     const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
     if (cle) baseCourante = cle;
     const c = document.querySelector('.leaflet-container');
     if (!c) return;
-    const [col, nom, , nappe] = FOND_CARTE[baseCourante];
-    // les fichiers changent de contenu sans changer de nom : on les versionne,
+    const [col, nom] = FOND_CARTE[baseCourante];
+    // le fichier change de contenu sans changer de nom : on le versionne,
     // sinon un visiteur deja venu garde l'ancienne texture en cache
     const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
     c.style.backgroundColor = col;
-    c.style.backgroundImage = (nappe ? "url('img/nappe-" + nom + ".png" + v + "')," : '')
-                            + "url('img/fond-" + nom + ".png" + v + "')";
+    c.style.backgroundImage = "url('img/fond-" + nom + ".jpg" + v + "')";
     c.style.backgroundRepeat = 'repeat';
+    c.style.backgroundSize = TUILE + 'px ' + TUILE + 'px';
     caleFond();
   }
 
-  /* Le grain de la carte GRANDIT avec le zoom et GLISSE quand on deplace. Un
-     fond fige en pixels d'ecran ne peut donc coller qu'a un seul zoom : d'ou
-     la couture qui reapparaissait des qu'on zoomait. */
+  /* La carte GLISSE quand on la deplace. Sans ca, elle defilerait devant une
+     texture immobile et la jonction se verrait au moindre deplacement. */
   function caleFond() {
     const c = document.querySelector('.leaflet-container'); if (!c) return;
     const m = window.map; if (!m) return;
-    const nappe = FOND_CARTE[baseCourante][3];
-    // Le grain ne suit PAS le zoom. Mesure sur les tuiles : il est constant en
-    // pixels d'ecran (parchemin 2.85 au zoom 2 contre 2.22 au zoom 7, terrain
-    // 0.70 contre 1.52). C'est du bruit de pixel — compression, trame du
-    // raster — pas de la matiere du monde. Le mettre a l'echelle le faisait
-    // disparaitre au dezoom, la ou justement le fond occupe tout l'ecran.
-    const g = FOND_CARTE[baseCourante][2];
-    const n = pasNappe();
-    const gt = g.toFixed(2) + 'px ' + g.toFixed(2) + 'px';
-    c.style.backgroundSize = nappe ? n + 'px ' + n + 'px,' + gt : gt;
     const o = L.DomUtil.getPosition(m.getPane('mapPane'));
-    if (!o) { c.style.backgroundPosition = ''; return; }
-    const gp = (o.x % g) + 'px ' + (o.y % g) + 'px';
-    c.style.backgroundPosition = nappe
-      ? (o.x % n) + 'px ' + (o.y % n) + 'px,' + gp : gp;
+    c.style.backgroundPosition = o ? (o.x % TUILE) + 'px ' + (o.y % TUILE) + 'px' : '';
   }
 
   /* Le remplissage NOIR est cuit dans les tuiles JPEG (la grille est carrée, le
