@@ -5,12 +5,13 @@
  * et fait faux. Il s'agit de lui donner un bord qui a vecu : irregulier, un peu
  * ambre, comme un papier manipule.
  *
- * ⚠️ CONTRAINTE MESUREE. L'encre du decor court jusqu'a 1.1% du bord de la
- * planche, et la marge de papier nu est en dessous de 2% sur la moitie du tour
- * (mediane 2.2%). Une morsure uniforme mange donc l'ornement : c'est exactement
- * ce qui s'est produit avec une morsure a 10.5%. La profondeur est desormais
- * BORNEE en chaque point par la place reellement disponible, mesuree sur
- * decor_overlay.png et livree dans js/marge_decor.js.
+ * ⚠️ CONTRAINTE MESUREE. La profondeur est BORNEE en chaque point par la place
+ * reellement disponible entre le bord et l'ENCRE du decor, mesuree sur
+ * decor_overlay.png et livree dans js/marge_decor.js. Sans ce bornage, une
+ * morsure uniforme a 10.5% mangeait la moitie de l'ornement.
+ * La marge est genereuse presque partout (mediane 17%), mais tombe a 1.2% en
+ * 19 points du tour : ce sont eux qui commandent, et c'est ce qui fait que le
+ * bord EPOUSE le dessin au lieu de le couper.
  *
  *   1. La DECHIRURE. Le rectangle de decoupe des tuiles devient une courbe
  *      fermee continue : un rectangle aux coins arrondis, dont chaque point est
@@ -34,7 +35,7 @@
   'use strict';
 
   const N = 640;            // points du contour
-  const MORSURE = 0.045;    // profondeur VOULUE, avant bornage par la marge
+  const MORSURE = 0.080;    // profondeur VOULUE, avant bornage par la marge
   const GARDE   = 0.60;     // on n'entame jamais plus que 60% de la place libre
   const RAYON = 0.028;      // arrondi des coins, meme unite
   let cv, ctx, profil = null, langues = null, actif = false;
