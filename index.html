@@ -50,7 +50,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-24x">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-24y">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -71,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-24x';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-24y';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -357,11 +357,18 @@ window.parchDecor=parchDecor;
 const parchNet=L.imageOverlay('img/decor_net.jpg?v='+_B, _vB,
   {interactive:false,pane:'decor',className:'pdecor-net'});
 const SEUIL_NET=4;   // au-delà : image nette ; en-deçà : vidéo qui vacille
-window.parchDecor=parchDecor; window.parchNet=parchNet;
+window.parchDecor=parchDecor; window.parchNet=parchNet; window.parchChamp=parchChamp;
 function updateDecor(){const on=document.body.classList.contains('parch');
   if(!on){[parchDecor,parchNet,parchChamp].forEach(l=>map.removeLayer(l)); return;}
-  map.hasLayer(parchChamp)||parchChamp.addTo(map);
-  const net=map.getZoom()>SEUIL_NET;
+  const z=map.getZoom();
+  // le champ de bougie raccorde la carte au bord du parchemin — utile SEULEMENT
+  // dézoomé (le bord est visible). Zoomé, le bord sort de l'écran : le champ
+  // n'assombrit plus que la carte. On le fond donc a zero entre z3 et z5, pour
+  // que la carte redevienne claire et lisible en zoomant (comme avant).
+  const opChamp=Math.max(0, Math.min(1, (5 - z) / 2));
+  if(opChamp>0.01){ map.hasLayer(parchChamp)||parchChamp.addTo(map); parchChamp.setOpacity(opChamp); }
+  else map.removeLayer(parchChamp);
+  const net=z>SEUIL_NET;
   if(net){ map.removeLayer(parchDecor); map.hasLayer(parchNet)||parchNet.addTo(map); }
   else { map.removeLayer(parchNet); map.hasLayer(parchDecor)||parchDecor.addTo(map);
          const v=parchDecor.getElement(); if(v){v.muted=true; v.play&&v.play().catch(()=>{});} }}
@@ -466,12 +473,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-24x"></script>
-<script src="js/fond.js?v=2026-08-24x"></script>
-<script src="js/marge_decor.js?v=2026-08-24x"></script>
-<script src="js/brulure.js?v=2026-08-24x"></script>
-<script src="js/panel.js?v=2026-08-24x"></script>
-<script src="js/explo.js?v=2026-08-24x"></script>
-<script src="js/search.js?v=2026-08-24x"></script>
+<script src="js/theme.js?v=2026-08-24y"></script>
+<script src="js/fond.js?v=2026-08-24y"></script>
+<script src="js/marge_decor.js?v=2026-08-24y"></script>
+<script src="js/brulure.js?v=2026-08-24y"></script>
+<script src="js/panel.js?v=2026-08-24y"></script>
+<script src="js/explo.js?v=2026-08-24y"></script>
+<script src="js/search.js?v=2026-08-24y"></script>
 </body>
 </html>
