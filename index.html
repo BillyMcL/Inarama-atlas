@@ -6,16 +6,14 @@
 <title>Inarama — Atlas</title>
 <link rel="stylesheet" href="lib/leaflet.css"/>
 <style>
-  html,body{margin:0;height:100%;background:var(--fond-carte);
-    font-family:var(--f-ui);color:var(--txt);
-    transition:background .3s ease,color var(--tr)}
+  html,body{margin:0;height:100%;background:#000;
+    font-family:var(--f-ui);color:var(--txt);transition:color var(--tr)}
   #map{position:absolute;inset:0}
-  /* Le fond doit CONTINUER la carte, pas l'approcher : un aplat ne se raccorde
-     jamais à une texture. On répète un échantillon réel du fond actif (abysse
-     pour Terrain/Satellite, parchemin pour Grimoire), piloté par theme.js. */
-  .leaflet-container{background-color:var(--fond-carte);
-    background-image:var(--fond-tex,none);background-repeat:repeat;
-    font-family:var(--f-ui)}
+  /* Le fond derrière la carte dépend du FOND DE CARTE, jamais du thème.
+     theme.js pose la couleur en style inline sur cet élément — c'est la
+     seule portée qui ne se fasse pas écraser par les variables de <body>. */
+  .leaflet-container{background:#000;font-family:var(--f-ui);
+    transition:background .25s ease}
   /* le chevron du sélecteur de couches : image absente du dépôt, on la dessine */
   a.leaflet-control-layers-toggle{background-image:none}
   a.leaflet-control-layers-toggle::before{content:"\2630";font-size:19px;

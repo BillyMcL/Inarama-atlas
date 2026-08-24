@@ -27,22 +27,18 @@
     applique(courant === 'grimoire' ? 'nocturne' : 'grimoire', true);
   }
 
-  /* Fond derrière la carte. Un APLAT ne peut pas se raccorder : les fonds ont
-     du grain. On répète donc un échantillon réel, extrait des tuiles elles-mêmes
-     (zone la plus uniforme au bord du monde : l'abysse, ou le parchemin), rendu
-     répétable par miroir. La couleur reste en repli si l'image manque. */
-  const FOND_CARTE = {
-    Parchemin: ['#d7ba8d', 'img/fond-parchemin.jpg'],
-    Satellite: ['#05132d', 'img/fond-satellite.jpg'],
-    Terrain:   ['#060519', 'img/fond-terrain.jpg'],
-  };
+  /* Fond derrière la carte. Il dépend du FOND DE CARTE, jamais du thème :
+     Nocturne/Grimoire n'ont rien à voir là-dedans.
+     Valeurs = médiane de l'anneau de bord du contenu, mesurée sur la mosaïque
+     complète du zoom 3 — c'est exactement ce qui touche le fond de page.
+     Pas de texture répétée : le motif se voyait, et à l'échelle où ce fond est
+     visible (dézoomé) le grain de la carte ne se lit pas. */
+  const FOND_CARTE = { Parchemin: '#d5b98c', Satellite: '#05132e', Terrain: '#08091f' };
   function majFondCarte(nomFond) {
     const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
-    if (!cle) return;
-    const [col, img] = FOND_CARTE[cle];
-    const s = document.documentElement.style;
-    s.setProperty('--fond-carte', col);
-    s.setProperty('--fond-tex', "url('" + img + "')");
+    const c = document.querySelector('.leaflet-container');
+    if (!cle || !c) return;
+    c.style.background = FOND_CARTE[cle];   // inline : aucune variable ne l'écrase
   }
 
   /* Le panneau des terres sauvages passait SOUS le sélecteur de couches, qui est
