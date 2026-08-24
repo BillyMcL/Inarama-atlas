@@ -27,68 +27,29 @@
     applique(courant === 'grimoire' ? 'nocturne' : 'grimoire', true);
   }
 
-  /* Fond derriere la carte. Il depend du FOND DE CARTE, jamais du theme :
-     Nocturne et Grimoire n'ont rien a voir la-dedans.
-
-     Ces textures ne sont pas fabriquees, elles sont PRELEVEES.
-
-       terrain, satellite : bloc de 8x8 tuiles du zoom 7 (2048 px) pris dans
-         l'abysse le plus uniforme du monde — trouve en balayant le zoom 4, ou
-         une tuile couvre exactement le bloc cherche. C'est la matiere que la
-         carte affiche, pas une imitation.
-       parchemin : le fichier source fond_parchemin.png, a l'echelle ou la
-         carte l'emploie (x2.5), donc le meme papier.
-
-     Rendues raccordables par decomposition periodique + lisse (Moisan) : on
-     retire la seule composante qui ne boucle pas, et rien d'autre. Ni miroir
-     ni fondu — les deux fabriquaient un motif visible. Coutures mesurees a
-     0.67 / 0.31 / 0.31 niveau pour des grains de 2.24 / 1.00 / 5.39.
-
-     Couleurs et grains cales sur le MODE de l'histogramme a la lisiere du
-     monde. Le mode, pas un percentile : sur le parchemin, filtrer le bas de la
-     distribution ne retenait pas le papier mais l'encre du decor, ce qui
-     m'avait fait poser un fond trop sombre et deux fois trop lisse.
-
-       terrain   #040317  mode 12  grain 2.24
-       satellite #05122e  mode 23  grain 1.00
-       parchemin #d5b78a  mode 181 grain 5.39
-
-     Taille d'affichage : la taille native, 2048 px. Pas de mise a l'echelle au
-     zoom — mesure faite sur les tuiles, le grain de la carte est constant en
-     pixels d'ecran (parchemin 2.85 au zoom 2 contre 2.22 au zoom 7). C'est du
-     bruit de pixel, pas de la matiere du monde. */
-  const TUILE = 2048;
+  /* Le fond derriere la carte est peint par js/fond.js, sur un canvas place
+     sous les volets Leaflet : il LIT la matiere de la carte a sa lisiere au
+     lieu de la deviner. Ici on ne garde qu'une couleur de repli, au cas ou le
+     canvas ne demarrerait pas, et le nom du fond courant pour le reste. */
   const FOND_CARTE = {
     Parchemin: ['#d5b78a', 'parchemin'],
     Satellite: ['#05122e', 'satellite'],
     Terrain:   ['#040317', 'terrain'],
   };
   let baseCourante = 'Terrain';
+  function couleurFond() {
+    return (window.INARAMA_fondCourant && window.INARAMA_fondCourant.hex)
+        || FOND_CARTE[baseCourante][0];
+  }
 
   function majFondCarte(nomFond) {
     const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
     if (cle) baseCourante = cle;
     const c = document.querySelector('.leaflet-container');
     if (!c) return;
-    const [col, nom] = FOND_CARTE[baseCourante];
-    // le fichier change de contenu sans changer de nom : on le versionne,
-    // sinon un visiteur deja venu garde l'ancienne texture en cache
-    const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
-    c.style.backgroundColor = col;
-    c.style.backgroundImage = "url('img/fond-" + nom + ".jpg" + v + "')";
-    c.style.backgroundRepeat = 'repeat';
-    c.style.backgroundSize = TUILE + 'px ' + TUILE + 'px';
-    caleFond();
-    rogneTuiles();   // le fondu emprunte la couleur du fond courant
-  }
-
-  /* La carte GLISSE quand on la deplace. Sans ca, elle defilerait devant une
-     texture immobile et la jonction se verrait au moindre deplacement. */
-  function caleFond() {
-    const c = document.querySelector('.leaflet-container'); if (!c) return;
-    const m = window.map; if (!m) return;
-    const o = L.DomUtil.getPosition(m.getPane('mapPane'));
-    c.style.backgroundPosition = o ? (o.x % TUILE) + 'px ' + (o.y % TUILE) + 'px' : '';
+    c.style.backgroundColor = FOND_CARTE[baseCourante][0];   // repli seulement
+    c.style.backgroundImage = 'none';
+    rogneTuiles();
   }
 
   /* Le remplissage NOIR est cuit dans les tuiles JPEG (la grille est carrée, le
@@ -118,7 +79,7 @@
     const f = Math.max(18, Math.min(90, Math.round(FONDU * Math.min(w, h))));
     bordEl.style.left = a.x + 'px';  bordEl.style.top = a.y + 'px';
     bordEl.style.width = w + 'px';   bordEl.style.height = h + 'px';
-    bordEl.style.boxShadow = 'inset 0 0 ' + f + 'px ' + FOND_CARTE[baseCourante][0];
+    bordEl.style.boxShadow = 'inset 0 0 ' + f + 'px ' + couleurFond();
   }
 
   /* Le panneau des terres sauvages passait SOUS le sélecteur de couches, qui est
@@ -167,20 +128,18 @@
       majFondCarte(document.body.classList.contains('parch') ? 'Parchemin' : 'Terrain');
       window.map.on('overlayadd overlayremove', () => setTimeout(placeTlegend, 30));
       // le rognage suit le zoom ; le fond aussi (Parchemin change au seuil du décor)
-      window.map.on('zoomend', () => { rogneTuiles(); caleFond(); });
-      window.map.on('viewreset', () => { rogneTuiles(); caleFond(); });
-      // le fond suit le glissement de la carte : sans ca, la carte defile
-      // devant une texture immobile et la jonction se voit au moindre deplacement
-      window.map.on('move zoom', caleFond);
+      window.map.on('zoomend viewreset', rogneTuiles);
       rogneTuiles();
     }
     placeTlegend();
-    addEventListener('resize', () => { caleFond(); setTimeout(placeTlegend, 60); });
+    addEventListener('resize', () => { rogneTuiles(); setTimeout(placeTlegend, 60); });
     // le sélecteur de couches change de hauteur quand on le déplie
     const ctl = document.querySelector('.leaflet-control-layers');
     if (ctl) ['mouseenter', 'click'].forEach(ev =>
       ctl.addEventListener(ev, () => setTimeout(placeTlegend, 40)));
   }
+
+  document.addEventListener('inarama:fond', rogneTuiles);
 
   window.INARAMA_theme = { get: () => courant, set: t => { choixManuel = true; applique(t, true); }, bascule };
 
