@@ -18,7 +18,7 @@
   const POINTS = 96;        // points d'echantillonnage le long de la lisiere
   const SEUIL = 1.5;        // on ne refait le motif que si la matiere a bouge d'autant
 
-  let cv, ctx, motif, dernier = null, enAttente = false;
+  let cv, ctx, motif, dernier = null, enAttente = false, actif = true;
   const cache = new WeakMap();
 
   /* ---- lecture des pixels de la carte, juste a l'interieur de la lisiere ---- */
@@ -129,6 +129,8 @@
   /* ---- peinture : appelee a chaque image du deplacement, doit rester triviale ---- */
   function peins() {
     if (!ctx || !motif) return;
+    if (!actif) { cv.style.display = 'none'; return; }
+    cv.style.display = '';
     const m = window.map, c = m.getContainer();
     const w = c.clientWidth, h = c.clientHeight, r = window.devicePixelRatio || 1;
     if (cv.width !== Math.round(w * r) || cv.height !== Math.round(h * r)) {
@@ -190,7 +192,14 @@
     setTimeout(reevalue, 2500);
   }
 
-  window.INARAMA_fondRelis = function () { dernier = null; reevalue(); };
+  window.INARAMA_fond = {
+    // le fond adaptatif ne convient pas a tous les fonds de carte : le relief a
+    // sa texture prelevee, le parchemin repose sur une table. On l'active donc
+    // au cas par cas, depuis theme.js.
+    actif: function (v) { actif = !!v; if (!v && cv) cv.style.display = 'none'; else { dernier = null; peins(); reevalue(); } },
+    relis: function () { dernier = null; reevalue(); },
+  };
+  window.INARAMA_fondRelis = function () { window.INARAMA_fond.relis(); };
 
   if (window.map) init();
   else document.addEventListener('DOMContentLoaded', init);
