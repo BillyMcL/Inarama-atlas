@@ -79,6 +79,7 @@
     c.style.backgroundRepeat = 'repeat';
     c.style.backgroundSize = TUILE + 'px ' + TUILE + 'px';
     caleFond();
+    rogneTuiles();   // le fondu emprunte la couleur du fond courant
   }
 
   /* La carte GLISSE quand on la deplace. Sans ca, elle defilerait devant une
@@ -94,7 +95,17 @@
      monde est un rectangle portrait). On ne peut pas l'effacer, mais on peut
      rogner la couche de tuiles aux limites exactes du monde. Les coordonnées
      sont en « layer points », le repère propre du volet : elles ne bougent pas
-     au déplacement, seulement au zoom. */
+     au déplacement, seulement au zoom.
+
+     Et par-dessus le rognage, un FONDU. Mesure faite sur les tuiles : au bord
+     du monde la matiere n'est pas uniforme — l'anneau d'iles touche le
+     rectangle, la dispersion y est de 13 a 20 niveaux. Aucune couleur, aucune
+     texture ne peut donc coincider avec ce bord : il alterne abysse et terre.
+     Plutot que de faire coincider deux matieres, on supprime la discontinuite.
+     Ce qui restait un trait devient un degrade, que l'oeil ne sait pas lire
+     comme une limite. */
+  let bordEl = null;
+  const FONDU = 0.06;        // largeur du fondu, en fraction du plus petit cote du monde
   function rogneTuiles() {
     const m = window.map; if (!m || !window.bounds) return;
     const p = m.getPane('tilePane'); if (!p) return;
@@ -102,6 +113,12 @@
     const b = m.latLngToLayerPoint(window.bounds.getSouthEast());
     p.style.clipPath = 'polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'
                      + b.x + 'px ' + b.y + 'px,' + a.x + 'px ' + b.y + 'px)';
+    if (!bordEl) return;
+    const w = b.x - a.x, h = b.y - a.y;
+    const f = Math.max(18, Math.min(90, Math.round(FONDU * Math.min(w, h))));
+    bordEl.style.left = a.x + 'px';  bordEl.style.top = a.y + 'px';
+    bordEl.style.width = w + 'px';   bordEl.style.height = h + 'px';
+    bordEl.style.boxShadow = 'inset 0 0 ' + f + 'px ' + FOND_CARTE[baseCourante][0];
   }
 
   /* Le panneau des terres sauvages passait SOUS le sélecteur de couches, qui est
@@ -138,6 +155,12 @@
 
     // le fond actif au chargement compte aussi
     if (window.map) {
+      // volet dedie : au-dessus des tuiles (200), sous les traces vectoriels (350)
+      window.map.createPane('bord').style.zIndex = 250;
+      window.map.getPane('bord').style.pointerEvents = 'none';
+      bordEl = document.createElement('div');
+      bordEl.style.position = 'absolute';
+      window.map.getPane('bord').appendChild(bordEl);
       window.map.on('baselayerchange', e => surFond(e.name));
       if (!choixManuel && document.body.classList.contains('parch')) applique('grimoire', false);
       // baselayerchange ne se déclenche pas au chargement : on pose le fond actif
