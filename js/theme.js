@@ -27,9 +27,29 @@
     applique(courant === 'grimoire' ? 'nocturne' : 'grimoire', true);
   }
 
+  /* Fond derrière la carte : relevé sur les tuiles réelles de chaque base.
+     Sans ça, une bordure nette encadre le monde au lieu de s'y fondre. */
+  const FOND_CARTE = { Parchemin: '#c5aa7f', Satellite: '#05132e', Terrain: '#133465' };
+  function majFondCarte(nomFond) {
+    const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
+    if (cle) document.documentElement.style.setProperty('--fond-carte', FOND_CARTE[cle]);
+  }
+
+  /* Le panneau des terres sauvages passait SOUS le sélecteur de couches, qui est
+     haut et toujours déplié en desktop. On le place juste dessous, à la mesure. */
+  function placeTlegend() {
+    const t = document.getElementById('tlegend');
+    const c = document.querySelector('.leaflet-top.leaflet-right');
+    if (!t || !c || window.innerWidth <= 640) { if (t) t.style.top = ''; return; }
+    const b = c.getBoundingClientRect();
+    t.style.top = (b.bottom > 0 ? Math.round(b.bottom) + 12 : 60) + 'px';
+    t.style.maxHeight = '';           // top + bottom suffisent à le borner
+  }
+
   /* Le fond Parchemin propose Grimoire — il ne l'impose pas si l'utilisateur
      a déjà tranché lui-même pendant la session. */
   function surFond(nomFond) {
+    majFondCarte(nomFond);
     if (choixManuel) return;
     applique(/Parchemin/.test(nomFond) ? 'grimoire' : 'nocturne', false);
   }
@@ -51,7 +71,15 @@
     if (window.map) {
       window.map.on('baselayerchange', e => surFond(e.name));
       if (!choixManuel && document.body.classList.contains('parch')) applique('grimoire', false);
+      if (document.body.classList.contains('parch')) majFondCarte('Parchemin');
+      window.map.on('overlayadd overlayremove', () => setTimeout(placeTlegend, 30));
     }
+    placeTlegend();
+    addEventListener('resize', () => setTimeout(placeTlegend, 60));
+    // le sélecteur de couches change de hauteur quand on le déplie
+    const ctl = document.querySelector('.leaflet-control-layers');
+    if (ctl) ['mouseenter', 'click'].forEach(ev =>
+      ctl.addEventListener(ev, () => setTimeout(placeTlegend, 40)));
   }
 
   window.INARAMA_theme = { get: () => courant, set: t => { choixManuel = true; applique(t, true); }, bascule };

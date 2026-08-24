@@ -6,11 +6,14 @@
 <title>Inarama — Atlas</title>
 <link rel="stylesheet" href="lib/leaflet.css"/>
 <style>
-  html,body{margin:0;height:100%;background:var(--fond);
+  html,body{margin:0;height:100%;background:var(--fond-carte);
     font-family:var(--f-ui);color:var(--txt);
-    transition:background var(--tr),color var(--tr)}
+    transition:background .3s ease,color var(--tr)}
   #map{position:absolute;inset:0}
-  .leaflet-container{background:var(--fond);font-family:var(--f-ui)}
+  /* le fond DOIT se confondre avec la tuile : sinon une bordure nette
+     encadre le monde. Valeur pilotée par theme.js selon le fond actif. */
+  .leaflet-container{background:var(--fond-carte);font-family:var(--f-ui);
+    transition:background .3s ease}
   /* le chevron du sélecteur de couches : image absente du dépôt, on la dessine */
   a.leaflet-control-layers-toggle{background-image:none}
   a.leaflet-control-layers-toggle::before{content:"\2630";font-size:19px;
