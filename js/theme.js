@@ -33,12 +33,14 @@
      complète du zoom 3 — c'est exactement ce qui touche le fond de page.
      Pas de texture répétée : le motif se voyait, et à l'échelle où ce fond est
      visible (dézoomé) le grain de la carte ne se lit pas. */
-  // Parchemin a DEUX valeurs : sous le seuil du décor c'est lui qui borde la vue
-  // (son parchemin est plus sourd), au-delà ce sont les tuiles.
+  /* Le fond reprend la TEXTURE même des tuiles, prélevée au zoom 7 (détail
+     maximal) et rendue répétable par décalage-fondu — pas par miroir, qui
+     fabriquait un motif en losange bien visible. Un aplat ne pouvait pas
+     se raccorder : les trois fonds ont du grain. */
   const FOND_CARTE = {
-    Parchemin: ['#b09874', '#d5b98c'],   // [décor visible, décor masqué]
-    Satellite: ['#05132e'],
-    Terrain:   ['#030412'],
+    Parchemin: ['#d2b689', 'img/fond-parchemin.jpg'],
+    Satellite: ['#04152e', 'img/fond-satellite.jpg'],
+    Terrain:   ['#050418', 'img/fond-terrain.jpg'],
   };
   let baseCourante = 'Terrain';
 
@@ -46,10 +48,9 @@
     const cle = Object.keys(FOND_CARTE).find(k => new RegExp(k).test(nomFond || ''));
     if (cle) baseCourante = cle;
     const c = document.querySelector('.leaflet-container');
-    if (!c || !window.map) return;
-    const v = FOND_CARTE[baseCourante];
-    const z = window.map.getZoom();
-    c.style.background = (v.length > 1 && z > 5.5) ? v[1] : v[0];
+    if (!c) return;
+    const [col, img] = FOND_CARTE[baseCourante];
+    c.style.background = col + " url('" + img + "') repeat";
   }
 
   /* Le remplissage NOIR est cuit dans les tuiles JPEG (la grille est carrée, le
