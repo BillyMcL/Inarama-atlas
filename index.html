@@ -46,7 +46,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-24z">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25a">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -67,7 +67,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-24z';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25a';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -330,38 +330,42 @@ const ScaleKm=L.Control.extend({
 map.addControl(new ScaleKm());
 // labels calligraphiés (IM Fell) quand le fond Parchemin est actif
 // fond Parchemin : labels calligraphiés + surcouche décor (cadre/cartouches/roses) calée sur la carte
-map.createPane('decor'); map.getPane('decor').style.zIndex=680;   // au-dessus des marqueurs (600) : cache lieux/provinces sous le décor
+// ── Fond Parchemin : trois couches distinctes (architecture « parchemin vide ») ──
+// 1) VIDEO : la table d'auberge + bougies qui vacillent + parchemin VIDE (sans
+//    ornement) + bord dechire. VP9 alpha, trou transparent au centre. Zoome avec
+//    la carte ; lisse, donc jamais de pixel meme agrandie. Bornes = toute la table.
+// 2) ORNEMENT : rendu VECTORIEL du SVG (roses, nuages, cartouches), NET a tout
+//    zoom. Encre-sur-blanc en fondu MULTIPLY : le blanc s'efface, l'encre
+//    s'imprime sur le parchemin, le centre (blanc) laisse voir la carte.
+// 3) CHAMP : teinte les tuiles au ton du parchemin sous la bougie. Se fond a zero
+//    en zoomant, pour que la carte redevienne claire et lisible (priorite absolue).
+map.createPane('decor'); map.getPane('decor').style.zIndex=680;
 map.getPane('decor').style.pointerEvents='none';
-// champ de lumière des bougies : multiplie les tuiles pour qu'elles épousent le
-// ton du parchemin sous la même lumière. Calé sur les bornes du monde (= l'ouverture).
-map.createPane('champ'); map.getPane('champ').style.zIndex=250;   // au-dessus des tuiles (200), sous les marqueurs
+map.createPane('ornement'); map.getPane('ornement').style.zIndex=685;   // l'encre SUR le parchemin
+map.getPane('ornement').style.mixBlendMode='multiply'; map.getPane('ornement').style.pointerEvents='none';
+map.createPane('champ'); map.getPane('champ').style.zIndex=250;
 map.getPane('champ').style.mixBlendMode='multiply'; map.getPane('champ').style.pointerEvents='none';
 const _B=window.INARAMA_BUILD;
 const parchChamp=L.imageOverlay('img/champ_lumiere.png?v='+_B, bounds,
   {interactive:false,pane:'champ',className:'pchamp'});
-// la scène sur table : vidéo VP9 à canal alpha (trou transparent au centre), qui
-// ZOOME avec la carte. Bornes = la table entière ; l'ouverture tombe pile sur le
-// monde. Toute la composition (table, bougies, ornement) grandit quand on zoome.
-const _vB=L.latLngBounds(c2ll([-47289,-18698]),c2ll([66739,45477]));
+const _vB=L.latLngBounds(c2ll([-47289,-18698]),c2ll([66739,45477]));   // toute la table
 const parchDecor=L.videoOverlay('img/table_fond.webm?v='+_B, _vB,
   {interactive:false,pane:'decor',className:'pdecor',autoplay:true,loop:true,muted:true,playsInline:true,keepAspectRatio:false});
-window.parchDecor=parchDecor;
-window.parchDecor=parchDecor; window.parchChamp=parchChamp;
+const _oB=L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847]));   // l'ornement, cale sur le decor
+const parchOrn=L.imageOverlay('img/ornement.jpg?v='+_B, _oB,
+  {interactive:false,pane:'ornement',className:'pornement'});
+window.parchDecor=parchDecor; window.parchChamp=parchChamp; window.parchOrn=parchOrn;
 function updateDecor(){const on=document.body.classList.contains('parch');
-  if(!on){[parchDecor,parchChamp].forEach(l=>map.removeLayer(l)); return;}
-  const z=map.getZoom();
-  // PRINCIPE (comme « avant ») : tout le decor s'efface en zoomant. Dezoome, la
-  // belle table aux bougies ; zoome, la carte pure, claire et nette — aucune
-  // image agrandie donc aucun pixel. La scene 3D est le CADRE, pas la carte.
-  //   champ (assombrit les tuiles) : plein a z<=3, nul a z>=5
-  //   video (table+ornement)        : pleine a z<=4, nulle a z>=5.5
-  const opChamp=Math.max(0, Math.min(1, (5 - z) / 2));
-  const opDecor=Math.max(0, Math.min(1, (5.5 - z) / 1.5));
+  if(!on){[parchDecor,parchChamp,parchOrn].forEach(l=>map.removeLayer(l)); return;}
+  // video et ornement RESTENT (ils zooment avec la carte et sortent naturellement
+  // du champ quand on zoome — la video est lisse, l'ornement est net : aucun pixel).
+  if(!map.hasLayer(parchDecor)){ parchDecor.addTo(map);
+    const v=parchDecor.getElement(); if(v){v.muted=true; v.play&&v.play().catch(()=>{});} }
+  map.hasLayer(parchOrn)||parchOrn.addTo(map);
+  // seul le champ se fond au zoom, pour la lisibilite de la carte
+  const opChamp=Math.max(0, Math.min(1, (5 - map.getZoom()) / 2));
   if(opChamp>0.01){ map.hasLayer(parchChamp)||parchChamp.addTo(map); parchChamp.setOpacity(opChamp); }
-  else map.removeLayer(parchChamp);
-  if(opDecor>0.01){ map.hasLayer(parchDecor)||parchDecor.addTo(map); parchDecor.setOpacity(opDecor);
-         const v=parchDecor.getElement(); if(v){v.muted=true; v.play&&v.play().catch(()=>{});} }
-  else map.removeLayer(parchDecor);}
+  else map.removeLayer(parchChamp);}
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
 
@@ -463,12 +467,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-24z"></script>
-<script src="js/fond.js?v=2026-08-24z"></script>
-<script src="js/marge_decor.js?v=2026-08-24z"></script>
-<script src="js/brulure.js?v=2026-08-24z"></script>
-<script src="js/panel.js?v=2026-08-24z"></script>
-<script src="js/explo.js?v=2026-08-24z"></script>
-<script src="js/search.js?v=2026-08-24z"></script>
+<script src="js/theme.js?v=2026-08-25a"></script>
+<script src="js/fond.js?v=2026-08-25a"></script>
+<script src="js/marge_decor.js?v=2026-08-25a"></script>
+<script src="js/brulure.js?v=2026-08-25a"></script>
+<script src="js/panel.js?v=2026-08-25a"></script>
+<script src="js/explo.js?v=2026-08-25a"></script>
+<script src="js/search.js?v=2026-08-25a"></script>
 </body>
 </html>
