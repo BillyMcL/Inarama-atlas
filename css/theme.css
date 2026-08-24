@@ -24,22 +24,23 @@
 
 /* ─────────────────────────── NOCTURNE (défaut) ─────────────────────────── */
 :root, body.nocturne{
-  --fond:      #070b12;   /* fond des panneaux */
-  --fond-2:    #101724;   /* surface surélevée : lignes survolées, champs */
-  --fond-3:    #0b111b;   /* surface creusée : en-têtes collants */
-  --fond-sel:  #16273c;   /* sélection */
-  --txt:       #e8eaed;
-  --txt-2:     #a3b1c0;
-  --txt-3:     #75879a;   /* étiquettes, compteurs */
-  --bord:      #2a3440;
-  --bord-fort: #3d4c5c;
+  /* Gris NEUTRES, sans dominante bleue : l'or est la seule note colorée. */
+  --fond:      #0b0b0c;   /* fond des panneaux */
+  --fond-2:    #191a1c;   /* surface surélevée : lignes survolées, champs */
+  --fond-3:    #121213;   /* surface creusée : en-têtes collants */
+  --fond-sel:  #2a2b2e;   /* sélection */
+  --txt:       #ededee;
+  --txt-2:     #adaeb1;
+  --txt-3:     #85868a;   /* étiquettes, compteurs */
+  --bord:      #2c2d30;
+  --bord-fort: #45474b;
   --acc:       #f5d98a;   /* or : accent unique, jamais décoratif */
   --acc-2:     #8a6d2f;   /* or éteint : filets, bordures d'accent */
   --sur-acc:   #1a1408;   /* texte posé sur l'or */
-  --ombre-1:0 2px 10px rgba(0,0,0,.45);
-  --ombre-2:0 10px 34px rgba(0,0,0,.62);
-  --voile:rgba(7,11,18,.94);
-  --lien:      #8fb4d8;   /* renvois et actions secondaires */
+  --ombre-1:0 2px 10px rgba(0,0,0,.55);
+  --ombre-2:0 10px 34px rgba(0,0,0,.7);
+  --voile:rgba(11,11,12,.95);
+  --lien:      #f5d98a;   /* le renvoi prend l'or : rien d'autre n'est coloré */
   --code:      #c9b98f;
   --sur-fort:  #ffffff;   /* contraste maximal : surlignage de recherche */
   /* pastilles d'échelon : 5 identités DISTINCTES, jamais un dégradé
@@ -176,6 +177,23 @@ body.grimoire #brand{text-shadow:0 1px 0 rgba(255,250,235,.55)}
 .tztip::before{border-top-color:var(--bord)}
 .tzsw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;
   vertical-align:-1px;border:1px solid rgba(0,0,0,.35)}
+
+/* ═══ cohabitation des panneaux et du chrome ═══
+   Les contrôles Leaflet sont au-dessus de tout (z-index 1000) : plutôt que de
+   leur passer par-dessus, on les DÉCALE quand un panneau occupe leur bord.
+   Sinon le sélecteur de couches recouvre la fiche. */
+.leaflet-top.leaflet-right,.leaflet-bottom.leaflet-right,
+.leaflet-bottom.leaflet-left,#themeBtn,#legend,#legendBtn,#tlegend{
+  transition:transform var(--tr)}
+@media(min-width:641px){
+  body.fiche-on .leaflet-top.leaflet-right,
+  body.fiche-on .leaflet-bottom.leaflet-right,
+  body.fiche-on #themeBtn,
+  body.fiche-on #tlegend{transform:translateX(-382px)}
+  body.explo-on .leaflet-bottom.leaflet-left,
+  body.explo-on #legend,
+  body.explo-on #legendBtn{transform:translateX(334px)}
+}
 
 @media(max-width:640px){
   #legend{max-height:50vh;max-width:172px}

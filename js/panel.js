@@ -26,8 +26,8 @@
   const lieux = () => D.lieux.features.map(f => f.properties);
 
   /* ─────────── ouverture / fermeture ─────────── */
-  function ouvre() { el.classList.add('on'); }
-  function ferme() { el.classList.remove('on'); pile = []; }
+  function ouvre() { el.classList.add('on'); document.body.classList.add('fiche-on'); }
+  function ferme() { el.classList.remove('on'); document.body.classList.remove('fiche-on'); pile = []; }
 
   function rends(html, sansEmpiler) {
     if (!sansEmpiler) corps.scrollTop = 0;

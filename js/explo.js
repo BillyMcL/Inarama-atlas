@@ -198,6 +198,37 @@
     }));
   }
 
+  /* ─────────── onglet LORE : accès direct au wiki ───────────
+     Sans lui, les articles n'étaient atteignables qu'en passant par un lieu
+     ou par la recherche. */
+  let indexWiki = null;
+  const SECTIONS = { racine: 'Fondations', cadre: 'Le cadre', geographie: 'Géographie',
+                     peuples: 'Les peuples', magie: 'La magie', mythologie: 'Mythologie' };
+
+  function rendLore() {
+    if (!indexWiki) {
+      corps.innerHTML = '<div class="vide">Chargement du lore…</div>';
+      return fetch('wiki/index.json').then(r => r.json())
+        .then(j => { indexWiki = j; rendLore(); })
+        .catch(() => { corps.innerHTML = '<div class="vide">Wiki indisponible.</div>'; });
+    }
+    const parSec = {};
+    for (const a of indexWiki.articles) (parSec[a.section] ||= []).push(a);
+    const ordre = Object.keys(SECTIONS).filter(s => parSec[s])
+      .concat(Object.keys(parSec).filter(s => !SECTIONS[s]));
+    corps.innerHTML = ordre.map(s =>
+      '<div class="grp"><b>' + ech(SECTIONS[s] || s) + '</b>'
+      + parSec[s].sort((a, b) => a.titre.localeCompare(b.titre)).map(a =>
+        '<button class="lg" data-art="' + ech(a.slug) + '">'
+        + '<span class="fl"></span><span class="n">' + ech(a.titre) + '</span>'
+        + '<span class="c">' + a.ancres.length + '</span></button>').join('')
+      + '</div>').join('')
+      + '<div class="plus">Lore ' + ech(indexWiki.meta.lore.commitCourt) + ' · '
+      + indexWiki.articles.length + ' articles</div>';
+    corps.querySelectorAll('[data-art]').forEach(b =>
+      b.addEventListener('click', () => window.INARAMA_fiche.article(b.dataset.art)));
+  }
+
   /* ─────────── cadrage ─────────── */
   function cadreRoyaume(nom) {
     const f = D.royaumes.features.find(x => x.properties.n === nom);
@@ -222,10 +253,10 @@
     el.querySelectorAll('.onglets button').forEach(b =>
       b.classList.toggle('act', b.dataset.o === quel));
     corps.scrollTop = 0;
-    quel === 'index' ? rendIndex() : rendFiltres();
+    ({ index: rendIndex, filtres: rendFiltres, lore: rendLore })[quel]();
   }
-  function ouvre() { el.classList.add('on'); montre(onglet); }
-  function ferme() { el.classList.remove('on'); }
+  function ouvre() { el.classList.add('on'); document.body.classList.add('explo-on'); montre(onglet); }
+  function ferme() { el.classList.remove('on'); document.body.classList.remove('explo-on'); }
 
   function init() {
     btn = document.createElement('button');
@@ -236,6 +267,7 @@
     el.id = 'explo';
     el.innerHTML = '<div class="poignee"></div>'
       + '<div class="onglets"><button data-o="index" class="act">Index</button>'
+      + '<button data-o="lore">Lore</button>'
       + '<button data-o="filtres">Filtres</button>'
       + '<button class="fermer" aria-label="Fermer">×</button></div>'
       + '<div class="actifs"></div><div class="corps"></div>';
