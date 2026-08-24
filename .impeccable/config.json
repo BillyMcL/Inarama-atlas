@@ -10,10 +10,19 @@
         "reason": "halo de lisibilite intentionnel: encre sepia IM Fell sur texture parchemin variable (fond Parchemin) - verifie dans le code, pas un glow decoratif"
       },
       {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-08-24T00:16:25.000Z",
+        "reason": "l'union 11/13/16/19/21 melange DEUX echelles de libelles de carte mutuellement exclusives (nocturne 11-14-18 ratios 1.27/1.29 ; body.parch 13-16-21 ratios 1.23/1.31) plus la taille d'une icone. Chaque rendu reel a une hierarchie nette. Libelles PORTES PAR LA CARTE, hors perimetre de la refonte du chrome"
+      },
+      {
         "rule": "side-tab",
-        "value": "border-left:3px solid #38495a",
-        "createdAt": "2026-08-23T23:52:18.372Z",
-        "reason": "bord gauche de BLOCKQUOTE dans un article de lore, pas un onglet decoratif sur une carte : convention typographique de la citation, que le brief impose de preserver. Teinte neutre sourde"
+        "value": "border-left:3px solid var(--bord-fort)",
+        "createdAt": "2026-08-24T00:16:52.890Z",
+        "reason": "bord gauche de BLOCKQUOTE dans un article de lore : convention typographique de la citation, que le brief impose de preserver. Remplace l'entree litterale, obsolete depuis la tokenisation du theme"
       }
     ]
   }

@@ -4,19 +4,19 @@
 
 /* sous le bloc de marque (lui aussi à left:52px), pas dessus */
 #exploBtn{position:absolute;top:48px;left:52px;z-index:700;
-  background:rgba(16,20,28,.92);border:1px solid #2a3440;border-radius:9px;color:#c9d3de;
-  font:600 12px/1 system-ui,Arial,sans-serif;padding:0 13px;height:34px;cursor:pointer;
-  box-sizing:border-box;box-shadow:0 4px 16px rgba(0,0,0,.45);
+  background:var(--voile);border:1px solid var(--bord);border-radius:9px;color:var(--txt-2);
+  font:600 12px/1 var(--f-ui);padding:0 13px;height:34px;cursor:pointer;
+  box-sizing:border-box;box-shadow:var(--ombre-1);
   display:inline-flex;align-items:center;gap:7px}
-#exploBtn:hover{border-color:#43566a;color:#e8eef4}
-#exploBtn .nb{font-size:10px;background:#2d4f7d;color:#dbe8f5;border-radius:9px;padding:2px 6px}
+#exploBtn:hover{border-color:var(--bord-fort);color:var(--txt)}
+#exploBtn .nb{font-size:10px;background:var(--acc);color:var(--sur-acc);border-radius:9px;padding:2px 6px}
 
 #explo{position:absolute;z-index:740;display:flex;flex-direction:column;
-  background:rgba(12,16,23,.97);border:1px solid #2a3440;color:#dfe6ee;
-  font:13.5px/1.5 system-ui,Arial,sans-serif;box-shadow:0 8px 40px rgba(0,0,0,.6);
+  background:var(--voile);border:1px solid var(--bord);color:var(--txt);
+  font:13.5px/1.5 var(--f-ui);box-shadow:var(--ombre-2);
   transition:transform .22s ease,opacity .22s ease}
 
-#explo .poignee{display:none;width:38px;height:4px;border-radius:2px;background:#3d4a58;
+#explo .poignee{display:none;width:38px;height:4px;border-radius:2px;background:var(--bord-fort);
   margin:7px auto 0;flex:none}
 
 @media(min-width:641px){
@@ -34,61 +34,61 @@
   #exploBtn{top:auto;bottom:46px;left:92px;height:40px}
 }
 
-#explo .onglets{flex:none;display:flex;border-bottom:1px solid #212b36;position:relative}
-#explo .onglets button{flex:1;background:none;border:0;color:#8b9bab;cursor:pointer;
-  font:600 11px/1 system-ui;letter-spacing:.05em;text-transform:uppercase;padding:13px 0 11px;
+#explo .onglets{flex:none;display:flex;border-bottom:1px solid var(--bord);position:relative}
+#explo .onglets button{flex:1;background:none;border:0;color:var(--txt-3);cursor:pointer;
+  font:600 11px/1 var(--f-ui);letter-spacing:.05em;text-transform:uppercase;padding:13px 0 11px;
   border-bottom:2px solid transparent}
-#explo .onglets button.act{color:#e8eef4;border-bottom-color:#7fb0e0}
+#explo .onglets button.act{color:var(--txt);border-bottom-color:var(--acc)}
 #explo .fermer{position:absolute;top:7px;right:8px;width:30px;height:30px;background:none;
-  border:0;color:#8b9bab;font-size:19px;line-height:1;cursor:pointer;border-radius:7px}
-#explo .fermer:hover{background:#1d2733;color:#e8eef4}
+  border:0;color:var(--txt-3);font-size:19px;line-height:1;cursor:pointer;border-radius:7px}
+#explo .fermer:hover{background:var(--fond-2);color:var(--txt)}
 
 #explo .corps{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:9px 8px 16px}
 
 /* ── bandeau des filtres actifs, visible en permanence ── */
 #explo .actifs{flex:none;display:none;gap:5px;flex-wrap:wrap;align-items:center;
-  padding:8px 10px;border-bottom:1px solid #212b36;background:#111823}
+  padding:8px 10px;border-bottom:1px solid var(--bord);background:var(--fond-3)}
 #explo .actifs.on{display:flex}
 #explo .puce{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 5px 3px 9px;
-  border-radius:11px;background:#243447;border:1px solid #3a5570;color:#dbe8f5}
+  border-radius:11px;background:var(--fond-sel);border:1px solid var(--bord-fort);color:var(--txt)}
 #explo .puce b{font-weight:600}
-#explo .puce button{background:none;border:0;color:#9fb6cc;cursor:pointer;font-size:13px;
+#explo .puce button{background:none;border:0;color:var(--txt-3);cursor:pointer;font-size:13px;
   line-height:1;padding:0 2px}
-#explo .puce button:hover{color:#fff}
-#explo .vider{margin-left:auto;background:none;border:0;color:#8fb4d8;cursor:pointer;
-  font:600 11px/1 system-ui;text-decoration:underline;padding:3px}
+#explo .puce button:hover{color:var(--sur-fort)}
+#explo .vider{margin-left:auto;background:none;border:0;color:var(--lien);cursor:pointer;
+  font:600 11px/1 var(--f-ui);text-decoration:underline;padding:3px}
 
 /* ── filtres ── */
 #explo .grp{margin:0 0 14px}
-#explo .grp > b{display:block;font:600 10px/1 system-ui;letter-spacing:.07em;
-  text-transform:uppercase;color:#7f93a6;margin:0 0 6px;padding:0 2px}
+#explo .grp > b{display:block;font:600 10px/1 var(--f-ui);letter-spacing:.07em;
+  text-transform:uppercase;color:var(--txt-3);margin:0 0 6px;padding:0 2px}
 #explo .chx{display:flex;flex-wrap:wrap;gap:4px}
 #explo .chx label{display:inline-flex;align-items:center;gap:5px;font-size:12px;
-  padding:5px 9px;border-radius:8px;background:#161f2a;border:1px solid #232f3c;
-  color:#c2cedb;cursor:pointer;user-select:none}
-#explo .chx label:hover{border-color:#31465a}
+  padding:5px 9px;border-radius:8px;background:var(--fond-2);border:1px solid var(--bord);
+  color:var(--txt-2);cursor:pointer;user-select:none}
+#explo .chx label:hover{border-color:var(--bord-fort)}
 #explo .chx input{display:none}
-#explo .chx input:checked + span{color:#fff}
-#explo .chx label:has(input:checked){background:#243447;border-color:#3a5570}
+#explo .chx input:checked + span{color:var(--sur-fort)}
+#explo .chx label:has(input:checked){background:var(--fond-sel);border-color:var(--bord-fort)}
 #explo .chx .pip{width:9px;height:9px;border-radius:50%;flex:none}
-#explo select{width:100%;box-sizing:border-box;background:#161f2a;border:1px solid #232f3c;
-  color:#dfe6ee;border-radius:8px;padding:7px 9px;font:12.5px system-ui;cursor:pointer}
-#explo select:focus{outline:0;border-color:#3a5570}
+#explo select{width:100%;box-sizing:border-box;background:var(--fond-2);border:1px solid var(--bord);
+  color:var(--txt);border-radius:8px;padding:7px 9px;font:12.5px var(--f-ui);cursor:pointer}
+#explo select:focus{outline:0;border-color:var(--bord-fort)}
 
 /* ── index arborescent ── */
 #explo .noeud{border-radius:7px}
 #explo .lg{display:flex;align-items:center;gap:7px;padding:6px 7px;border-radius:7px;
-  cursor:pointer;background:none;border:0;width:100%;text-align:left;color:#cfdcea;font-size:13px}
-#explo .lg:hover{background:#1a232e}
-#explo .lg .fl{flex:none;width:11px;color:#7f93a6;font-size:10px;transition:transform .15s}
+  cursor:pointer;background:none;border:0;width:100%;text-align:left;color:var(--txt-2);font-size:13px}
+#explo .lg:hover{background:var(--fond-2)}
+#explo .lg .fl{flex:none;width:11px;color:var(--txt-3);font-size:10px;transition:transform .15s}
 #explo .noeud.ouv > .lg .fl{transform:rotate(90deg)}
 #explo .lg .n{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-#explo .lg .c{flex:none;font-size:11px;color:#7f8fa0}
+#explo .lg .c{flex:none;font-size:11px;color:var(--txt-3)}
 #explo .lg .pip{flex:none;width:8px;height:8px;border-radius:50%}
-#explo .enfants{display:none;margin-left:13px;border-left:1px solid #212b36;padding-left:5px}
+#explo .enfants{display:none;margin-left:13px;border-left:1px solid var(--bord);padding-left:5px}
 #explo .noeud.ouv > .enfants{display:block}
 #explo .cadrer{flex:none;background:none;border:0;cursor:pointer;
-  font-size:11px;padding:2px 5px;border-radius:5px;color:#7f93a6}
-#explo .cadrer:hover{background:#243447;color:#dbe8f5}
-#explo .vide{color:#7f8fa0;font-size:12.5px;font-style:italic;padding:8px 6px}
-#explo .plus{font-size:11.5px;color:#7f93a6;padding:5px 8px}
+  font-size:11px;padding:2px 5px;border-radius:5px;color:var(--txt-3)}
+#explo .cadrer:hover{background:var(--fond-sel);color:var(--txt)}
+#explo .vide{color:var(--txt-3);font-size:12.5px;font-style:italic;padding:8px 6px}
+#explo .plus{font-size:11.5px;color:var(--txt-3);padding:5px 8px}
