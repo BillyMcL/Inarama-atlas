@@ -4,12 +4,6 @@
     "ignoreFiles": [],
     "ignoreValues": [
       {
-        "rule": "dark-glow",
-        "value": "#ece0c6",
-        "createdAt": "2026-08-23T02:46:07.437Z",
-        "reason": "halo de lisibilite intentionnel: encre sepia IM Fell sur texture parchemin variable (fond Parchemin) - verifie dans le code, pas un glow decoratif"
-      },
-      {
         "rule": "flat-type-hierarchy",
         "value": "*",
         "files": [
@@ -23,6 +17,15 @@
         "value": "border-left:3px solid var(--bord-fort)",
         "createdAt": "2026-08-24T00:16:52.890Z",
         "reason": "bord gauche de BLOCKQUOTE dans un article de lore : convention typographique de la citation, que le brief impose de preserver. Remplace l'entree litterale, obsolete depuis la tokenisation du theme"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-08-24T00:19:08.210Z",
+        "reason": "index.html ne contient plus que les styles des LIBELLES PORTES PAR LA CARTE (hors perimetre). Leurs text-shadow sans decalage sont des halos de LISIBILITE : encre sepia ou texte clair pose sur des tuiles de texture variable, sans quoi le nom devient illisible. Aucun glow decoratif"
       }
     ]
   }
