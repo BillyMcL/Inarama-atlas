@@ -46,7 +46,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25d">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25e">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -67,7 +67,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25d';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25e';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -361,10 +361,18 @@ const parchOrn=L.imageOverlay('img/ornement.jpg?v='+_B, _oB,
 window.parchDecor=parchDecor; window.parchChamp=parchChamp; window.parchOrn=parchOrn;
 function updateDecor(){const on=document.body.classList.contains('parch');
   if(!on){[parchDecor,parchChamp,parchOrn].forEach(l=>map.removeLayer(l)); return;}
+  // La video parchemin (sous les tuiles) RESTE : au zoom, la carte la couvre et
+  // sa marge sort de l'ecran, donc elle n'apparait jamais agrandie a l'ecran.
   if(!map.hasLayer(parchDecor)){ parchDecor.addTo(map);
     const v=parchDecor.getElement(); if(v){v.muted=true; v.play&&v.play().catch(()=>{});} }
-  map.hasLayer(parchOrn)||parchOrn.addTo(map);
-  const opChamp=Math.max(0, Math.min(1, (5 - map.getZoom()) / 2));   // champ se fond au zoom
+  const z=map.getZoom();
+  // L'ORNEMENT et le CHAMP se fondent en zoomant : ce sont le CADRE de la vue
+  // dezoomee. Zoome, on veut la carte nette et lisible, pas l'ornement (image
+  // fixe) agrandi et flou par-dessus. Dezoome : la composition complete.
+  const opOrn=Math.max(0, Math.min(1, (5.5 - z) / 1.5));   // plein z<=4, nul z>=5.5
+  if(opOrn>0.01){ map.hasLayer(parchOrn)||parchOrn.addTo(map); parchOrn.setOpacity(opOrn); }
+  else map.removeLayer(parchOrn);
+  const opChamp=Math.max(0, Math.min(1, (5 - z) / 2));     // plein z<=3, nul z>=5
   if(opChamp>0.01){ map.hasLayer(parchChamp)||parchChamp.addTo(map); parchChamp.setOpacity(opChamp); }
   else map.removeLayer(parchChamp);}
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
@@ -468,12 +476,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25d"></script>
-<script src="js/fond.js?v=2026-08-25d"></script>
-<script src="js/marge_decor.js?v=2026-08-25d"></script>
-<script src="js/brulure.js?v=2026-08-25d"></script>
-<script src="js/panel.js?v=2026-08-25d"></script>
-<script src="js/explo.js?v=2026-08-25d"></script>
-<script src="js/search.js?v=2026-08-25d"></script>
+<script src="js/theme.js?v=2026-08-25e"></script>
+<script src="js/fond.js?v=2026-08-25e"></script>
+<script src="js/marge_decor.js?v=2026-08-25e"></script>
+<script src="js/brulure.js?v=2026-08-25e"></script>
+<script src="js/panel.js?v=2026-08-25e"></script>
+<script src="js/explo.js?v=2026-08-25e"></script>
+<script src="js/search.js?v=2026-08-25e"></script>
 </body>
 </html>
