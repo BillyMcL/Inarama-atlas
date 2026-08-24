@@ -46,7 +46,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-24n">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-24r">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -67,7 +67,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-24n';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-24r';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -333,8 +333,10 @@ map.addControl(new ScaleKm());
 map.createPane('decor'); map.getPane('decor').style.zIndex=680;   // au-dessus des marqueurs (600) : cache lieux/provinces sous le décor
 const parchDecor=L.imageOverlay('decor_overlay.png?v='+window.INARAMA_BUILD,
   L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847])),{interactive:false,pane:'decor',className:'pdecor'});
+window.parchDecor=parchDecor;   // le bord VISIBLE de la carte au parchemin, c'est cette planche
 function updateDecor(){const on=document.body.classList.contains('parch')&&map.getZoom()<=5.5;
-  if(on){map.hasLayer(parchDecor)||parchDecor.addTo(map);}else map.removeLayer(parchDecor);}
+  if(on){map.hasLayer(parchDecor)||parchDecor.addTo(map);}else map.removeLayer(parchDecor);
+  if(window.INARAMA_brulure) window.INARAMA_brulure.rafraichis();}
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
 
@@ -436,10 +438,11 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-24n"></script>
-<script src="js/fond.js?v=2026-08-24n"></script>
-<script src="js/panel.js?v=2026-08-24n"></script>
-<script src="js/explo.js?v=2026-08-24n"></script>
-<script src="js/search.js?v=2026-08-24n"></script>
+<script src="js/theme.js?v=2026-08-24r"></script>
+<script src="js/fond.js?v=2026-08-24r"></script>
+<script src="js/brulure.js?v=2026-08-24r"></script>
+<script src="js/panel.js?v=2026-08-24r"></script>
+<script src="js/explo.js?v=2026-08-24r"></script>
+<script src="js/search.js?v=2026-08-24r"></script>
 </body>
 </html>

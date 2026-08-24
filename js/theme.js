@@ -64,6 +64,7 @@
     const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
     c.style.backgroundColor = f.col;
     if (window.INARAMA_fond) window.INARAMA_fond.actif(f.mode === 'adaptatif');
+    if (window.INARAMA_brulure) window.INARAMA_brulure.actif(f.mode === 'scene');
     if (f.mode === 'adaptatif') {
       c.style.backgroundImage = 'none';
     } else {
@@ -115,8 +116,11 @@
     const p = m.getPane('tilePane'); if (!p) return;
     const a = m.latLngToLayerPoint(window.bounds.getNorthWest());
     const b = m.latLngToLayerPoint(window.bounds.getSouthEast());
-    p.style.clipPath = 'polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'
-                     + b.x + 'px ' + b.y + 'px,' + a.x + 'px ' + b.y + 'px)';
+    // au parchemin, le rectangle laisse place au contour brule
+    const brule = window.INARAMA_brulure && window.INARAMA_brulure.polygone(a, b);
+    p.style.clipPath = brule
+      || ('polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'
+                     + b.x + 'px ' + b.y + 'px,' + a.x + 'px ' + b.y + 'px)');
     if (!bordEl) return;
     const w = b.x - a.x, h = b.y - a.y;
     const FONDU = FOND_CARTE[baseCourante].fondu;
@@ -174,6 +178,7 @@
       window.map.on('overlayadd overlayremove', () => setTimeout(placeTlegend, 30));
       // le rognage suit le zoom ; le fond aussi (Parchemin change au seuil du décor)
       window.map.on('zoomend viewreset', () => { rogneTuiles(); caleFond(); });
+      window.map.on('zoomanim', () => setTimeout(rogneTuiles, 0));
       window.map.on('move zoom', caleFond);
       rogneTuiles();
     }
