@@ -46,7 +46,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25b">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25d">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -67,7 +67,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25b';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25d';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -331,17 +331,21 @@ map.addControl(new ScaleKm());
 // labels calligraphiés (IM Fell) quand le fond Parchemin est actif
 // fond Parchemin : labels calligraphiés + surcouche décor (cadre/cartouches/roses) calée sur la carte
 // ── Fond Parchemin : trois couches distinctes (architecture « parchemin vide ») ──
-// 1) VIDEO : la table d'auberge + bougies qui vacillent + parchemin VIDE (sans
-//    ornement) + bord dechire. VP9 alpha, trou transparent au centre. Zoome avec
-//    la carte ; lisse, donc jamais de pixel meme agrandie. Bornes = toute la table.
+// 1) VIDEO : table + bougies qui vacillent + parchemin VIDE + bord dechire.
+//    PLEINE (opaque), placee SOUS les tuiles : la carte la couvre, le parchemin
+//    encadre. Le bord net de la carte = celui des tuiles, pas de la video.
 // 2) ORNEMENT : rendu VECTORIEL du SVG (roses, nuages, cartouches), NET a tout
 //    zoom. Encre-sur-blanc en fondu MULTIPLY : le blanc s'efface, l'encre
 //    s'imprime sur le parchemin, le centre (blanc) laisse voir la carte.
 // 3) CHAMP : teinte les tuiles au ton du parchemin sous la bougie. Se fond a zero
 //    en zoomant, pour que la carte redevienne claire et lisible (priorite absolue).
-map.createPane('decor'); map.getPane('decor').style.zIndex=680;
+// Le parchemin (video) passe SOUS les tuiles : la carte tuilee, nette, couvre la
+// video dans ses limites et le parchemin apparait AUTOUR. Ainsi le bord de la
+// carte est celui, net, des tuiles Leaflet — plus d'ouverture bloquee/pixelisee
+// dans la video. La video n'a plus de trou : elle est pleine et opaque.
+map.createPane('decor'); map.getPane('decor').style.zIndex=150;   // SOUS les tuiles (200)
 map.getPane('decor').style.pointerEvents='none';
-map.createPane('ornement'); map.getPane('ornement').style.zIndex=685;   // l'encre SUR le parchemin
+map.createPane('ornement'); map.getPane('ornement').style.zIndex=550;   // encre au-dessus de la carte, sous les marqueurs (600)
 map.getPane('ornement').style.mixBlendMode='multiply'; map.getPane('ornement').style.pointerEvents='none';
 map.createPane('champ'); map.getPane('champ').style.zIndex=250;
 map.getPane('champ').style.mixBlendMode='multiply'; map.getPane('champ').style.pointerEvents='none';
@@ -357,13 +361,10 @@ const parchOrn=L.imageOverlay('img/ornement.jpg?v='+_B, _oB,
 window.parchDecor=parchDecor; window.parchChamp=parchChamp; window.parchOrn=parchOrn;
 function updateDecor(){const on=document.body.classList.contains('parch');
   if(!on){[parchDecor,parchChamp,parchOrn].forEach(l=>map.removeLayer(l)); return;}
-  // video et ornement RESTENT (ils zooment avec la carte et sortent naturellement
-  // du champ quand on zoome — la video est lisse, l'ornement est net : aucun pixel).
   if(!map.hasLayer(parchDecor)){ parchDecor.addTo(map);
     const v=parchDecor.getElement(); if(v){v.muted=true; v.play&&v.play().catch(()=>{});} }
   map.hasLayer(parchOrn)||parchOrn.addTo(map);
-  // seul le champ se fond au zoom, pour la lisibilite de la carte
-  const opChamp=Math.max(0, Math.min(1, (5 - map.getZoom()) / 2));
+  const opChamp=Math.max(0, Math.min(1, (5 - map.getZoom()) / 2));   // champ se fond au zoom
   if(opChamp>0.01){ map.hasLayer(parchChamp)||parchChamp.addTo(map); parchChamp.setOpacity(opChamp); }
   else map.removeLayer(parchChamp);}
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
@@ -467,12 +468,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25b"></script>
-<script src="js/fond.js?v=2026-08-25b"></script>
-<script src="js/marge_decor.js?v=2026-08-25b"></script>
-<script src="js/brulure.js?v=2026-08-25b"></script>
-<script src="js/panel.js?v=2026-08-25b"></script>
-<script src="js/explo.js?v=2026-08-25b"></script>
-<script src="js/search.js?v=2026-08-25b"></script>
+<script src="js/theme.js?v=2026-08-25d"></script>
+<script src="js/fond.js?v=2026-08-25d"></script>
+<script src="js/marge_decor.js?v=2026-08-25d"></script>
+<script src="js/brulure.js?v=2026-08-25d"></script>
+<script src="js/panel.js?v=2026-08-25d"></script>
+<script src="js/explo.js?v=2026-08-25d"></script>
+<script src="js/search.js?v=2026-08-25d"></script>
 </body>
 </html>
