@@ -19,6 +19,10 @@
     transition:background-color .25s ease}
   /* le chevron du sélecteur de couches : image absente du dépôt, on la dessine */
   a.leaflet-control-layers-toggle{background-image:none}
+  /* le decor complet (parchemin+ornement) : le masque decoupe l'ouverture ovale
+     et l'exterieur de la feuille -> il RECOUVRE la carte, sauf l'ovale central */
+  .pdecor-frame{-webkit-mask-image:url('img/decor_mask.png');mask-image:url('img/decor_mask.png');
+    -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
   a.leaflet-control-layers-toggle::before{content:"\2630";font-size:19px;
     display:flex;align-items:center;justify-content:center;height:100%}
   /* ─── styles portés PAR LA CARTE : hors périmètre de la refonte ─── */
@@ -46,7 +50,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25k">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25l">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -67,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25k';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25l';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -356,8 +360,8 @@ const _vB=L.latLngBounds(c2ll([-47289,-18698]),c2ll([66739,45477]));   // toute 
 const parchDecor=L.videoOverlay('img/table_fond.webm?v='+_B, _vB,
   {interactive:false,pane:'decor',className:'pdecor',autoplay:true,loop:true,muted:true,playsInline:true,keepAspectRatio:false});
 const _oB=L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847]));   // l'ornement, cale sur le decor
-const parchOrn=L.imageOverlay('img/ornement.png?v='+_B, _oB,
-  {interactive:false,pane:'ornement',className:'pornement'});
+const parchOrn=L.imageOverlay('img/decor.jpg?v='+_B, _oB,
+  {interactive:false,pane:'ornement',className:'pdecor-frame'});
 window.parchDecor=parchDecor; window.parchChamp=parchChamp; window.parchOrn=parchOrn;
 function updateDecor(){const on=document.body.classList.contains('parch');
   if(!on){[parchDecor,parchChamp,parchOrn].forEach(l=>map.removeLayer(l)); return;}
@@ -480,12 +484,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25k"></script>
-<script src="js/fond.js?v=2026-08-25k"></script>
-<script src="js/marge_decor.js?v=2026-08-25k"></script>
-<script src="js/brulure.js?v=2026-08-25k"></script>
-<script src="js/panel.js?v=2026-08-25k"></script>
-<script src="js/explo.js?v=2026-08-25k"></script>
-<script src="js/search.js?v=2026-08-25k"></script>
+<script src="js/theme.js?v=2026-08-25l"></script>
+<script src="js/fond.js?v=2026-08-25l"></script>
+<script src="js/marge_decor.js?v=2026-08-25l"></script>
+<script src="js/brulure.js?v=2026-08-25l"></script>
+<script src="js/panel.js?v=2026-08-25l"></script>
+<script src="js/explo.js?v=2026-08-25l"></script>
+<script src="js/search.js?v=2026-08-25l"></script>
 </body>
 </html>
