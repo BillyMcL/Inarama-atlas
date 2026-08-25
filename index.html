@@ -50,7 +50,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25p">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25q">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -71,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25p';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25q';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -353,17 +353,26 @@ const parchTable=L.videoOverlay('img/table_fond.webm?v='+_B, _vB,
 const parchDecor=L.imageOverlay('decor_overlay.png?v='+_B,
   L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847])),
   {interactive:false,pane:'decor',className:'pdecor'});
-window.parchDecor=parchDecor; window.parchTable=parchTable;
+// OBJETS POSES SUR LA CARTE (dague, rouleaux, encrier-plume) + leurs ombres,
+// isoles par difference entre deux rendus (avec/sans objets). Ils passent
+// AU-DESSUS du decor : sans ca ils restent sous la carte et on ne les voit pas.
+// Calage sur les bornes de la TABLE, comme la video dont ils sont extraits.
+map.createPane('objets'); map.getPane('objets').style.zIndex=690;
+map.getPane('objets').style.pointerEvents='none';
+const parchObjets=L.imageOverlay('img/objets.png?v='+_B, _vB,
+  {interactive:false,pane:'objets',className:'pobjets'});
+window.parchDecor=parchDecor; window.parchTable=parchTable; window.parchObjets=parchObjets;
 function updateDecor(){const on=document.body.classList.contains('parch');
-  if(!on){[parchDecor,parchTable].forEach(l=>map.removeLayer(l)); return;}
+  if(!on){[parchDecor,parchTable,parchObjets].forEach(l=>map.removeLayer(l)); return;}
   // la table (fond) reste toujours ; au zoom la carte la couvre et sa marge sort
   if(!map.hasLayer(parchTable)){ parchTable.addTo(map);
     const v=parchTable.getElement(); if(v){v.muted=true; v.play&&v.play().catch(()=>{});} }
   // le decor RECOUVRE au dezoom, DISPARAIT au zoom (comme a l'origine) : plein
   // jusqu'a z4, fondu z4->5, retire au-dela -> plus de pixelisation (il part avant)
   const op=Math.max(0, Math.min(1, (5 - map.getZoom())));
-  if(op>0.01){ map.hasLayer(parchDecor)||parchDecor.addTo(map); parchDecor.setOpacity(op); }
-  else map.removeLayer(parchDecor);
+  if(op>0.01){ map.hasLayer(parchDecor)||parchDecor.addTo(map); parchDecor.setOpacity(op);
+               map.hasLayer(parchObjets)||parchObjets.addTo(map); parchObjets.setOpacity(op); }
+  else { map.removeLayer(parchDecor); map.removeLayer(parchObjets); }
   if(window.INARAMA_rogne) window.INARAMA_rogne();}
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
@@ -466,12 +475,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25p"></script>
-<script src="js/fond.js?v=2026-08-25p"></script>
-<script src="js/marge_decor.js?v=2026-08-25p"></script>
-<script src="js/brulure.js?v=2026-08-25p"></script>
-<script src="js/panel.js?v=2026-08-25p"></script>
-<script src="js/explo.js?v=2026-08-25p"></script>
-<script src="js/search.js?v=2026-08-25p"></script>
+<script src="js/theme.js?v=2026-08-25q"></script>
+<script src="js/fond.js?v=2026-08-25q"></script>
+<script src="js/marge_decor.js?v=2026-08-25q"></script>
+<script src="js/brulure.js?v=2026-08-25q"></script>
+<script src="js/panel.js?v=2026-08-25q"></script>
+<script src="js/explo.js?v=2026-08-25q"></script>
+<script src="js/search.js?v=2026-08-25q"></script>
 </body>
 </html>
