@@ -64,9 +64,8 @@
     const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
     c.style.backgroundColor = f.col;
     if (window.INARAMA_fond) window.INARAMA_fond.actif(f.mode === 'adaptatif');
-    // le bord decoupe est desormais porte par la video du fond Parchemin :
-    // plus de clip cote tuiles, la video l'encadre. brulure.js reste inerte.
-    if (window.INARAMA_brulure) window.INARAMA_brulure.actif(false);
+    // le contour dechire (vectoriel) s'applique a la feuille du fond Parchemin
+    if (window.INARAMA_brulure) window.INARAMA_brulure.actif(f.mode === 'scene');
     if (f.mode === 'adaptatif') {
       c.style.backgroundImage = 'none';
     } else {
@@ -117,11 +116,21 @@
     const p = m.getPane('tilePane'); if (!p) return;
     const a = m.latLngToLayerPoint(window.bounds.getNorthWest());
     const b = m.latLngToLayerPoint(window.bounds.getSouthEast());
-    // au parchemin, le rectangle laisse place au contour brule
-    const brule = window.INARAMA_brulure && window.INARAMA_brulure.polygone(a, b);
-    p.style.clipPath = brule
-      || ('polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'
-                     + b.x + 'px ' + b.y + 'px,' + a.x + 'px ' + b.y + 'px)');
+    p.style.clipPath = 'polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'
+                     + b.x + 'px ' + b.y + 'px,' + a.x + 'px ' + b.y + 'px)';
+    // La FEUILLE (decor) recoit un contour DECHIRE, en clip-path polygone donc
+    // VECTORIEL : net a tous les zooms, contrairement a un bord alpha raster qui
+    // pixelise des qu'on l'agrandit. C'est ce qui pose la carte dans la scene au
+    // lieu de la laisser flotter en rectangle.
+    const pd = m.getPane('decor'), dl = window.parchDecor;
+    if (pd && dl && window.INARAMA_brulure) {
+      if (m.hasLayer(dl)) {
+        const db = dl.getBounds();
+        const da = m.latLngToLayerPoint(db.getNorthWest());
+        const dbp = m.latLngToLayerPoint(db.getSouthEast());
+        pd.style.clipPath = window.INARAMA_brulure.polygone(da, dbp) || '';
+      } else pd.style.clipPath = '';
+    }
     if (!bordEl) return;
     const w = b.x - a.x, h = b.y - a.y;
     const FONDU = FOND_CARTE[baseCourante].fondu;
@@ -192,6 +201,8 @@
   }
 
   document.addEventListener('inarama:fond', rogneTuiles);
+
+  window.INARAMA_rogne = rogneTuiles;
 
   window.INARAMA_theme = { get: () => courant, set: t => { choixManuel = true; applique(t, true); }, bascule };
 

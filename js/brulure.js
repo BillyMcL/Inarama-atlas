@@ -132,8 +132,10 @@
   }
 
   function polygone(a, b) {
-    // quand la planche est la, c'est ELLE qu'on decoupe, pas les tuiles
-    if (!actif || cible().el) return null;
+    // Contour VECTORIEL (clip-path polygon) : independant de la resolution, donc
+    // net a tous les zooms. C'est ce qui remplace les bords alpha raster, qui
+    // pixelisaient des qu'on les agrandissait.
+    if (!actif) return null;
     const p = points(a, b), s = [];
     for (let i = 0; i < p.length; i++)
       s.push(Math.round(p[i][0]) + 'px ' + Math.round(p[i][1]) + 'px');
@@ -141,6 +143,8 @@
   }
 
   function peins() {
+    if (cv) cv.style.display = 'none';   // pas de roussi peint : seule la decoupe sert
+    if (true) return;
     if (!cv) return;
     const m = window.map;
     const ci = m ? cible() : null, B = ci && ci.b;
