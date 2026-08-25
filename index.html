@@ -91,7 +91,7 @@ window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
 /* ===== repère monde (aligné sur satellite_monde.tif) ===== */
 const W=18764,H=26784,MAXZ=7,RES=2.0;
 const XMIN=-18764.690210918135563,YMAX=26779.558561177349475;
-const map=L.map('map',{crs:L.CRS.Simple,minZoom:1,maxZoom:8,zoomSnap:.5,
+const map=L.map('map',{crs:L.CRS.Simple,minZoom:1,maxZoom:7,zoomSnap:.5,
   wheelPxPerZoomLevel:120,preferCanvas:true});
 map.attributionControl.setPrefix('Inarama · Leaflet');
 const bounds=L.latLngBounds(map.unproject([0,H],MAXZ),map.unproject([W,0],MAXZ));
