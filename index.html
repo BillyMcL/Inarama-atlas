@@ -50,7 +50,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25x">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25y">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -71,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25x';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25y';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -355,23 +355,35 @@ map.createPane('grille');   map.getPane('grille').style.zIndex=350;   // sur la 
 map.createPane('ornement'); map.getPane('ornement').style.zIndex=680; // recouvre carte et marqueurs
 for(const p of ['grille','ornement']) map.getPane(p).style.pointerEvents='none';
 
-// La TABLE est FIXE dans la fenetre : ancree a la carte, elle retrecissait au
-// dezoom jusqu'a decouvrir du noir. Fixe, elle couvre toujours.
-const videoTable=document.createElement('video');
-videoTable.src='img/table_fond.webm?v='+_B;
-videoTable.muted=true; videoTable.loop=true; videoTable.autoplay=true;
-videoTable.playsInline=true; videoTable.setAttribute('playsinline','');
-videoTable.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;'+
-  'object-fit:cover;z-index:0;pointer-events:none;display:none';
-map.getContainer().insertBefore(videoTable, map.getContainer().firstChild);
-let _tableVisible=false;
-const parchTable={
-  montre(){ _tableVisible=true; videoTable.style.display='';
-            videoTable.play&&videoTable.play().catch(()=>{}); },
-  cache(){ _tableVisible=false; videoTable.style.display='none'; videoTable.pause&&videoTable.pause(); } };
-// une video plein ecran decode en continu : on la met en pause pendant le geste
-map.on('movestart zoomstart', ()=>{ if(_tableVisible) videoTable.pause(); });
-map.on('moveend zoomend', ()=>{ if(_tableVisible) videoTable.play().catch(()=>{}); });
+// La TABLE ZOOME avec la carte — c'est la camera qui descend vers la table, donc
+// la table grandit. Je l'avais figee dans la fenetre pour supprimer le noir qui
+// apparaissait au dezoom ; la vraie cause n'etait pas qu'elle zoomait, c'est
+// qu'elle etait TROP PETITE pour couvrir l'ecran une fois reduite.
+// Calcul : au zoom minimal 1, l'echelle est de 1/64 ; pour couvrir un ecran de
+// 2560x1440 il faut donc 163840 x 92160 pixels de monde. Les anciennes bornes
+// (114028 x 64175) ne suffisaient pas — d'ou le noir.
+// Le flou de la table quand on zoome n'est pas un defaut : la table sort du plan
+// de nettete a mesure que la camera descend vers la carte.
+map.createPane('table'); map.getPane('table').style.zIndex=150;   // sous les tuiles
+map.getPane('table').style.pointerEvents='none';
+const _cx=W/2, _cy=H/2, _tw=163840, _th=92160;
+const _tB=L.latLngBounds(c2ll([_cx-_tw/2,_cy-_th/2]), c2ll([_cx+_tw/2,_cy+_th/2]));
+const parchTable=L.videoOverlay('img/table_fond.webm?v='+_B, _tB,
+  {interactive:false,pane:'table',className:'ptable',autoplay:true,loop:true,
+   muted:true,playsInline:true,keepAspectRatio:false});
+let _tableOn=false;
+function majTable(){
+  const on=document.body.classList.contains('parch') && map.getZoom()<=4.5;
+  if(on){
+    if(!map.hasLayer(parchTable)){ parchTable.addTo(map); }
+    const v=parchTable.getElement();
+    if(v){ v.muted=true; v.play&&v.play().catch(()=>{}); }
+    _tableOn=true;
+  } else { if(map.hasLayer(parchTable)) map.removeLayer(parchTable); _tableOn=false; }
+}
+// une video plein ecran decode en continu : en pause pendant le geste
+map.on('movestart zoomstart', ()=>{ const v=parchTable.getElement(); if(_tableOn&&v) v.pause(); });
+map.on('moveend zoomend', ()=>{ const v=parchTable.getElement(); if(_tableOn&&v) v.play().catch(()=>{}); });
 
 // les deux couches vectorielles, chargees une fois puis posees en svgOverlay
 let parchGrille=null, parchOrn=null, _svgEnCours=false;
@@ -388,11 +400,11 @@ function chargeSVG(){
     _svgEnCours=false; majParch();
   }).catch(e=>{ _svgEnCours=false; console.warn('SVG parchemin :',e); });
 }
-window.parchTable=parchTable;
+window.parchTable=parchTable; window.majTable=majTable;
 function majParch(){
   const on=document.body.classList.contains('parch');
-  if(!on){ [parchGrille,parchOrn].forEach(l=>l&&map.removeLayer(l)); parchTable.cache(); return; }
-  parchTable.montre();
+  majTable();
+  if(!on){ [parchGrille,parchOrn].forEach(l=>l&&map.removeLayer(l)); return; }
   if(!parchGrille||!parchOrn){ chargeSVG(); return; }
   map.hasLayer(parchGrille)||parchGrille.addTo(map);
   // les ornements masquent les zones peripheriques ; en s'approchant, ils
@@ -504,12 +516,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25x"></script>
-<script src="js/fond.js?v=2026-08-25x"></script>
-<script src="js/marge_decor.js?v=2026-08-25x"></script>
-<script src="js/brulure.js?v=2026-08-25x"></script>
-<script src="js/panel.js?v=2026-08-25x"></script>
-<script src="js/explo.js?v=2026-08-25x"></script>
-<script src="js/search.js?v=2026-08-25x"></script>
+<script src="js/theme.js?v=2026-08-25y"></script>
+<script src="js/fond.js?v=2026-08-25y"></script>
+<script src="js/marge_decor.js?v=2026-08-25y"></script>
+<script src="js/brulure.js?v=2026-08-25y"></script>
+<script src="js/panel.js?v=2026-08-25y"></script>
+<script src="js/explo.js?v=2026-08-25y"></script>
+<script src="js/search.js?v=2026-08-25y"></script>
 </body>
 </html>
