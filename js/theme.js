@@ -64,8 +64,8 @@
     const v = window.INARAMA_BUILD ? '?v=' + window.INARAMA_BUILD : '';
     c.style.backgroundColor = f.col;
     if (window.INARAMA_fond) window.INARAMA_fond.actif(f.mode === 'adaptatif');
-    // le contour dechire (vectoriel) s'applique a la feuille du fond Parchemin
-    if (window.INARAMA_brulure) window.INARAMA_brulure.actif(f.mode === 'scene');
+    // le contour dechire de la feuille est desormais le trace "Feuille" du SVG
+    // master, pose en svgOverlay : il n'y a plus rien a calculer ici.
     if (f.mode === 'adaptatif') {
       c.style.backgroundImage = 'none';
     } else {

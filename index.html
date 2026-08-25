@@ -50,7 +50,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25y">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25z">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -71,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25y';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25z';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -342,38 +342,57 @@ map.addControl(new ScaleKm());
 //      justement cette propriete — c'etait la cause de fond de la pixelisation.
 //   3. la SCENE 3D (table, bougies, lumiere) : la seule chose legitimement raster,
 //      puisqu'elle n'existe qu'en rendu.
-//
-// CALAGE, calcule et non suppose. Le master porte un raster de reperage
+const _B=window.INARAMA_BUILD;
+
+// CALAGE, calcule et non suppose. Le master porte un emplacement de carte
 // (groupe "image-carte") avec transform matrix(1.141732,0,0,1.141732,
 // 2653.172283,2019.192913) sur une image 3000x4280. En inversant : le viewBox
 // 8857x8925 couvre le monde de (-14534.7,-11067.4) a (33986.0,37851.4).
-const _B=window.INARAMA_BUILD;
-const _pB=L.latLngBounds(c2ll([-14534.7,-11067.4]), c2ll([33986.0,37851.4]));
-const _vB=L.latLngBounds(c2ll([-47289,-18698]),c2ll([66739,45477]));   // la table
+// Les trois calques partagent ce viewBox : ils se recalent donc entre eux sans
+// aucun calcul, et les tuiles viennent s'inscrire dans l'emplacement prevu.
+const _fX0=-14534.7, _fY0=-11067.4, _fX1=33986.0, _fY1=37851.4;
+const _fW=_fX1-_fX0, _fH=_fY1-_fY0;
+const _pB=L.latLngBounds(c2ll([_fX0,_fY0]), c2ll([_fX1,_fY1]));
 
+map.createPane('feuille');  map.getPane('feuille').style.zIndex=180;  // sous les tuiles
 map.createPane('grille');   map.getPane('grille').style.zIndex=350;   // sur la carte, sous les marqueurs
 map.createPane('ornement'); map.getPane('ornement').style.zIndex=680; // recouvre carte et marqueurs
-for(const p of ['grille','ornement']) map.getPane(p).style.pointerEvents='none';
+for(const p of ['feuille','grille','ornement']) map.getPane(p).style.pointerEvents='none';
 
-// La TABLE ZOOME avec la carte — c'est la camera qui descend vers la table, donc
-// la table grandit. Je l'avais figee dans la fenetre pour supprimer le noir qui
-// apparaissait au dezoom ; la vraie cause n'etait pas qu'elle zoomait, c'est
-// qu'elle etait TROP PETITE pour couvrir l'ecran une fois reduite.
-// Calcul : au zoom minimal 1, l'echelle est de 1/64 ; pour couvrir un ecran de
-// 2560x1440 il faut donc 163840 x 92160 pixels de monde. Les anciennes bornes
-// (114028 x 64175) ne suffisaient pas — d'ou le noir.
-// Le flou de la table quand on zoome n'est pas un defaut : la table sort du plan
-// de nettete a mesure que la camera descend vers la carte.
-map.createPane('table'); map.getPane('table').style.zIndex=150;   // sous les tuiles
+// LA TABLE, calee sur la feuille et non devinee.
+// Dans le rendu 2560x1440, la feuille occupe 1089,4 x 1097,5 px, centree. Comme
+// elle correspond au viewBox du master, le cadre entier vaut donc _fW*2560/1089,4
+// de large : la composition affichee est exactement celle cadree en 3D, a tous
+// les zooms. C'est la seule construction qui ne soit pas un reglage a l'oeil.
+map.createPane('table'); map.getPane('table').style.zIndex=150;
 map.getPane('table').style.pointerEvents='none';
-const _cx=W/2, _cy=H/2, _tw=163840, _th=92160;
-const _tB=L.latLngBounds(c2ll([_cx-_tw/2,_cy-_th/2]), c2ll([_cx+_tw/2,_cy+_th/2]));
+const _tW=114019.5, _tH=64179.2, _tCX=9725.6, _tCY=13392.0;
+const _tB=L.latLngBounds(c2ll([_tCX-_tW/2,_tCY-_tH/2]), c2ll([_tCX+_tW/2,_tCY+_tH/2]));
 const parchTable=L.videoOverlay('img/table_fond.webm?v='+_B, _tB,
   {interactive:false,pane:'table',className:'ptable',autoplay:true,loop:true,
    muted:true,playsInline:true,keepAspectRatio:false});
+
+// Consequence directe du calage : la table ne couvre l'ecran que jusqu'a un
+// certain recul. On arrete donc le dezoom la — au zoom minimal on a exactement
+// la scene du rendu. Le seuil depend de la fenetre, il se recalcule au
+// redimensionnement plutot que d'etre une constante fausse ailleurs.
+let _zMini=1, _zCouvre=99;
+function caleZooms(){
+  const t=map.getSize();
+  // conteneur pas encore mesure (onglet cache, mise en page en cours) : log2(0)
+  // vaut -Infinity et emporterait le zoom minimal avec lui
+  if(t.x<2||t.y<2) return;
+  _zMini  =MAXZ+Math.log2(Math.max(t.x/_tW, t.y/_tH));  // la table couvre la fenetre
+  _zCouvre=MAXZ+Math.log2(Math.max(t.x/_fW, t.y/_fH));  // la feuille couvre la fenetre
+  const vise=document.body.classList.contains('parch') ? _zMini : 1;
+  if(Math.abs(map.getMinZoom()-vise)>0.01) map.setMinZoom(vise);
+}
+
 let _tableOn=false;
 function majTable(){
-  const on=document.body.classList.contains('parch') && map.getZoom()<=4.5;
+  // au-dela du moment ou la feuille couvre l'ecran, la table n'est plus visible :
+  // inutile de faire decoder une video de plusieurs dizaines de milliers de pixels
+  const on=document.body.classList.contains('parch') && map.getZoom()<=_zCouvre+0.3;
   if(on){
     if(!map.hasLayer(parchTable)){ parchTable.addTo(map); }
     const v=parchTable.getElement();
@@ -385,28 +404,31 @@ function majTable(){
 map.on('movestart zoomstart', ()=>{ const v=parchTable.getElement(); if(_tableOn&&v) v.pause(); });
 map.on('moveend zoomend', ()=>{ const v=parchTable.getElement(); if(_tableOn&&v) v.play().catch(()=>{}); });
 
-// les deux couches vectorielles, chargees une fois puis posees en svgOverlay
-let parchGrille=null, parchOrn=null, _svgEnCours=false;
+// les trois calques vectoriels, charges une fois puis poses en svgOverlay
+let parchFeuille=null, parchGrille=null, parchOrn=null, _svgEnCours=false;
 function chargeSVG(){
-  if(_svgEnCours || (parchGrille&&parchOrn)) return Promise.resolve();
+  if(_svgEnCours || parchOrn) return Promise.resolve();
   _svgEnCours=true;
-  const lis=u=>fetch(u+'?v='+_B).then(r=>r.text()).then(t=>{
-    const d=new DOMParser().parseFromString(t,'image/svg+xml');
-    return d.documentElement;
-  });
-  return Promise.all([lis('svg/grille.svg'), lis('svg/ornements.svg')]).then(([g,o])=>{
-    parchGrille=L.svgOverlay(g,_pB,{interactive:false,pane:'grille',className:'pgrille'});
-    parchOrn   =L.svgOverlay(o,_pB,{interactive:false,pane:'ornement',className:'pornement'});
-    _svgEnCours=false; majParch();
-  }).catch(e=>{ _svgEnCours=false; console.warn('SVG parchemin :',e); });
+  const lis=u=>fetch(u+'?v='+_B).then(r=>r.text())
+    .then(t=>new DOMParser().parseFromString(t,'image/svg+xml').documentElement);
+  return Promise.all([lis('svg/feuille.svg'),lis('svg/grille.svg'),lis('svg/ornements.svg')])
+    .then(([f,g,o])=>{
+      const pose=(el,pane,cls)=>L.svgOverlay(el,_pB,{interactive:false,pane:pane,className:cls});
+      parchFeuille=pose(f,'feuille','pfeuille');
+      parchGrille =pose(g,'grille','pgrille');
+      parchOrn    =pose(o,'ornement','pornement');
+      _svgEnCours=false; majParch();
+    }).catch(e=>{ _svgEnCours=false; console.warn('SVG parchemin :',e); });
 }
 window.parchTable=parchTable; window.majTable=majTable;
 function majParch(){
   const on=document.body.classList.contains('parch');
+  caleZooms();
   majTable();
-  if(!on){ [parchGrille,parchOrn].forEach(l=>l&&map.removeLayer(l)); return; }
-  if(!parchGrille||!parchOrn){ chargeSVG(); return; }
-  map.hasLayer(parchGrille)||parchGrille.addTo(map);
+  if(!on){ [parchFeuille,parchGrille,parchOrn].forEach(l=>l&&map.removeLayer(l)); return; }
+  if(!parchOrn){ chargeSVG(); return; }
+  map.hasLayer(parchFeuille)||parchFeuille.addTo(map);
+  map.hasLayer(parchGrille) ||parchGrille.addTo(map);
   // les ornements masquent les zones peripheriques ; en s'approchant, ils
   // s'effacent et decouvrent la carte dessous (exigence 5 du brief)
   const op=Math.max(0, Math.min(1, (5.5 - map.getZoom())/1.5));
@@ -415,6 +437,7 @@ function majParch(){
 }
 window.INARAMA_majParch=majParch;
 const updateDecor=majParch;
+map.on('resize',()=>{ caleZooms(); majTable(); });
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
 
@@ -516,12 +539,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25y"></script>
-<script src="js/fond.js?v=2026-08-25y"></script>
-<script src="js/marge_decor.js?v=2026-08-25y"></script>
-<script src="js/brulure.js?v=2026-08-25y"></script>
-<script src="js/panel.js?v=2026-08-25y"></script>
-<script src="js/explo.js?v=2026-08-25y"></script>
-<script src="js/search.js?v=2026-08-25y"></script>
+<script src="js/theme.js?v=2026-08-25z"></script>
+<script src="js/fond.js?v=2026-08-25z"></script>
+<script src="js/panel.js?v=2026-08-25z"></script>
+<script src="js/explo.js?v=2026-08-25z"></script>
+<script src="js/search.js?v=2026-08-25z"></script>
 </body>
 </html>
