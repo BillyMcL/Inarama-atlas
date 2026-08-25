@@ -50,7 +50,7 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25r">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-25s">
 <link rel="stylesheet" href="css/search.css">
 <link rel="stylesheet" href="css/panel.css">
 <link rel="stylesheet" href="css/explo.css">
@@ -71,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25r';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-25s';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -357,23 +357,25 @@ const parchDecor=L.imageOverlay('decor_overlay.png?v='+_B,
 // isoles par difference entre deux rendus (avec/sans objets). Ils passent
 // AU-DESSUS du decor : sans ca ils restent sous la carte et on ne les voit pas.
 // Calage sur les bornes de la TABLE, comme la video dont ils sont extraits.
-// ACCORD DE TON : la carte est 15% plus claire que le papier du decor (mesure :
-// papier decor 180,163,118 contre papier tuiles 216,185,141). On la multiplie par
-// le facteur exact 0.833/0.881/0.837 -> rgb(212,225,213), pour que les deux
-// parchemins soient le meme. CONSTANT (pas de fondu au zoom) : la teinte ne
-// change donc jamais quand on zoome.
-map.createPane('teinte'); map.getPane('teinte').style.zIndex=250;
-map.getPane('teinte').style.mixBlendMode='multiply'; map.getPane('teinte').style.pointerEvents='none';
-const parchTeinte=L.rectangle(bounds,{interactive:false,pane:'teinte',stroke:false,
-  fillColor:'rgb(212,225,213)',fillOpacity:1});
+// LUMIERE DE LA SCENE sur TOUTE la feuille (ornement + carte ensemble). Sans
+// elle, la feuille reste plate et claire alors que la table autour est eclairee
+// a la bougie : c'est ce decalage qu'on voyait. Le champ est le rapport entre la
+// feuille RENDUE en 3D et ce qui etait affiche ; multiplie, il pose exactement
+// l'eclairage du rendu sur l'ensemble. Volet 685 : AU-DESSUS des tuiles (200) ET
+// du decor (680), donc les deux recoivent la meme lumiere ; sous les objets (690),
+// qui sont deja eclaires par le rendu.
+map.createPane('lumiere'); map.getPane('lumiere').style.zIndex=685;
+map.getPane('lumiere').style.mixBlendMode='multiply'; map.getPane('lumiere').style.pointerEvents='none';
+const parchLum=L.imageOverlay('img/lumiere.png?v='+_B,
+  L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847])),
+  {interactive:false,pane:'lumiere',className:'plumiere'});
 map.createPane('objets'); map.getPane('objets').style.zIndex=690;
 map.getPane('objets').style.pointerEvents='none';
 const parchObjets=L.imageOverlay('img/objets.png?v='+_B, _vB,
   {interactive:false,pane:'objets',className:'pobjets'});
-window.parchDecor=parchDecor; window.parchTable=parchTable; window.parchObjets=parchObjets; window.parchTeinte=parchTeinte;
+window.parchDecor=parchDecor; window.parchTable=parchTable; window.parchObjets=parchObjets; window.parchLum=parchLum;
 function updateDecor(){const on=document.body.classList.contains('parch');
-  if(!on){[parchDecor,parchTable,parchObjets,parchTeinte].forEach(l=>map.removeLayer(l)); return;}
-  map.hasLayer(parchTeinte)||parchTeinte.addTo(map);   // accord de ton, constant
+  if(!on){[parchDecor,parchTable,parchObjets,parchLum].forEach(l=>map.removeLayer(l)); return;}
   // la table (fond) reste toujours ; au zoom la carte la couvre et sa marge sort
   if(!map.hasLayer(parchTable)){ parchTable.addTo(map);
     const v=parchTable.getElement(); if(v){v.muted=true; v.play&&v.play().catch(()=>{});} }
@@ -381,8 +383,9 @@ function updateDecor(){const on=document.body.classList.contains('parch');
   // jusqu'a z4, fondu z4->5, retire au-dela -> plus de pixelisation (il part avant)
   const op=Math.max(0, Math.min(1, (5 - map.getZoom())));
   if(op>0.01){ map.hasLayer(parchDecor)||parchDecor.addTo(map); parchDecor.setOpacity(op);
+               map.hasLayer(parchLum)||parchLum.addTo(map);       parchLum.setOpacity(op);
                map.hasLayer(parchObjets)||parchObjets.addTo(map); parchObjets.setOpacity(op); }
-  else { map.removeLayer(parchDecor); map.removeLayer(parchObjets); }
+  else { map.removeLayer(parchDecor); map.removeLayer(parchLum); map.removeLayer(parchObjets); }
   if(window.INARAMA_rogne) window.INARAMA_rogne();}
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
@@ -485,12 +488,12 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25r"></script>
-<script src="js/fond.js?v=2026-08-25r"></script>
-<script src="js/marge_decor.js?v=2026-08-25r"></script>
-<script src="js/brulure.js?v=2026-08-25r"></script>
-<script src="js/panel.js?v=2026-08-25r"></script>
-<script src="js/explo.js?v=2026-08-25r"></script>
-<script src="js/search.js?v=2026-08-25r"></script>
+<script src="js/theme.js?v=2026-08-25s"></script>
+<script src="js/fond.js?v=2026-08-25s"></script>
+<script src="js/marge_decor.js?v=2026-08-25s"></script>
+<script src="js/brulure.js?v=2026-08-25s"></script>
+<script src="js/panel.js?v=2026-08-25s"></script>
+<script src="js/explo.js?v=2026-08-25s"></script>
+<script src="js/search.js?v=2026-08-25s"></script>
 </body>
 </html>
