@@ -118,19 +118,8 @@
     const b = m.latLngToLayerPoint(window.bounds.getSouthEast());
     p.style.clipPath = 'polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'
                      + b.x + 'px ' + b.y + 'px,' + a.x + 'px ' + b.y + 'px)';
-    // La FEUILLE (decor) recoit un contour DECHIRE, en clip-path polygone donc
-    // VECTORIEL : net a tous les zooms, contrairement a un bord alpha raster qui
-    // pixelise des qu'on l'agrandit. C'est ce qui pose la carte dans la scene au
-    // lieu de la laisser flotter en rectangle.
-    const pd = m.getPane('decor'), dl = window.parchDecor;
-    if (pd && dl && window.INARAMA_brulure) {
-      if (m.hasLayer(dl)) {
-        const db = dl.getBounds();
-        const da = m.latLngToLayerPoint(db.getNorthWest());
-        const dbp = m.latLngToLayerPoint(db.getSouthEast());
-        pd.style.clipPath = window.INARAMA_brulure.polygone(da, dbp) || '';
-      } else pd.style.clipPath = '';
-    }
+    // Le bord dechire de la feuille appartient desormais au SVG des ornements
+    // (groupe "contour"), donc vectoriel : plus de decoupe a calculer ici.
     if (!bordEl) return;
     const w = b.x - a.x, h = b.y - a.y;
     const FONDU = FOND_CARTE[baseCourante].fondu;
