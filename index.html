@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-25z">
-<link rel="stylesheet" href="css/search.css">
-<link rel="stylesheet" href="css/panel.css">
-<link rel="stylesheet" href="css/explo.css">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-27a">
+<link rel="stylesheet" href="css/search.css?v=2026-08-27a">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-27a">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-27a">
 </head>
 <body>
 <div id="map"></div>
@@ -71,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-25z';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-27a';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -334,112 +334,164 @@ const ScaleKm=L.Control.extend({
 map.addControl(new ScaleKm());
 // labels calligraphiés (IM Fell) quand le fond Parchemin est actif
 // fond Parchemin : labels calligraphiés + surcouche décor (cadre/cartouches/roses) calée sur la carte
-// ── Fond Parchemin — TROIS SOURCES DE VERITE, aucune rasterisation ──
-//   1. les TUILES de la carte (inchangees) ;
-//   2. les SVG maitres : ornements et grille, servis en VECTORIEL. Un SVG est
-//      rasterise par le navigateur a la resolution de l'ecran, a chaque zoom :
-//      il ne peut donc pas pixeliser. Toute conversion en PNG de ma part detruisait
-//      justement cette propriete — c'etait la cause de fond de la pixelisation.
-//   3. la SCENE 3D (table, bougies, lumiere) : la seule chose legitimement raster,
-//      puisqu'elle n'existe qu'en rendu.
+// ── Fond Parchemin — la SCENE 3D est le decor ─────────────────────────────
+// La feuille, ses ornements, la table, les bougies et les objets sortent tous
+// du meme rendu. Ils sont donc composes en 3D, avec le bon empilement — la
+// feuille SOUS les objets poses dessus — et le bon eclairage. Plus rien de tout
+// cela n'est reconstitue en 2D : c'etait la source de tous les decalages.
+//
+// Ces rendus sont servis en TUILES, comme la carte, et pour la meme raison. La
+// camera a filme trois paliers a hauteur constante, chacun balaye lateralement.
+// Sur un palier donne, tous les rendus sont a la MEME echelle et ne different
+// que d'une translation : on peut donc les recoudre en une seule grande image
+// par niveau de zoom (web/build/mosaique.py, puis decor.py pour la decoupe).
+// Le decor est ainsi net a chaque zoom, sans jamais agrandir un pixel.
+//
+// La carte vient s'inscrire dans la fenetre laissee vide au centre. Elle est
+// decoupee sur le trace EXACT de cette ouverture — le second sous-chemin de
+// "Ornement-1" dans le master, 15 035 caracteres de courbes — pris en
+// vectoriel : le bord de l'ouverture ne peut donc pas pixeliser.
 const _B=window.INARAMA_BUILD;
 
-// CALAGE, calcule et non suppose. Le master porte un emplacement de carte
-// (groupe "image-carte") avec transform matrix(1.141732,0,0,1.141732,
-// 2653.172283,2019.192913) sur une image 3000x4280. En inversant : le viewBox
-// 8857x8925 couvre le monde de (-14534.7,-11067.4) a (33986.0,37851.4).
-// Les trois calques partagent ce viewBox : ils se recalent donc entre eux sans
-// aucun calcul, et les tuiles viennent s'inscrire dans l'emplacement prevu.
+// CALAGE, calcule et non suppose. La feuille occupe le viewBox du master
+// (8857x8925), et le master est cale sur le monde par le groupe "image-carte" :
+// matrix(1.141732,0,0,1.141732,2653.172283,2019.192913) sur une image 3000x4280
+// qui EST la carte. En inversant, le viewBox couvre le monde de
+// (-14534.7,-11067.4) a (33986.0,37851.4). Tuiles du decor, tuiles de la carte
+// et decoupe partagent ce repere : ils se calent donc sans aucun reglage.
 const _fX0=-14534.7, _fY0=-11067.4, _fX1=33986.0, _fY1=37851.4;
 const _fW=_fX1-_fX0, _fH=_fY1-_fY0;
 const _pB=L.latLngBounds(c2ll([_fX0,_fY0]), c2ll([_fX1,_fY1]));
+// emprise du decor : ce que couvre le palier large, seul a aller jusqu'au bord
+// de la table. Mesuree sur la mosaique, pas choisie.
+const _dX0=-47746, _dY0=-19847, _dX1=67198, _dY1=44857;
+const _dW=_dX1-_dX0, _dH=_dY1-_dY0;
+const _dB=L.latLngBounds(c2ll([_dX0,_dY0]), c2ll([_dX1,_dY1]));
 
-map.createPane('feuille');  map.getPane('feuille').style.zIndex=180;  // sous les tuiles
-map.createPane('grille');   map.getPane('grille').style.zIndex=350;   // sur la carte, sous les marqueurs
-map.createPane('ornement'); map.getPane('ornement').style.zIndex=680; // recouvre carte et marqueurs
-for(const p of ['feuille','grille','ornement']) map.getPane(p).style.pointerEvents='none';
+map.createPane('decor');  map.getPane('decor').style.zIndex=150;   // sous les tuiles
+map.createPane('grille'); map.getPane('grille').style.zIndex=350;  // sur la carte, sous les marqueurs
+for(const p of ['decor','grille']) map.getPane(p).style.pointerEvents='none';
 
-// LA TABLE, calee sur la feuille et non devinee.
-// Dans le rendu 2560x1440, la feuille occupe 1089,4 x 1097,5 px, centree. Comme
-// elle correspond au viewBox du master, le cadre entier vaut donc _fW*2560/1089,4
-// de large : la composition affichee est exactement celle cadree en 3D, a tous
-// les zooms. C'est la seule construction qui ne soit pas un reglage a l'oeil.
-map.createPane('table'); map.getPane('table').style.zIndex=150;
-map.getPane('table').style.pointerEvents='none';
-const _tW=114019.5, _tH=64179.2, _tCX=9725.6, _tCY=13392.0;
-const _tB=L.latLngBounds(c2ll([_tCX-_tW/2,_tCY-_tH/2]), c2ll([_tCX+_tW/2,_tCY+_tH/2]));
-const parchTable=L.videoOverlay('img/table_fond.webm?v='+_B, _tB,
-  {interactive:false,pane:'table',className:'ptable',autoplay:true,loop:true,
+const _vide='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const parchDecor=L.tileLayer('tiles/decor/{z}/{x}/{y}.jpg?v='+_B,
+  {minNativeZoom:1,maxNativeZoom:4,noWrap:true,pane:'decor',
+   errorTileUrl:_vide,updateWhenZooming:false,keepBuffer:3});
+
+// LE VACILLEMENT. Le palier de la vue d'ensemble a ete rendu camera fixe : ses
+// 50 images ne different que par les flammes. C'est donc exactement la meme
+// image que la tuile de ce niveau, mais animee — le passage de l'une a l'autre
+// ne se voit pas. Au-dela, les bougies sortent du champ et la video, qui ferait
+// alors plusieurs dizaines de milliers de pixels, est retiree.
+const parchFlamme=L.videoOverlay('img/bougies.webm?v='+_B, _dB,
+  {interactive:false,pane:'decor',className:'pflamme',autoplay:true,loop:true,
    muted:true,playsInline:true,keepAspectRatio:false});
+let _flammeOn=false;
+function majFlamme(){
+  const on=document.body.classList.contains('parch') && map.getZoom()<=2.75;
+  if(on===_flammeOn) return;
+  _flammeOn=on;
+  if(on){ parchFlamme.addTo(map); const v=parchFlamme.getElement();
+          if(v){ v.muted=true; v.play&&v.play().catch(()=>{}); } }
+  else map.removeLayer(parchFlamme);
+}
+map.on('movestart zoomstart',()=>{ const v=parchFlamme.getElement(); if(_flammeOn&&v) v.pause(); });
+map.on('moveend zoomend',   ()=>{ const v=parchFlamme.getElement(); if(_flammeOn&&v) v.play().catch(()=>{}); });
 
-// Consequence directe du calage : la table ne couvre l'ecran que jusqu'a un
+// DECOUPE de la carte sur l'ouverture. Le trace vit dans un <clipPath> exprime
+// en coordonnees master : on ne recalcule donc jamais ses 4 445 sommets, on ne
+// met a jour qu'une transformation affine — deux points suffisent a la definir.
+let _fen=null, _fenEnCours=false;
+function chargeFenetre(){
+  if(_fen||_fenEnCours) return;
+  _fenEnCours=true;
+  fetch('svg/fenetre.svg?v='+_B).then(r=>r.text()).then(t=>{
+    const d=document.createElement('div');
+    d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+    d.innerHTML=t; document.body.appendChild(d);
+    _fen=document.getElementById('fenetreCartePath');
+    _fenEnCours=false; caleFenetre();
+    decoupeCarte(document.body.classList.contains('parch'));
+  }).catch(e=>{ _fenEnCours=false; console.warn('fenetre :',e); });
+}
+function caleFenetre(){
+  if(!_fen) { chargeFenetre(); return; }
+  const a=map.latLngToLayerPoint(c2ll([_fX0,_fY0]));
+  const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1]));
+  _fen.setAttribute('transform','translate('+a.x+' '+a.y+') scale('
+    +((b.x-a.x)/8857)+' '+((b.y-a.y)/8925)+')');
+}
+window.INARAMA_caleFenetre=caleFenetre;
+
+// Consequence directe du calage : le decor ne couvre l'ecran que jusqu'a un
 // certain recul. On arrete donc le dezoom la — au zoom minimal on a exactement
-// la scene du rendu. Le seuil depend de la fenetre, il se recalcule au
-// redimensionnement plutot que d'etre une constante fausse ailleurs.
-let _zMini=1, _zCouvre=99;
+// la scene du rendu Blender. Le seuil depend de la fenetre du navigateur, il se
+// recalcule au redimensionnement plutot que d'etre une constante fausse ailleurs.
+let _zMini=1;
 function caleZooms(){
   const t=map.getSize();
   // conteneur pas encore mesure (onglet cache, mise en page en cours) : log2(0)
   // vaut -Infinity et emporterait le zoom minimal avec lui
   if(t.x<2||t.y<2) return;
-  _zMini  =MAXZ+Math.log2(Math.max(t.x/_tW, t.y/_tH));  // la table couvre la fenetre
-  _zCouvre=MAXZ+Math.log2(Math.max(t.x/_fW, t.y/_fH));  // la feuille couvre la fenetre
-  const vise=document.body.classList.contains('parch') ? _zMini : 1;
+  const parch=document.body.classList.contains('parch');
+  _zMini=MAXZ+Math.log2(Math.max(t.x/_dW, t.y/_dH));
+  const vise=parch?_zMini:1;
   if(Math.abs(map.getMinZoom()-vise)>0.01) map.setMinZoom(vise);
+  // en Parchemin on doit pouvoir se promener sur toute la feuille, pas
+  // seulement sur la carte : sinon les ornements restent hors d'atteinte
+  map.setMaxBounds(parch ? _pB.pad(0.03) : bounds.pad(0.12));
 }
 
-let _tableOn=false;
-function majTable(){
-  // au-dela du moment ou la feuille couvre l'ecran, la table n'est plus visible :
-  // inutile de faire decoder une video de plusieurs dizaines de milliers de pixels
-  const on=document.body.classList.contains('parch') && map.getZoom()<=_zCouvre+0.3;
-  if(on){
-    if(!map.hasLayer(parchTable)){ parchTable.addTo(map); }
-    const v=parchTable.getElement();
-    if(v){ v.muted=true; v.play&&v.play().catch(()=>{}); }
-    _tableOn=true;
-  } else { if(map.hasLayer(parchTable)) map.removeLayer(parchTable); _tableOn=false; }
-}
-// une video plein ecran decode en continu : en pause pendant le geste
-map.on('movestart zoomstart', ()=>{ const v=parchTable.getElement(); if(_tableOn&&v) v.pause(); });
-map.on('moveend zoomend', ()=>{ const v=parchTable.getElement(); if(_tableOn&&v) v.play().catch(()=>{}); });
-
-// les trois calques vectoriels, charges une fois puis poses en svgOverlay
-let parchFeuille=null, parchGrille=null, parchOrn=null, _svgEnCours=false;
+// la grille reste VECTORIELLE : elle est le seul trait pose sur la carte, et
+// "non-scaling-stroke" lui garde la meme finesse a l'ecran a tous les zooms
+let parchGrille=null, _svgEnCours=false;
 function chargeSVG(){
-  if(_svgEnCours || parchOrn) return Promise.resolve();
+  if(_svgEnCours||parchGrille) return;
   _svgEnCours=true;
-  const lis=u=>fetch(u+'?v='+_B).then(r=>r.text())
-    .then(t=>new DOMParser().parseFromString(t,'image/svg+xml').documentElement);
-  return Promise.all([lis('svg/feuille.svg'),lis('svg/grille.svg'),lis('svg/ornements.svg')])
-    .then(([f,g,o])=>{
-      const pose=(el,pane,cls)=>L.svgOverlay(el,_pB,{interactive:false,pane:pane,className:cls});
-      parchFeuille=pose(f,'feuille','pfeuille');
-      parchGrille =pose(g,'grille','pgrille');
-      parchOrn    =pose(o,'ornement','pornement');
+  fetch('svg/grille.svg?v='+_B).then(r=>r.text())
+    .then(t=>new DOMParser().parseFromString(t,'image/svg+xml').documentElement)
+    .then(g=>{
+      parchGrille=L.svgOverlay(g,_pB,{interactive:false,pane:'grille',className:'pgrille'});
       _svgEnCours=false; majParch();
-    }).catch(e=>{ _svgEnCours=false; console.warn('SVG parchemin :',e); });
+    }).catch(e=>{ _svgEnCours=false; console.warn('grille :',e); });
 }
-window.parchTable=parchTable; window.majTable=majTable;
+
+// La decoupe s'applique ICI et pas dans theme.js : rogneTuiles() y teste
+// window.map et window.bounds, que rien n'expose — la fonction sort donc
+// toujours au premier test. A signaler, mais pas a reveiller au passage.
+function decoupeCarte(on){
+  const p=map.getPane('tilePane'); if(!p) return;
+  p.style.clipPath = on ? 'url(#fenetreCarte)' : '';
+  // ETALONNAGE de la carte sur le parchemin. Mesure sur les tuiles assemblees :
+  // le papier de la carte sort a (206,178,134), celui du decor a (134,93,45) —
+  // soit un rapport de 0,65 / 0,51 / 0,34 par canal. Mais egaliser au produit
+  // seul aplatit le relief, et c'est la lisibilite de la carte qui prime. On
+  // garde donc le NIVEAU du papier et on ouvre le contraste de 30 % autour de
+  // lui : le raccord au bord de l'ouverture reste invisible, le relief revient.
+  // Applique en feColorMatrix, donc sur le GPU : les 344 Mo de tuiles ne sont
+  // pas retouches, et le reglage reste un seul nombre dans svg/fenetre.svg.
+  p.style.filter = on ? 'url(#tonCarte)' : '';
+}
 function majParch(){
   const on=document.body.classList.contains('parch');
-  caleZooms();
-  majTable();
-  if(!on){ [parchFeuille,parchGrille,parchOrn].forEach(l=>l&&map.removeLayer(l)); return; }
-  if(!parchOrn){ chargeSVG(); return; }
-  map.hasLayer(parchFeuille)||parchFeuille.addTo(map);
-  map.hasLayer(parchGrille) ||parchGrille.addTo(map);
-  // les ornements masquent les zones peripheriques ; en s'approchant, ils
-  // s'effacent et decouvrent la carte dessous (exigence 5 du brief)
-  const op=Math.max(0, Math.min(1, (5.5 - map.getZoom())/1.5));
-  if(op>0.01){ map.hasLayer(parchOrn)||parchOrn.addTo(map); parchOrn.setOpacity(op); }
-  else map.removeLayer(parchOrn);
+  caleZooms(); caleFenetre(); decoupeCarte(on&&!!_fen);
+  if(!on){
+    if(map.hasLayer(parchDecor)) map.removeLayer(parchDecor);
+    if(parchGrille&&map.hasLayer(parchGrille)) map.removeLayer(parchGrille);
+    _flammeOn=false; if(map.hasLayer(parchFlamme)) map.removeLayer(parchFlamme);
+    return;
+  }
+  map.hasLayer(parchDecor)||parchDecor.addTo(map);
+  majFlamme();
+  if(!parchGrille){ chargeSVG(); return; }
+  map.hasLayer(parchGrille)||parchGrille.addTo(map);
 }
 window.INARAMA_majParch=majParch;
+window.parchDecor=parchDecor;
 const updateDecor=majParch;
-map.on('resize',()=>{ caleZooms(); majTable(); });
+map.on('resize',()=>{ caleZooms(); caleFenetre(); majFlamme(); });
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
+map.on('viewreset',caleFenetre);
 
 // royZoom() : réafficher la couche recrée les icônes -> il faut réappliquer les seuils
 map.on('overlayadd',e=>{overlayDefs[e.name]&&overlayDefs[e.name].add(); buildLegend(); royZoom();});
@@ -539,10 +591,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-25z"></script>
-<script src="js/fond.js?v=2026-08-25z"></script>
-<script src="js/panel.js?v=2026-08-25z"></script>
-<script src="js/explo.js?v=2026-08-25z"></script>
-<script src="js/search.js?v=2026-08-25z"></script>
+<script src="js/theme.js?v=2026-08-27a"></script>
+<script src="js/fond.js?v=2026-08-27a"></script>
+<script src="js/panel.js?v=2026-08-27a"></script>
+<script src="js/explo.js?v=2026-08-27a"></script>
+<script src="js/search.js?v=2026-08-27a"></script>
 </body>
 </html>

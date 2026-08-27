@@ -114,6 +114,14 @@
   function rogneTuiles() {
     const m = window.map; if (!m || !window.bounds) return;
     const p = m.getPane('tilePane'); if (!p) return;
+    // Fond Parchemin : la carte n'est plus bornee par le rectangle du monde mais
+    // par le trace de l'ouverture des ornements, pose par index.html. Ce rognage
+    // rectangulaire l'ecraserait — on lui laisse la main.
+    if (FOND_CARTE[baseCourante].mode === 'scene') {
+      if (window.INARAMA_caleFenetre) window.INARAMA_caleFenetre();
+      if (bordEl) bordEl.style.boxShadow = 'none';
+      return;
+    }
     const a = m.latLngToLayerPoint(window.bounds.getNorthWest());
     const b = m.latLngToLayerPoint(window.bounds.getSouthEast());
     p.style.clipPath = 'polygon(' + a.x + 'px ' + a.y + 'px,' + b.x + 'px ' + a.y + 'px,'

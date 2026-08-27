@@ -2,3 +2,4 @@
 
 # dépendances du build hors ligne : le lockfile est versionné, pas les paquets
 tools/node_modules/
+__pycache__/
