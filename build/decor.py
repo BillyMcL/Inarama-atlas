@@ -27,6 +27,18 @@ SORTIE  = os.path.join(RACINE, 'web', 'tiles', 'decor')
 TUILE   = 256
 ECRAN   = (2560, 1440)      # ecran de reference pour dimensionner les marges
 
+# RECALAGE DU DECOR, mesure et non suppose.
+# Dans le master, la carte est CENTREE dans l'ouverture des ornements : elle y
+# est en retrait de 65,7 unites a gauche et 67,2 a droite. Le master est donc
+# coherent avec lui-meme. Mais dans le rendu, l'encre des ornements tombe 64,3
+# unites plus a droite : le bord dechire de la feuille est de la geometrie 3D,
+# fidele au repere, tandis que l'encre est une texture posee dessus, et c'est
+# elle qui a glisse.
+# On remet donc le DECOR en place, plutot que la carte. Deplacer les tuiles
+# QGIS aurait desolidarise les lieux, royaumes et rivieres du terrain, tous
+# places depuis les memes coordonnees. Le resultat a l'ecran est le meme.
+CALAGE = (-352.0, -32.0)    # en px monde
+
 W_MONDE, H_MONDE = 18764, 26784
 SX = W_MONDE / (3000 * 1.141732); SY = H_MONDE / (4280 * 1.141732)
 FEUILLE = (-2653.172283 * SX, -2019.192913 * SY,
@@ -48,8 +60,9 @@ def niveau(zoom, paliers):
     Y0 = (fy0 - my) * s; Y1 = (fy1 + my) * s
     # borne par ce que le palier le plus large sait couvrir
     im, cal = charge(paliers[0]); k = s / (2.0 ** (cal['zoom'] - 7))
-    X0 = max(X0, cal['x0'] * k); X1 = min(X1, (cal['x0'] + cal['w']) * k)
-    Y0 = max(Y0, cal['y0'] * k); Y1 = min(Y1, (cal['y0'] + cal['h']) * k)
+    dx, dy = CALAGE[0] * s, CALAGE[1] * s
+    X0 = max(X0, cal['x0'] * k + dx); X1 = min(X1, (cal['x0'] + cal['w']) * k + dx)
+    Y0 = max(Y0, cal['y0'] * k + dy); Y1 = min(Y1, (cal['y0'] + cal['h']) * k + dy)
     # calage sur la grille de tuiles
     X0 = np.floor(X0 / TUILE) * TUILE; Y0 = np.floor(Y0 / TUILE) * TUILE
     W = int(np.ceil((X1 - X0) / TUILE) * TUILE)
@@ -60,9 +73,10 @@ def niveau(zoom, paliers):
         k = s / (2.0 ** (cal['zoom'] - 7))
         w, h = int(round(cal['w'] * k)), int(round(cal['h'] * k))
         r = im.resize((w, h), Image.LANCZOS if k < 1 else Image.BICUBIC)
-        canvas.paste(r, (int(round(cal['x0'] * k - X0)), int(round(cal['y0'] * k - Y0))))
-        print('   %s : %dx%d colle en (%d,%d)'
-              % (p, w, h, cal['x0'] * k - X0, cal['y0'] * k - Y0))
+        px = cal['x0'] * k + CALAGE[0] * s - X0
+        py = cal['y0'] * k + CALAGE[1] * s - Y0
+        canvas.paste(r, (int(round(px)), int(round(py))))
+        print('   %s : %dx%d colle en (%d,%d)' % (p, w, h, px, py))
     return canvas, int(X0), int(Y0)
 
 

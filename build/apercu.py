@@ -11,7 +11,7 @@ qui verifie du meme coup que la geometrie tombe juste.
 import os
 from PIL import Image, ImageDraw
 Image.MAX_IMAGE_PIXELS = None
-import re, os, sys, xml.etree.ElementTree as ET
+import re, os, sys, numpy as np, xml.etree.ElementTree as ET
 
 RACINE = r'D:\Desktop\claude qgis'
 WEB    = os.path.join(RACINE, 'web')
@@ -88,12 +88,13 @@ if __name__ == '__main__':
                                     + np.array([-42.3, -28.9, -14.7]), 0, 255).astype('uint8'))
 
     masque = Image.new('L', (W, H), 0)
-    # meme correction de calage que le site : le trou du master tombe a 64,3
-    # unites master de l'encre reellement rendue (mesure, voir index.html)
-    DX, DY = 64.3, 5.8
-    Q = [((MX0 + (x + DX) * SX) * s - X0, (MY0 + (y + DY) * SY) * s - Y0)
-         for x, y in sommets_fenetre()]
+    Q = [((MX0 + x * SX) * s - X0, (MY0 + y * SY) * s - Y0) for x, y in sommets_fenetre()]
     ImageDraw.Draw(masque).polygon(Q, fill=255)
+    # ... intersecte avec le rectangle du monde, comme le site : le remplissage
+    # noir cuit dans la derniere colonne de tuiles ne doit pas passer
+    rect = Image.new('L', (W, H), 0)
+    ImageDraw.Draw(rect).rectangle([0 - X0, 0 - Y0, 18764 * s - X0, 26784 * s - Y0], fill=255)
+    masque = Image.fromarray((np.asarray(masque) & np.asarray(rect)))
     vue.paste(carte, (0, 0), masque)
 
     p = os.path.join(INTER, 'apercu_z%d.png' % zoom)
