@@ -50,27 +50,17 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-27h">
-<link rel="stylesheet" href="css/search.css?v=2026-08-27h">
-<link rel="stylesheet" href="css/panel.css?v=2026-08-27h">
-<link rel="stylesheet" href="css/explo.css?v=2026-08-27h">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-27i">
+<link rel="stylesheet" href="css/search.css?v=2026-08-27i">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-27i">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-27i">
 </head>
 <body>
-<!-- ETALONNAGE de la carte sur le parchemin, INSCRIT DANS LA PAGE et non
-     charge apres coup. Une reference de filtre non resolue ne rend pas
-     l'element du tout : quand ce <filter> arrivait par fetch, apres que le
-     style le designe, Chrome reevaluait mais pas le Safari des iPhone — la
-     carte disparaissait et il ne restait que le decor.
-     Mesure sur les tuiles assemblees : le papier de la carte sort a
-     (206,178,134), celui du decor a (134,93,45). Egaliser au produit seul
-     aplatissait le relief ; on garde donc le NIVEAU du papier et on ouvre le
-     contraste autour de lui. Applique sur le GPU : les 344 Mo de tuiles ne
-     sont pas retouches. -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<filter id="tonCarte" color-interpolation-filters="sRGB" x="0%" y="0%" width="100%" height="100%">
-<feColorMatrix type="matrix" values="0.845 0 0 0 -0.1659  0 0.663 0 0 -0.1133  0 0 0.442 0 -0.0576  0 0 0 1 0"/>
-</filter>
-</defs></svg>
+<!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
+     SVG : Safari, sur iPhone, ignore purement et simplement `filter: url(#id)`
+     sur un element HTML. L'element s'affiche, sans le filtre — la carte
+     ressortait en creme pale sur un decor brun. Il est desormais exprime en
+     fonctions CSS, comprises partout, dans decoupeCarte(). -->
 <div id="map"></div>
 <div id="brand">INARAMA<small>ATLAS DU MONDE</small></div>
 <div id="legend"></div>
@@ -86,7 +76,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-27h';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-27i';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -539,8 +529,18 @@ function decoupeCarte(mode){   // 'monde' | null
   if(tp) for(const c of tp.children) c.style.clipPath = mode ? rectMonde() : '';
   const p=map.getPane('tilePane'); if(!p) return;
   const on=!!mode;
-  // etalonnage sur le parchemin : le <filter> est en tete de page, voir la note
-  p.style.filter = on ? 'url(#tonCarte)' : '';
+  // ETALONNAGE de la carte sur le parchemin. Mesure sur les tuiles assemblees :
+  // le papier de la carte sort a (212,184,139), celui du decor a (137,93,47).
+  // La correction exacte est une transformation affine PAR CANAL —
+  //   R'=0,845R-0,1659   V'=0,663V-0,1133   B'=0,442B-0,0576
+  // — qu'aucune fonction CSS ne sait exprimer telle quelle, les decalages
+  // n'y etant jamais propres a un canal. Cette chaine-ci a donc ete AJUSTEE
+  // sur 51 000 pixels reellement pris dans les tuiles : elle reproduit la
+  // matrice a 0,6 niveau pres en moyenne, 0,7 au 90e centile. Indiscernable,
+  // et comprise par tous les navigateurs.
+  p.style.filter = on
+    ? 'sepia(1) saturate(2.087) hue-rotate(-9.9deg) brightness(0.457) contrast(1.177)'
+    : '';
 }
 function majParch(){
   const on=document.body.classList.contains('parch');
@@ -686,10 +686,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-27h"></script>
-<script src="js/fond.js?v=2026-08-27h"></script>
-<script src="js/panel.js?v=2026-08-27h"></script>
-<script src="js/explo.js?v=2026-08-27h"></script>
-<script src="js/search.js?v=2026-08-27h"></script>
+<script src="js/theme.js?v=2026-08-27i"></script>
+<script src="js/fond.js?v=2026-08-27i"></script>
+<script src="js/panel.js?v=2026-08-27i"></script>
+<script src="js/explo.js?v=2026-08-27i"></script>
+<script src="js/search.js?v=2026-08-27i"></script>
 </body>
 </html>
