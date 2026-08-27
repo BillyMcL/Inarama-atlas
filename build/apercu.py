@@ -88,7 +88,11 @@ if __name__ == '__main__':
                                     + np.array([-42.3, -28.9, -14.7]), 0, 255).astype('uint8'))
 
     masque = Image.new('L', (W, H), 0)
-    Q = [((MX0 + x * SX) * s - X0, (MY0 + y * SY) * s - Y0) for x, y in sommets_fenetre()]
+    # meme correction de calage que le site : le trou du master tombe a 64,3
+    # unites master de l'encre reellement rendue (mesure, voir index.html)
+    DX, DY = 64.3, 5.8
+    Q = [((MX0 + (x + DX) * SX) * s - X0, (MY0 + (y + DY) * SY) * s - Y0)
+         for x, y in sommets_fenetre()]
     ImageDraw.Draw(masque).polygon(Q, fill=255)
     vue.paste(carte, (0, 0), masque)
 

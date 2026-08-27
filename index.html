@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-27a">
-<link rel="stylesheet" href="css/search.css?v=2026-08-27a">
-<link rel="stylesheet" href="css/panel.css?v=2026-08-27a">
-<link rel="stylesheet" href="css/explo.css?v=2026-08-27a">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-27c">
+<link rel="stylesheet" href="css/search.css?v=2026-08-27c">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-27c">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-27c">
 </head>
 <body>
 <div id="map"></div>
@@ -71,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-27a';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-27c';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -368,34 +368,51 @@ const _dX0=-47746, _dY0=-19847, _dX1=67198, _dY1=44857;
 const _dW=_dX1-_dX0, _dH=_dY1-_dY0;
 const _dB=L.latLngBounds(c2ll([_dX0,_dY0]), c2ll([_dX1,_dY1]));
 
-map.createPane('decor');  map.getPane('decor').style.zIndex=150;   // sous les tuiles
-map.createPane('grille'); map.getPane('grille').style.zIndex=350;  // sur la carte, sous les marqueurs
-for(const p of ['decor','grille']) map.getPane(p).style.pointerEvents='none';
+map.createPane('decor');    map.getPane('decor').style.zIndex=150;    // sous les tuiles
+map.createPane('flamme');   map.getPane('flamme').style.zIndex=160;   // AU-DESSUS des tuiles du decor
+map.createPane('grille');   map.getPane('grille').style.zIndex=350;   // sur la carte, sous les marqueurs
+map.createPane('ornement'); map.getPane('ornement').style.zIndex=680; // au-dessus de TOUT le contenu
+for(const p of ['decor','flamme','grille','ornement']) map.getPane(p).style.pointerEvents='none';
 
 const _vide='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const parchDecor=L.tileLayer('tiles/decor/{z}/{x}/{y}.jpg?v='+_B,
-  {minNativeZoom:1,maxNativeZoom:4,noWrap:true,pane:'decor',
+const _optDecor=z=>({minNativeZoom:1,maxNativeZoom:4,noWrap:true,pane:z,
    errorTileUrl:_vide,updateWhenZooming:false,keepBuffer:3});
+const parchDecor=L.tileLayer('tiles/decor/{z}/{x}/{y}.jpg?v='+_B,_optDecor('decor'));
+
+// LES ORNEMENTS MASQUENT, PUIS S'EFFACENT. Ce sont les MEMES tuiles, reposees
+// au-dessus de tout le contenu et decoupees en complementaire de l'ouverture :
+// elles ne montrent donc que l'anneau, le bord de la feuille et la table. Tant
+// qu'elles sont opaques, rien de ce qui deborde de l'ouverture ne se voit —
+// ni les tuiles, ni les royaumes, ni les lieux. En approchant elles s'effacent
+// et decouvrent la carte reelle, que l'on avait deja laissee s'etendre dessous.
+// Le navigateur ne retelecharge rien : ce sont les tuiles deja en cache.
+const parchOrn=L.tileLayer('tiles/decor/{z}/{x}/{y}.jpg?v='+_B,_optDecor('ornement'));
+const Z_OUVRE=4.0, Z_NU=5.5;   // debut et fin du devoilement
 
 // LE VACILLEMENT. Le palier de la vue d'ensemble a ete rendu camera fixe : ses
 // 50 images ne different que par les flammes. C'est donc exactement la meme
 // image que la tuile de ce niveau, mais animee — le passage de l'une a l'autre
 // ne se voit pas. Au-dela, les bougies sortent du champ et la video, qui ferait
 // alors plusieurs dizaines de milliers de pixels, est retiree.
+// Panneau distinct : dans celui du decor, le conteneur de tuiles porte un
+// z-index 1 et recouvrait la video, qui tournait sans jamais etre vue.
 const parchFlamme=L.videoOverlay('img/bougies.webm?v='+_B, _dB,
-  {interactive:false,pane:'decor',className:'pflamme',autoplay:true,loop:true,
+  {interactive:false,pane:'flamme',className:'pflamme',autoplay:true,loop:true,
    muted:true,playsInline:true,keepAspectRatio:false});
 let _flammeOn=false;
 function majFlamme(){
   const on=document.body.classList.contains('parch') && map.getZoom()<=2.75;
-  if(on===_flammeOn) return;
-  _flammeOn=on;
-  if(on){ parchFlamme.addTo(map); const v=parchFlamme.getElement();
-          if(v){ v.muted=true; v.play&&v.play().catch(()=>{}); } }
-  else map.removeLayer(parchFlamme);
+  if(on!==_flammeOn){
+    _flammeOn=on;
+    if(on) parchFlamme.addTo(map); else map.removeLayer(parchFlamme);
+  }
+  // relancer a CHAQUE passage, pas seulement a l'ajout : une video mise en
+  // pause pendant un geste ne repart pas d'elle-meme.
+  const v=parchFlamme.getElement();
+  if(on&&v){ v.muted=true; if(v.paused) v.play&&v.play().catch(()=>{}); }
 }
 map.on('movestart zoomstart',()=>{ const v=parchFlamme.getElement(); if(_flammeOn&&v) v.pause(); });
-map.on('moveend zoomend',   ()=>{ const v=parchFlamme.getElement(); if(_flammeOn&&v) v.play().catch(()=>{}); });
+map.on('moveend zoomend',   ()=>{ majFlamme(); });
 
 // DECOUPE de la carte sur l'ouverture. Le trace vit dans un <clipPath> exprime
 // en coordonnees master : on ne recalcule donc jamais ses 4 445 sommets, on ne
@@ -408,17 +425,23 @@ function chargeFenetre(){
     const d=document.createElement('div');
     d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
     d.innerHTML=t; document.body.appendChild(d);
-    _fen=document.getElementById('fenetreCartePath');
-    _fenEnCours=false; caleFenetre();
-    decoupeCarte(document.body.classList.contains('parch'));
+    _fen=[...d.querySelectorAll('clipPath > path')];
+    _fenEnCours=false; caleFenetre(); majParch();
   }).catch(e=>{ _fenEnCours=false; console.warn('fenetre :',e); });
 }
+// CORRECTION DE CALAGE, mesuree et non supposee. Cale sur le rendu, le bord
+// dechire de la feuille tombe a 0 px pres : le repere monde est donc juste. Mais
+// le trou de "Ornement-1" tombe, lui, a 64,3 unites master de l'encre reellement
+// dessinee — le trace de decoupe du master ne coincide pas tout a fait avec le
+// dessin. On recale sur ce que le rendu MONTRE, seule reference qui compte.
+const _fenDX=64.3, _fenDY=5.8;
 function caleFenetre(){
   if(!_fen) { chargeFenetre(); return; }
   const a=map.latLngToLayerPoint(c2ll([_fX0,_fY0]));
   const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1]));
-  _fen.setAttribute('transform','translate('+a.x+' '+a.y+') scale('
-    +((b.x-a.x)/8857)+' '+((b.y-a.y)/8925)+')');
+  const kx=(b.x-a.x)/8857, ky=(b.y-a.y)/8925;
+  const t='translate('+(a.x+_fenDX*kx)+' '+(a.y+_fenDY*ky)+') scale('+kx+' '+ky+')';
+  for(const e of _fen) e.setAttribute('transform',t);
 }
 window.INARAMA_caleFenetre=caleFenetre;
 
@@ -455,12 +478,21 @@ function chargeSVG(){
     }).catch(e=>{ _svgEnCours=false; console.warn('grille :',e); });
 }
 
-// La decoupe s'applique ICI et pas dans theme.js : rogneTuiles() y teste
-// window.map et window.bounds, que rien n'expose — la fonction sort donc
-// toujours au premier test. A signaler, mais pas a reveiller au passage.
-function decoupeCarte(on){
+// La decoupe ne peut pas se limiter aux TUILES : royaumes, provinces, rivieres,
+// routes et lieux vivent dans d'autres panneaux et debordaient allegrement sur
+// les ornements. On borne donc tout ce qui appartient a la carte.
+const _PANNEAUX=['tilePane','roy','overlayPane','grille','tz','shadowPane','markerPane'];
+function decoupeCarte(mode){   // 'fenetre' | 'monde' | null
+  let dec='';
+  if(mode==='fenetre') dec='url(#fenetreCarte)';
+  else if(mode==='monde'){
+    const a=map.latLngToLayerPoint(bounds.getNorthWest());
+    const b=map.latLngToLayerPoint(bounds.getSouthEast());
+    dec='polygon('+a.x+'px '+a.y+'px,'+b.x+'px '+a.y+'px,'+b.x+'px '+b.y+'px,'+a.x+'px '+b.y+'px)';
+  }
+  for(const n of _PANNEAUX){ const p=map.getPane(n); if(p) p.style.clipPath=dec; }
   const p=map.getPane('tilePane'); if(!p) return;
-  p.style.clipPath = on ? 'url(#fenetreCarte)' : '';
+  const on=!!mode;
   // ETALONNAGE de la carte sur le parchemin. Mesure sur les tuiles assemblees :
   // le papier de la carte sort a (206,178,134), celui du decor a (134,93,45) —
   // soit un rapport de 0,65 / 0,51 / 0,34 par canal. Mais egaliser au produit
@@ -473,15 +505,29 @@ function decoupeCarte(on){
 }
 function majParch(){
   const on=document.body.classList.contains('parch');
-  caleZooms(); caleFenetre(); decoupeCarte(on&&!!_fen);
+  caleZooms(); caleFenetre();
   if(!on){
-    if(map.hasLayer(parchDecor)) map.removeLayer(parchDecor);
-    if(parchGrille&&map.hasLayer(parchGrille)) map.removeLayer(parchGrille);
+    decoupeCarte(null);
+    for(const l of [parchDecor,parchOrn,parchGrille]) if(l&&map.hasLayer(l)) map.removeLayer(l);
     _flammeOn=false; if(map.hasLayer(parchFlamme)) map.removeLayer(parchFlamme);
+    if(window.INARAMA_rogne) window.INARAMA_rogne();
     return;
   }
   map.hasLayer(parchDecor)||parchDecor.addTo(map);
   majFlamme();
+  // l'anneau ne doit jamais mordre sur l'ouverture : decoupe complementaire
+  const po=map.getPane('ornement');
+  if(po) po.style.clipPath = _fen ? 'url(#horsFenetre)' : 'none';
+
+  // LE DEVOILEMENT. La carte s'etend au-dela de l'ouverture des que l'on
+  // commence a approcher — mais sous des ornements encore opaques, donc rien ne
+  // saute a l'ecran. Ce sont eux qui s'effacent ensuite, et decouvrent ce qui
+  // etait deja la. Zoomer devient ainsi un moyen de trouver, pas un effet.
+  const t=Math.max(0,Math.min(1,(map.getZoom()-Z_OUVRE)/(Z_NU-Z_OUVRE)));
+  decoupeCarte(_fen ? (t>0 ? 'monde' : 'fenetre') : 'monde');
+  if(t<1){ map.hasLayer(parchOrn)||parchOrn.addTo(map); parchOrn.setOpacity(1-t); }
+  else if(map.hasLayer(parchOrn)) map.removeLayer(parchOrn);
+
   if(!parchGrille){ chargeSVG(); return; }
   map.hasLayer(parchGrille)||parchGrille.addTo(map);
 }
@@ -491,7 +537,8 @@ const updateDecor=majParch;
 map.on('resize',()=>{ caleZooms(); caleFenetre(); majFlamme(); });
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
-map.on('viewreset',caleFenetre);
+map.on('viewreset',()=>{ caleFenetre(); majParch(); });
+map.on('zoom',()=>{ if(document.body.classList.contains('parch')) caleFenetre(); });
 
 // royZoom() : réafficher la couche recrée les icônes -> il faut réappliquer les seuils
 map.on('overlayadd',e=>{overlayDefs[e.name]&&overlayDefs[e.name].add(); buildLegend(); royZoom();});
@@ -591,10 +638,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-27a"></script>
-<script src="js/fond.js?v=2026-08-27a"></script>
-<script src="js/panel.js?v=2026-08-27a"></script>
-<script src="js/explo.js?v=2026-08-27a"></script>
-<script src="js/search.js?v=2026-08-27a"></script>
+<script src="js/theme.js?v=2026-08-27c"></script>
+<script src="js/fond.js?v=2026-08-27c"></script>
+<script src="js/panel.js?v=2026-08-27c"></script>
+<script src="js/explo.js?v=2026-08-27c"></script>
+<script src="js/search.js?v=2026-08-27c"></script>
 </body>
 </html>
