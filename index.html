@@ -364,7 +364,12 @@ const _fW=_fX1-_fX0, _fH=_fY1-_fY0;
 const _pB=L.latLngBounds(c2ll([_fX0,_fY0]), c2ll([_fX1,_fY1]));
 // emprise du decor : ce que couvre le palier large, seul a aller jusqu'au bord
 // de la table. Mesuree sur la mosaique, pas choisie.
-const _dX0=-47746, _dY0=-19847, _dX1=67198, _dY1=44857;
+// Le meme recalage que les tuiles y est applique (web/build/decor.py, CALAGE) :
+// sans lui la video des flammes flottait a 352 px monde des corps de bougie
+// qu'elle est censee surmonter.
+const _CALAGE_X=-352, _CALAGE_Y=-32;
+const _dX0=-47746+_CALAGE_X, _dY0=-19847+_CALAGE_Y,
+      _dX1= 67198+_CALAGE_X, _dY1= 44857+_CALAGE_Y;
 const _dW=_dX1-_dX0, _dH=_dY1-_dY0;
 const _dB=L.latLngBounds(c2ll([_dX0,_dY0]), c2ll([_dX1,_dY1]));
 
