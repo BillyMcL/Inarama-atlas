@@ -1,0 +1,403 @@
+<!-- Inarama wiki — généré par tools/build-wiki.mjs
+     source : magie/alchimie.md
+     lore   : acfe5e07dfca12fc159d5e11af40b6603f476d87 (2026-08-23T16:53:22+02:00) -->
+<article class="wiki-art" data-slug="magie-alchimie" data-section="magie">
+<h1 id="codex-alchimique-le-systeme-des-elements">CODEX ALCHIMIQUE — le système des éléments</h1>
+<blockquote>
+<p><strong>Satellite de <a class="wiki-ref" href="codex.html"><code>codex.md</code></a> §6.</strong> Le Codex pose les grands traits de la magie (trois sources, quatre pratiques). Ce document définit le <strong>système élémentaire</strong> : les 35 combinaisons, leurs règles et leurs propriétés. Sa cartographie sur les peuples et les territoires vit dans <a class="wiki-ref" href="magie-affinites.html"><code>affinites.md</code></a> ; le détail par royaume, dans les fiches <code>peuples/</code>.</p>
+</blockquote>
+<hr>
+<h2 id="1-les-quatre-principes">1. Les quatre principes</h2>
+<p>Le système repose sur <strong>quatre éléments fondamentaux</strong> : <strong>Feu, Air, Terre, Eau</strong>. Chaque <strong>élément composé</strong> est un <strong>groupe de 4 unités</strong>, où chaque unité est l'un des quatre éléments — la <strong>répétition</strong> est autorisée, l'<strong>ordre</strong> n'a pas d'importance. Cela donne exactement <strong>35 combinaisons uniques</strong>.</p>
+<p>Les propriétés de chaque combinaison se <strong>calculent</strong> à partir de sa composition :</p>
+<table>
+<thead>
+<tr>
+<th>Propriété</th>
+<th>Règle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Température</strong></td>
+<td>nombre d'unités Feu × 25 %</td>
+</tr>
+<tr>
+<td><strong>Humidité</strong></td>
+<td>nombre d'unités Eau × 25 %</td>
+</tr>
+<tr>
+<td><strong>Masse / densité</strong></td>
+<td>Terre ÷ (Terre + Air) × 100 % — plus de Terre, plus lourd</td>
+</tr>
+<tr>
+<td><strong>État Solide</strong></td>
+<td>unités de Terre ÷ 4</td>
+</tr>
+<tr>
+<td><strong>État Gaz</strong></td>
+<td>unités d'Air ÷ 4</td>
+</tr>
+<tr>
+<td><strong>État Liquide</strong></td>
+<td>unités d'Eau ÷ 4</td>
+</tr>
+<tr>
+<td><strong>État Énergie</strong></td>
+<td>unités de Feu ÷ 4 (rayonnement, chaleur, force)</td>
+</tr>
+</tbody>
+</table>
+<p>L'<strong>état dominant</strong> est celui dont la proportion est la plus élevée (Mixte en cas d'égalité).</p>
+<p><em>Légende des compositions : F = Feu · A = Air · T = Terre · E = Eau.</em></p>
+<hr>
+<h2 id="2-les-35-elements">2. Les 35 éléments</h2>
+<table>
+<thead>
+<tr>
+<th>Composition</th>
+<th>Nom</th>
+<th>Catégorie</th>
+<th>Temp.</th>
+<th>Humid.</th>
+<th>Masse</th>
+<th>État dom.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4F</td>
+<td><strong>Feu</strong></td>
+<td>Élément pur</td>
+<td>100 %</td>
+<td>0 %</td>
+<td>—</td>
+<td>Énergie</td>
+</tr>
+<tr>
+<td>3F 1A</td>
+<td><strong>Éclair</strong></td>
+<td>Énergie</td>
+<td>75 %</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>Énergie</td>
+</tr>
+<tr>
+<td>3F 1T</td>
+<td><strong>Magnétisme</strong></td>
+<td>Énergie</td>
+<td>75 %</td>
+<td>0 %</td>
+<td>100 %</td>
+<td>Énergie</td>
+</tr>
+<tr>
+<td>3F 1E</td>
+<td><strong>Vapeur ardente</strong></td>
+<td>Gaz chaud</td>
+<td>75 %</td>
+<td>25 %</td>
+<td>—</td>
+<td>Énergie</td>
+</tr>
+<tr>
+<td>2F 2A</td>
+<td><strong>Foudre</strong></td>
+<td>Énergie</td>
+<td>50 %</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>Mixte</td>
+</tr>
+<tr>
+<td>2F 1A 1T</td>
+<td><strong>Verre</strong></td>
+<td>Minéral vitreux</td>
+<td>50 %</td>
+<td>0 %</td>
+<td>50 %</td>
+<td>Énergie</td>
+</tr>
+<tr>
+<td>2F 1A 1E</td>
+<td><strong>Orage</strong></td>
+<td>Énergie</td>
+<td>50 %</td>
+<td>25 %</td>
+<td>0 %</td>
+<td>Énergie</td>
+</tr>
+<tr>
+<td>2F 2T</td>
+<td><strong>Obsidienne</strong></td>
+<td>Minéral vitreux</td>
+<td>50 %</td>
+<td>0 %</td>
+<td>100 %</td>
+<td>Mixte</td>
+</tr>
+<tr>
+<td>2F 1T 1E</td>
+<td><strong>Bronze</strong></td>
+<td>Métal</td>
+<td>50 %</td>
+<td>25 %</td>
+<td>100 %</td>
+<td>Énergie</td>
+</tr>
+<tr>
+<td>2F 2E</td>
+<td><strong>Geyser</strong></td>
+<td>Liquide chaud</td>
+<td>50 %</td>
+<td>50 %</td>
+<td>—</td>
+<td>Mixte</td>
+</tr>
+<tr>
+<td>1F 3A</td>
+<td><strong>Plasma</strong></td>
+<td>Énergie</td>
+<td>25 %</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>Gaz</td>
+</tr>
+<tr>
+<td>1F 2A 1T</td>
+<td><strong>Fumée noire</strong></td>
+<td>Gaz toxique</td>
+<td>25 %</td>
+<td>0 %</td>
+<td>33 %</td>
+<td>Gaz</td>
+</tr>
+<tr>
+<td>1F 2A 1E</td>
+<td><strong>Ammoniac</strong></td>
+<td>Gaz toxique</td>
+<td>25 %</td>
+<td>25 %</td>
+<td>0 %</td>
+<td>Gaz</td>
+</tr>
+<tr>
+<td>1F 1A 2T</td>
+<td><strong>Acier</strong></td>
+<td>Métal</td>
+<td>25 %</td>
+<td>0 %</td>
+<td>67 %</td>
+<td>Solide</td>
+</tr>
+<tr>
+<td><strong>1F 1A 1T 1E</strong></td>
+<td><strong>Quintessence</strong></td>
+<td><strong>Équilibre / énergie pure</strong></td>
+<td>25 %</td>
+<td>25 %</td>
+<td>50 %</td>
+<td>Mixte</td>
+</tr>
+<tr>
+<td>1F 1A 2E</td>
+<td><strong>Acide sulfurique</strong></td>
+<td>Liquide toxique</td>
+<td>25 %</td>
+<td>50 %</td>
+<td>0 %</td>
+<td>Liquide</td>
+</tr>
+<tr>
+<td>1F 3T</td>
+<td><strong>Lave</strong></td>
+<td>Minéral fondu</td>
+<td>25 %</td>
+<td>0 %</td>
+<td>100 %</td>
+<td>Solide</td>
+</tr>
+<tr>
+<td>1F 2T 1E</td>
+<td><strong>Sel gemme</strong></td>
+<td>Minéral</td>
+<td>25 %</td>
+<td>25 %</td>
+<td>100 %</td>
+<td>Solide</td>
+</tr>
+<tr>
+<td>1F 1T 2E</td>
+<td><strong>Sang</strong></td>
+<td>Fluide vital</td>
+<td>25 %</td>
+<td>50 %</td>
+<td>100 %</td>
+<td>Liquide</td>
+</tr>
+<tr>
+<td>1F 3E</td>
+<td><strong>Eau thermale</strong></td>
+<td>Liquide chaud</td>
+<td>25 %</td>
+<td>75 %</td>
+<td>0 %</td>
+<td>Liquide</td>
+</tr>
+<tr>
+<td>4A</td>
+<td><strong>Air</strong></td>
+<td>Élément pur</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>Gaz</td>
+</tr>
+<tr>
+<td>3A 1T</td>
+<td><strong>Poussière</strong></td>
+<td>Solide léger</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>25 %</td>
+<td>Gaz</td>
+</tr>
+<tr>
+<td>3A 1E</td>
+<td><strong>Brume</strong></td>
+<td>Gaz humide</td>
+<td>0 %</td>
+<td>25 %</td>
+<td>0 %</td>
+<td>Gaz</td>
+</tr>
+<tr>
+<td>2A 2T</td>
+<td><strong>Sable</strong></td>
+<td>Minéral</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>50 %</td>
+<td>Mixte</td>
+</tr>
+<tr>
+<td>2A 1T 1E</td>
+<td><strong>Pollen</strong></td>
+<td>Végétal</td>
+<td>0 %</td>
+<td>25 %</td>
+<td>33 %</td>
+<td>Gaz</td>
+</tr>
+<tr>
+<td>2A 2E</td>
+<td><strong>Tempête</strong></td>
+<td>Phénomène</td>
+<td>0 %</td>
+<td>50 %</td>
+<td>0 %</td>
+<td>Mixte</td>
+</tr>
+<tr>
+<td>1A 3T</td>
+<td><strong>Roche</strong></td>
+<td>Minéral</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>75 %</td>
+<td>Solide</td>
+</tr>
+<tr>
+<td>1A 2T 1E</td>
+<td><strong>Bois</strong></td>
+<td>Végétal</td>
+<td>0 %</td>
+<td>25 %</td>
+<td>67 %</td>
+<td>Solide</td>
+</tr>
+<tr>
+<td>1A 1T 2E</td>
+<td><strong>Glace</strong></td>
+<td>Solide froid</td>
+<td>0 %</td>
+<td>50 %</td>
+<td>50 %</td>
+<td>Liquide</td>
+</tr>
+<tr>
+<td>1A 3E</td>
+<td><strong>Chlore gazeux</strong></td>
+<td>Gaz toxique</td>
+<td>0 %</td>
+<td>75 %</td>
+<td>0 %</td>
+<td>Liquide</td>
+</tr>
+<tr>
+<td>4T</td>
+<td><strong>Terre</strong></td>
+<td>Élément pur</td>
+<td>0 %</td>
+<td>0 %</td>
+<td>100 %</td>
+<td>Solide</td>
+</tr>
+<tr>
+<td>3T 1E</td>
+<td><strong>Boue</strong></td>
+<td>Solide humide</td>
+<td>0 %</td>
+<td>25 %</td>
+<td>100 %</td>
+<td>Solide</td>
+</tr>
+<tr>
+<td>2T 2E</td>
+<td><strong>Plante</strong></td>
+<td>Végétal</td>
+<td>0 %</td>
+<td>50 %</td>
+<td>100 %</td>
+<td>Mixte</td>
+</tr>
+<tr>
+<td>1T 3E</td>
+<td><strong>Mercure</strong></td>
+<td>Fluide lourd</td>
+<td>0 %</td>
+<td>75 %</td>
+<td>100 %</td>
+<td>Liquide</td>
+</tr>
+<tr>
+<td>4E</td>
+<td><strong>Eau</strong></td>
+<td>Élément pur</td>
+<td>0 %</td>
+<td>100 %</td>
+<td>0 %</td>
+<td>Liquide</td>
+</tr>
+</tbody>
+</table>
+<p><em>(Masse « — » : indéfinie quand la composition ne contient ni Terre ni Air.)</em></p>
+<hr>
+<h2 id="3-l-energie-pure-la-combinaison-d-equilibre">3. L'énergie pure — la combinaison d'équilibre</h2>
+<p>La combinaison <strong>1F 1A 1T 1E</strong> est la seule à contenir <strong>une unité de chaque élément</strong>. Aucun état ne domine — Solide, Liquide, Gaz et Énergie contribuent chacun pour <strong>25 %</strong> : équilibre parfait. C'est la plus <strong>stable</strong> et la plus <strong>rare</strong> ; les traditions alchimiques y voient l'<strong>éther</strong>, le cinquième élément, la matière des sphères célestes.</p>
+<p>Dans le cadre d'Inarama, cette combinaison <strong>est l'énergie pure</strong> — celle du noyau et du bouclier équatorial (Codex §1). À ce titre elle est <strong>exclue du système des affinités</strong> (<a class="wiki-ref" href="magie-affinites.html"><code>affinites.md</code></a>) : elle n'imprègne pas un territoire, elle est le flux fondamental que les Arcanistes façonnent (Codex §6). <a class="wiki-ref" href="geographie-biomes.html"><code>geographie/biomes.md</code></a> ne compte donc que <strong>34 combinaisons habitables</strong> : la trente-cinquième n'est pas un terrain, c'est une porte.</p>
+<blockquote>
+<p>⚠️ <strong>Le mot « Quintessence ».</strong> Les alchimistes nomment traditionnellement <em>Quintessence</em> cette combinaison, et l'usage reste vivant chez eux. Mais le terme désigne désormais, dans la magie, un <strong>stade de maîtrise</strong> : l'accès aux deux faces d'un même plan (<a class="wiki-ref" href="magie-elementaire.html"><code>elementaire.md</code></a> §6.4, <a class="wiki-ref" href="codex.html"><code>codex.md</code></a>). Pour éviter la confusion, ce document appelle la combinaison <strong>énergie pure</strong> et réserve <em>Quintessence</em> au degré de maîtrise.</p>
+</blockquote>
+<hr>
+<h2 id="4-le-principe-de-transformation">4. Le principe de transformation</h2>
+<p>Les éléments forment un <strong>arbre</strong> : deux éléments <strong>voisins</strong> ne diffèrent que d'<strong>une unité</strong>. On passe de l'un à l'autre en <strong>échangeant une seule unité</strong> — retirer un Air, ajouter un Feu, etc. Ainsi la Glace (1A 1T 2E) devient Tempête en échangeant sa Terre contre un Air, ou Plante en échangeant son Air contre une Terre ; le Sable (2A 2T) devient Verre si la chaleur d'un Feu vient le vitrifier. Cette logique de proximité sous-tend l'alchimie et les transmutations.</p>
+<hr>
+<h2 id="raccord-au-codex-lacunes">Raccord au Codex &amp; lacunes</h2>
+<ul>
+<li><strong>§6</strong> : ces éléments sont la matière de la <strong>Maîtrise Élémentaire</strong> (énergie naturelle) ; la <strong>Quintessence</strong> est la matière de l'<strong>Arcane</strong> (énergie pure).</li>
+<li><strong>Cartographie</strong> élément ↔ peuple ↔ territoire → <a class="wiki-ref" href="magie-affinites.html"><code>affinites.md</code></a>.</li>
+<li><strong>Lacunes / enrichissements</strong> : les <strong>descriptifs prose</strong> de chacun des 35 éléments (propriétés détaillées, symbolique) et l'<strong>arbre complet des transformations</strong> existent au source (<code>codex_alchimique_v2</code>) — à intégrer ici si l'on veut le référentiel exhaustif.</li>
+</ul>
+</article>

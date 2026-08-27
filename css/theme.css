@@ -1,0 +1,202 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   THÈMES — Phase G. Toute la couleur du chrome passe par ces variables.
+   Deux mondes complets, jamais mélangés :
+     · Nocturne  — l'instrument. Sobre, resserré, aucune décoration.
+     · Grimoire  — le parchemin. Encre sépia, sérif d'époque, filets.
+   Rien ici ne touche la CARTE elle-même (tuiles, décor, libellés, marqueurs).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* — échelle typographique (rapport 1.2, une seule dans tout le chrome) — */
+  --t-xs:10px; --t-s:11.5px; --t-m:13px; --t-l:15px; --t-xl:19px; --t-xxl:23px;
+  /* — échelle d'espacement (multiples de 4, une seule) — */
+  --e-1:4px; --e-2:8px; --e-3:12px; --e-4:17px; --e-5:24px;
+  /* — rayons, profondeur, mouvement — */
+  --r-s:6px; --r-m:9px; --r-l:12px;
+  --tr:.18s cubic-bezier(.2,.7,.3,1);
+  --f-ui:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-lire:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-titre:var(--f-ui);
+  --titre-espace:0;
+  --titre-casse:none;
+  --titre-poids:700;
+}
+
+/* ─────────────────────────── NOCTURNE (défaut) ─────────────────────────── */
+:root, body.nocturne{
+  /* Gris NEUTRES, sans dominante bleue : l'or est la seule note colorée. */
+  --fond:      #0b0b0c;   /* fond des panneaux */
+  --fond-2:    #191a1c;   /* surface surélevée : lignes survolées, champs */
+  --fond-3:    #121213;   /* surface creusée : en-têtes collants */
+  --fond-sel:  #2a2b2e;   /* sélection */
+  --txt:       #ededee;
+  --txt-2:     #adaeb1;
+  --txt-3:     #85868a;   /* étiquettes, compteurs */
+  --bord:      #2c2d30;
+  --bord-fort: #45474b;
+  --acc:       #f5d98a;   /* or : accent unique, jamais décoratif */
+  --acc-2:     #8a6d2f;   /* or éteint : filets, bordures d'accent */
+  --sur-acc:   #1a1408;   /* texte posé sur l'or */
+  --ombre-1:0 2px 10px rgba(0,0,0,.55);
+  --ombre-2:0 10px 34px rgba(0,0,0,.7);
+  --voile:rgba(11,11,12,.95);
+  --lien:      #f5d98a;   /* le renvoi prend l'or : rien d'autre n'est coloré */
+  --code:      #c9b98f;
+  --sur-fort:  #ffffff;   /* contraste maximal : surlignage de recherche */
+  /* pastilles d'échelon : 5 identités DISTINCTES, jamais un dégradé
+     (le lore précise qu'à Hodolin [R] contient [T]) */
+  --ech-P:#8fd6a4; --ech-P-b:#2f6b45; --ech-P-f:#12291c;
+  --ech-C:#e6c76a; --ech-C-b:#6d5a1f; --ech-C-f:#2a2411;
+  --ech-T:#8ab6f0; --ech-T-b:#2d4f7d; --ech-T-f:#111f31;
+  --ech-R:#e0929a; --ech-R-b:#7a2f39; --ech-R-f:#2c1418;
+  --ech-X:#c9a6e8; --ech-X-b:#5b3b7a; --ech-X-f:#1f1430;
+}
+
+/* ─────────────────────────── GRIMOIRE ─────────────────────────── */
+body.grimoire{
+  --fond:      #e9dcbe;   /* parchemin */
+  --fond-2:    #dfcfa9;
+  --fond-3:    #e3d4b2;
+  --fond-sel:  #d3c091;
+  --txt:       #3a2614;   /* encre sépia — la même que les libellés du fond Parchemin */
+  --txt-2:     #57422a;
+  --txt-3:     #665132;   /* assombri : #7a6242 tombait à 4,23 sur parchemin, sous AA */
+  --bord:      #b7a179;
+  --bord-fort: #9a8155;
+  --acc:       #8c2f1f;   /* rubrique : le rouge des manuscrits, pour l'accent seul */
+  --acc-2:     #a8593f;
+  --sur-acc:   #f4ead3;
+  --ombre-1:0 2px 10px rgba(60,42,20,.22);
+  --ombre-2:0 10px 34px rgba(60,42,20,.34);
+  --voile:rgba(233,220,190,.95);
+  /* le sérif d'époque déjà auto-hébergé pour la carte, réemployé pour le chrome */
+  --f-titre:'IMFellSC','IMFell',Georgia,serif;
+  --f-lire:'IMFell',Georgia,serif;
+  --titre-espace:.045em;
+  --titre-poids:400;
+  --lien:      #8c2f1f;   /* le renvoi prend la couleur de la rubrique */
+  --code:      #6b4a22;
+  --sur-fort:  #23150a;
+  /* mêmes 5 identités, transposées sur parchemin : fonds clairs, encres sombres */
+  --ech-P:#2f5d3a; --ech-P-b:#8aa88d; --ech-P-f:#d8e1cd;
+  --ech-C:#7a5c14; --ech-C-b:#b49b63; --ech-C-f:#eaddb6;
+  --ech-T:#2b4a78; --ech-T-b:#8fa3c0; --ech-T-f:#d5dfec;
+  --ech-R:#7d2b33; --ech-R-b:#bb9093; --ech-R-f:#ebd5d5;
+  --ech-X:#573a75; --ech-X-b:#a28fb9; --ech-X-f:#ded5e9;
+}
+
+/* ═══════════════ chrome commun aux deux thèmes ═══════════════ */
+
+/* — bloc de marque — */
+#brand{position:absolute;top:var(--e-2);left:52px;z-index:600;pointer-events:none;
+  font-family:var(--f-titre);font-size:var(--t-xl);font-weight:var(--titre-poids);
+  letter-spacing:var(--titre-espace);color:var(--txt);
+  text-shadow:0 1px 3px rgba(0,0,0,.5)}
+body.grimoire #brand{text-shadow:0 1px 0 rgba(255,250,235,.55)}
+#brand small{display:block;font-family:var(--f-ui);letter-spacing:.16em;font-weight:400;
+  font-size:9px;color:var(--txt-3);margin-top:2px;text-shadow:none}
+
+/* — contrôles Leaflet : ils appartiennent au même système — */
+.leaflet-top.leaflet-right{padding-top:42px}      /* place pour le sélecteur de thème */
+.leaflet-bar,.leaflet-control-layers{
+  border:1px solid var(--bord)!important;border-radius:var(--r-m)!important;
+  box-shadow:var(--ombre-1)!important;background:var(--voile)!important;
+  overflow:hidden}
+.leaflet-bar a,.leaflet-bar a:hover{
+  background:transparent!important;color:var(--txt-2)!important;
+  border-bottom:1px solid var(--bord)!important;width:32px;height:32px;line-height:32px;
+  font-size:17px;transition:background var(--tr),color var(--tr)}
+.leaflet-bar a:hover{background:var(--fond-2)!important;color:var(--txt)!important}
+.leaflet-bar a:last-child{border-bottom:0!important}
+.leaflet-control-layers-toggle{background-color:transparent!important;width:34px;height:34px}
+.leaflet-control-layers-expanded{
+  padding:var(--e-3) var(--e-3) var(--e-2)!important;color:var(--txt);
+  font:var(--t-m)/1.5 var(--f-ui)!important;min-width:172px}
+.leaflet-control-layers-list label{margin:1px 0;padding:3px 4px;border-radius:var(--r-s);
+  display:block;cursor:pointer;transition:background var(--tr)}
+.leaflet-control-layers-list label:hover{background:var(--fond-2)}
+.leaflet-control-layers-separator{border-top:1px solid var(--bord)!important;margin:var(--e-2) 0!important}
+.leaflet-control-attribution{
+  background:var(--voile)!important;color:var(--txt-3)!important;
+  border:1px solid var(--bord);border-right:0;border-bottom:0;
+  border-radius:var(--r-s) 0 0 0;padding:2px 7px!important;font-size:var(--t-xs)!important}
+.leaflet-control-attribution a{color:var(--txt-2)!important}
+
+/* — sélecteur de thème — */
+#themeBtn{position:absolute;top:var(--e-2);right:10px;z-index:700;
+  display:inline-flex;align-items:center;gap:var(--e-1);
+  height:34px;padding:0 11px;box-sizing:border-box;cursor:pointer;
+  background:var(--voile);border:1px solid var(--bord);border-radius:var(--r-m);
+  color:var(--txt-2);font:600 var(--t-s)/1 var(--f-ui);
+  box-shadow:var(--ombre-1);transition:color var(--tr),border-color var(--tr)}
+#themeBtn:hover{color:var(--txt);border-color:var(--bord-fort)}
+#themeBtn .ic{font-size:13px}
+@media(max-width:640px){#themeBtn{height:34px;padding:0 9px}#themeBtn .lib{display:none}}
+
+/* — échelle graphique — */
+.ina-scale{border:2px solid var(--txt-2);border-top:none;background:var(--voile);
+  color:var(--txt);font:600 var(--t-xs)/1 var(--f-ui);letter-spacing:.03em;
+  padding:3px 2px;text-align:center;white-space:nowrap;box-shadow:var(--ombre-1)}
+
+/* — légendes — */
+#legend,#tlegend{position:absolute;z-index:600;box-sizing:border-box;
+  background:var(--voile);border:1px solid var(--bord);border-radius:var(--r-m);
+  box-shadow:var(--ombre-2);font:var(--t-s)/1.5 var(--f-ui);color:var(--txt-2);
+  overflow-y:auto}
+#legend{left:10px;bottom:46px;padding:var(--e-2) var(--e-3);max-width:196px;max-height:58vh}
+#tlegend{right:10px;bottom:14px;padding:var(--e-2) 6px var(--e-2) 11px;width:150px;
+  max-height:62vh;display:none}
+#tlegend.on{display:block}
+#legend b,#tlegend b{display:block;margin:7px 0 var(--e-1);font-size:9px;letter-spacing:.08em;
+  color:var(--txt-3);text-transform:uppercase;font-weight:600}
+#legend b:first-of-type,#tlegend b:first-of-type{margin-top:0}
+#legend .row,#tlegend .row{display:flex;align-items:center;gap:6px;margin:2px 0;line-height:1.3}
+#legend .sw{width:14px;height:14px;flex:none;display:flex;align-items:center;justify-content:center}
+#legend .dot{width:11px;height:11px;border-radius:50%;flex:none}
+#legend .swi{width:21px;height:21px;flex:none;margin:-3px 0}
+#legend .swl{width:24px;height:10px;flex:none}
+#tlegend .sw{width:12px;height:12px;border-radius:3px;flex:none;border:1px solid rgba(0,0,0,.35)}
+#legend .note{color:var(--txt-3);font-size:var(--t-xs);line-height:1.4;margin:1px 0 2px}
+#legend .hd,#tlegend .hd{font-family:var(--f-titre);font-weight:var(--titre-poids);
+  letter-spacing:var(--titre-espace);color:var(--txt);font-size:var(--t-m);
+  margin-bottom:5px;position:sticky;top:0;background:var(--voile);padding-bottom:3px}
+#legend .hd span,#tlegend .hd span{cursor:pointer;float:right;opacity:.6;padding:0 2px}
+#legend .hd span:hover,#tlegend .hd span:hover{opacity:1}
+
+#legendBtn{position:absolute;left:10px;bottom:46px;z-index:600;display:none;
+  background:var(--voile);border:1px solid var(--bord);border-radius:var(--r-m);
+  color:var(--txt-2);font:600 var(--t-s)/1 var(--f-ui);padding:0 14px;min-height:40px;
+  cursor:pointer;box-sizing:border-box;box-shadow:var(--ombre-2);transition:color var(--tr)}
+#legendBtn:hover{color:var(--txt)}
+#legendBtn.on{display:block}
+
+/* — infobulle des terres sauvages — */
+.tztip{background:var(--voile);color:var(--txt);border:1px solid var(--bord);
+  border-radius:var(--r-s);font-size:var(--t-m);font-weight:600;padding:3px 8px;
+  box-shadow:var(--ombre-1)}
+.tztip::before{border-top-color:var(--bord)}
+.tzsw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;
+  vertical-align:-1px;border:1px solid rgba(0,0,0,.35)}
+
+/* ═══ cohabitation des panneaux et du chrome ═══
+   Les contrôles Leaflet sont au-dessus de tout (z-index 1000) : plutôt que de
+   leur passer par-dessus, on les DÉCALE quand un panneau occupe leur bord.
+   Sinon le sélecteur de couches recouvre la fiche. */
+.leaflet-top.leaflet-right,.leaflet-bottom.leaflet-right,
+.leaflet-bottom.leaflet-left,#themeBtn,#legend,#legendBtn,#tlegend{
+  transition:transform var(--tr)}
+@media(min-width:641px){
+  body.fiche-on .leaflet-top.leaflet-right,
+  body.fiche-on .leaflet-bottom.leaflet-right,
+  body.fiche-on #themeBtn,
+  body.fiche-on #tlegend{transform:translateX(-382px)}
+  body.explo-on .leaflet-bottom.leaflet-left,
+  body.explo-on #legend,
+  body.explo-on #legendBtn{transform:translateX(334px)}
+}
+
+@media(max-width:640px){
+  #legend{max-height:50vh;max-width:172px}
+  #tlegend{max-height:44vh;width:132px}
+  #brand{font-size:var(--t-l);left:48px}
+}

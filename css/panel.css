@@ -1,0 +1,110 @@
+/* Panneau de fiche — Phase E.
+   Remplace les popups Leaflet. Latéral à droite en desktop, feuille glissante
+   en mobile. Ne recouvre jamais toute la carte.
+   Couleurs reprises du chrome existant ; la Phase G les passera en variables. */
+
+#fiche{position:absolute;z-index:750;display:flex;flex-direction:column;
+  background:var(--voile);border:1px solid var(--bord);
+  color:var(--txt);font:14px/1.55 var(--f-ui);
+  box-shadow:var(--ombre-2);
+  transition:transform .22s ease,opacity .22s ease}
+
+/* La poignée doit être déclarée AVANT les media queries : à spécificité égale,
+   c'est la dernière règle qui gagne, et le `display:block` mobile serait annulé. */
+#fiche .poignee{display:none;width:38px;height:4px;border-radius:2px;background:var(--bord-fort);
+  margin:7px auto 0;flex:none}
+
+/* desktop : colonne à droite, la carte reste largement visible */
+@media(min-width:641px){
+  #fiche{top:10px;right:10px;bottom:10px;width:372px;border-radius:11px;
+    transform:translateX(calc(100% + 18px));opacity:0;pointer-events:none}
+  #fiche.on{transform:none;opacity:1;pointer-events:auto}
+}
+/* mobile : feuille glissante par le bas */
+@media(max-width:640px){
+  #fiche{left:0;right:0;bottom:0;max-height:74vh;border-radius:14px 14px 0 0;
+    border-bottom:0;transform:translateY(100%);opacity:0;pointer-events:none}
+  #fiche.on{transform:none;opacity:1;pointer-events:auto}
+  #fiche .poignee{display:block}
+}
+
+#fiche .tete{flex:none;padding:13px 15px 10px;border-bottom:1px solid var(--bord);position:relative}
+#fiche .retour{display:inline-flex;align-items:center;gap:5px;background:none;border:0;
+  color:var(--lien);font:600 11px/1 var(--f-ui);cursor:pointer;padding:0 0 7px;margin:0}
+#fiche .retour:hover{text-decoration:underline}
+#fiche h3{margin:0 34px 3px 0;font-family:var(--f-titre);font-size:19px;line-height:1.25;font-weight:var(--titre-poids);letter-spacing:var(--titre-espace);color:var(--txt)}
+#fiche .sous{font-size:11.5px;color:var(--txt-3)}
+#fiche .fermer{position:absolute;top:10px;right:11px;width:30px;height:30px;
+  background:none;border:0;color:var(--txt-3);font-size:19px;line-height:1;cursor:pointer;
+  border-radius:7px}
+#fiche .fermer:hover{background:var(--fond-2);color:var(--txt)}
+
+#fiche .corps{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:12px 15px 18px}
+
+#fiche .tags{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 11px}
+#fiche .tag{font-size:11px;padding:2.5px 8px;border-radius:11px;
+  background:var(--fond-2);border:1px solid var(--bord);color:var(--txt-2)}
+#fiche .tag.fort{background:var(--fond-sel);border-color:var(--bord-fort);color:var(--txt)}
+
+#fiche .desc{font-family:var(--f-lire);font-size:13.5px;line-height:1.6;color:var(--txt-2);margin:0 0 14px;
+  white-space:pre-line}
+
+#fiche h4{margin:16px 0 7px;font:600 10px/1 var(--f-ui);letter-spacing:.07em;
+  text-transform:uppercase;color:var(--txt-3)}
+
+#fiche .liens{display:flex;flex-direction:column;gap:4px}
+#fiche .lien{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:7px;
+  background:var(--fond-2);border:1px solid var(--bord);color:var(--txt-2);cursor:pointer;
+  font-size:12.5px;text-align:left;width:100%}
+#fiche .lien:hover{background:var(--fond-2);border-color:var(--bord-fort)}
+#fiche .lien .fl{flex:none;opacity:.5}
+
+/* liste des enfants : provinces d'un royaume, lieux d'une province */
+#fiche .enfants{display:flex;flex-direction:column;gap:1px;margin-top:2px}
+#fiche .enf{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;
+  cursor:pointer;font-size:12.5px;color:var(--txt-2);background:none;border:0;width:100%;text-align:left}
+#fiche .enf:hover{background:var(--fond-2)}
+#fiche .enf .pip{flex:none;width:8px;height:8px;border-radius:50%}
+#fiche .enf .n{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#fiche .enf .c{flex:none;font-size:11px;color:var(--txt-3)}
+#fiche .plus{font-size:11.5px;color:var(--txt-3);padding:6px 8px}
+
+/* article de lore rendu dans le panneau */
+#fiche .som{display:flex;flex-direction:column;gap:1px;margin:0 0 14px;
+  border-left:2px solid var(--bord);padding-left:9px}
+#fiche .som a{font-size:12px;color:var(--lien);text-decoration:none;padding:2px 0;cursor:pointer}
+#fiche .som a:hover{color:var(--txt);text-decoration:underline}
+#fiche .art{font-family:var(--f-lire);font-size:13.5px;line-height:1.6}
+#fiche .art h1{font-family:var(--f-titre);font-size:17px;margin:0 0 10px;color:var(--txt)}
+#fiche .art h2{font-family:var(--f-titre);font-size:15px;margin:20px 0 7px;color:var(--txt);border-bottom:1px solid var(--bord);padding-bottom:4px}
+#fiche .art h3{font-size:13.5px;margin:15px 0 5px;color:var(--txt-2)}
+#fiche .art h4{font:600 12px/1.4 var(--f-ui);margin:12px 0 4px;color:var(--txt-2);
+  letter-spacing:0;text-transform:none}
+#fiche .art p{margin:0 0 9px;color:var(--txt-2)}
+#fiche .art ul,#fiche .art ol{margin:0 0 10px;padding-left:19px;color:var(--txt-2)}
+#fiche .art li{margin:2px 0}
+#fiche .art blockquote{margin:10px 0;padding:2px 0 2px 11px;border-left:3px solid var(--bord-fort);
+  color:var(--txt-2)}
+#fiche .art code{background:var(--fond-2);padding:1px 5px;border-radius:3px;font-size:12px;color:var(--code)}
+#fiche .art a.wiki-ref{text-decoration:none;border-bottom:1px dotted var(--lien);cursor:pointer}
+#fiche .art a.wiki-ref code{color:var(--lien)}
+#fiche .art table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12px;display:block;
+  overflow-x:auto}
+#fiche .art th,#fiche .art td{border:1px solid var(--bord);padding:4px 7px;text-align:left}
+#fiche .art th{background:var(--fond-2);color:var(--txt-2)}
+#fiche .art hr{border:0;border-top:1px solid var(--bord);margin:14px 0}
+
+/* pastilles d'échelon de connaissance — 5 identités DISTINCTES, pas un dégradé
+   (le lore précise qu'à Hodolin [R] contient [T] : ce n'est pas une échelle) */
+#fiche .ech{display:inline-flex;align-items:center;gap:4px;vertical-align:1px;
+  font:600 9.5px/1 var(--f-ui);letter-spacing:.04em;padding:2px 6px;border-radius:9px;
+  border:1px solid;margin:0 2px;cursor:help}
+#fiche .ech-l{font-weight:800}
+#fiche .ech-q{font-weight:400;font-style:italic;opacity:.9}
+#fiche .ech-P{color:var(--ech-P);border-color:var(--ech-P-b);background:var(--ech-P-f)}
+#fiche .ech-C{color:var(--ech-C);border-color:var(--ech-C-b);background:var(--ech-C-f)}
+#fiche .ech-T{color:var(--ech-T);border-color:var(--ech-T-b);background:var(--ech-T-f)}
+#fiche .ech-R{color:var(--ech-R);border-color:var(--ech-R-b);background:var(--ech-R-f)}
+#fiche .ech-X{color:var(--ech-X);border-color:var(--ech-X-b);background:var(--ech-X-f)}
+
+#fiche .vide{color:var(--txt-3);font-size:12.5px;font-style:italic}

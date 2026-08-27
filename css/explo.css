@@ -1,0 +1,94 @@
+/* Explorateur — Phase F : index du monde + filtres.
+   Panneau à gauche (la fiche occupe la droite). Couleurs reprises du chrome
+   existant ; la Phase G les passera en variables de thème. */
+
+/* sous le bloc de marque (lui aussi à left:52px), pas dessus */
+#exploBtn{position:absolute;top:48px;left:52px;z-index:700;
+  background:var(--voile);border:1px solid var(--bord);border-radius:9px;color:var(--txt-2);
+  font:600 12px/1 var(--f-ui);padding:0 13px;height:34px;cursor:pointer;
+  box-sizing:border-box;box-shadow:var(--ombre-1);
+  display:inline-flex;align-items:center;gap:7px}
+#exploBtn:hover{border-color:var(--bord-fort);color:var(--txt)}
+#exploBtn .nb{font-size:10px;background:var(--acc);color:var(--sur-acc);border-radius:9px;padding:2px 6px}
+
+#explo{position:absolute;z-index:740;display:flex;flex-direction:column;
+  background:var(--voile);border:1px solid var(--bord);color:var(--txt);
+  font:13.5px/1.5 var(--f-ui);box-shadow:var(--ombre-2);
+  transition:transform .22s ease,opacity .22s ease}
+
+#explo .poignee{display:none;width:38px;height:4px;border-radius:2px;background:var(--bord-fort);
+  margin:7px auto 0;flex:none}
+
+@media(min-width:641px){
+  #explo{top:90px;left:10px;bottom:10px;width:324px;border-radius:11px;
+    transform:translateX(calc(-100% - 18px));opacity:0;pointer-events:none}
+  #explo.on{transform:none;opacity:1;pointer-events:auto}
+}
+@media(max-width:640px){
+  #explo{left:0;right:0;bottom:0;max-height:78vh;border-radius:14px 14px 0 0;border-bottom:0;
+    transform:translateY(100%);opacity:0;pointer-events:none}
+  #explo.on{transform:none;opacity:1;pointer-events:auto}
+  #explo .poignee{display:block}
+  /* le haut est saturé (marque, zoom, recherche) : on rejoint le bouton
+     « Légende » en bas à gauche, les deux ouvrent un panneau */
+  #exploBtn{top:auto;bottom:46px;left:92px;height:40px}
+}
+
+#explo .onglets{flex:none;display:flex;border-bottom:1px solid var(--bord);position:relative}
+#explo .onglets button{flex:1;background:none;border:0;color:var(--txt-3);cursor:pointer;
+  font:600 11px/1 var(--f-ui);letter-spacing:.05em;text-transform:uppercase;padding:13px 0 11px;
+  border-bottom:2px solid transparent}
+#explo .onglets button.act{color:var(--txt);border-bottom-color:var(--acc)}
+#explo .fermer{position:absolute;top:7px;right:8px;width:30px;height:30px;background:none;
+  border:0;color:var(--txt-3);font-size:19px;line-height:1;cursor:pointer;border-radius:7px}
+#explo .fermer:hover{background:var(--fond-2);color:var(--txt)}
+
+#explo .corps{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:9px 8px 16px}
+
+/* ── bandeau des filtres actifs, visible en permanence ── */
+#explo .actifs{flex:none;display:none;gap:5px;flex-wrap:wrap;align-items:center;
+  padding:8px 10px;border-bottom:1px solid var(--bord);background:var(--fond-3)}
+#explo .actifs.on{display:flex}
+#explo .puce{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 5px 3px 9px;
+  border-radius:11px;background:var(--fond-sel);border:1px solid var(--bord-fort);color:var(--txt)}
+#explo .puce b{font-weight:600}
+#explo .puce button{background:none;border:0;color:var(--txt-3);cursor:pointer;font-size:13px;
+  line-height:1;padding:0 2px}
+#explo .puce button:hover{color:var(--sur-fort)}
+#explo .vider{margin-left:auto;background:none;border:0;color:var(--lien);cursor:pointer;
+  font:600 11px/1 var(--f-ui);text-decoration:underline;padding:3px}
+
+/* ── filtres ── */
+#explo .grp{margin:0 0 14px}
+#explo .grp > b{display:block;font:600 10px/1 var(--f-ui);letter-spacing:.07em;
+  text-transform:uppercase;color:var(--txt-3);margin:0 0 6px;padding:0 2px}
+#explo .chx{display:flex;flex-wrap:wrap;gap:4px}
+#explo .chx label{display:inline-flex;align-items:center;gap:5px;font-size:12px;
+  padding:5px 9px;border-radius:8px;background:var(--fond-2);border:1px solid var(--bord);
+  color:var(--txt-2);cursor:pointer;user-select:none}
+#explo .chx label:hover{border-color:var(--bord-fort)}
+#explo .chx input{display:none}
+#explo .chx input:checked + span{color:var(--sur-fort)}
+#explo .chx label:has(input:checked){background:var(--fond-sel);border-color:var(--bord-fort)}
+#explo .chx .pip{width:9px;height:9px;border-radius:50%;flex:none}
+#explo select{width:100%;box-sizing:border-box;background:var(--fond-2);border:1px solid var(--bord);
+  color:var(--txt);border-radius:8px;padding:7px 9px;font:12.5px var(--f-ui);cursor:pointer}
+#explo select:focus{outline:0;border-color:var(--bord-fort)}
+
+/* ── index arborescent ── */
+#explo .noeud{border-radius:7px}
+#explo .lg{display:flex;align-items:center;gap:7px;padding:6px 7px;border-radius:7px;
+  cursor:pointer;background:none;border:0;width:100%;text-align:left;color:var(--txt-2);font-size:13px}
+#explo .lg:hover{background:var(--fond-2)}
+#explo .lg .fl{flex:none;width:11px;color:var(--txt-3);font-size:10px;transition:transform .15s}
+#explo .noeud.ouv > .lg .fl{transform:rotate(90deg)}
+#explo .lg .n{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#explo .lg .c{flex:none;font-size:11px;color:var(--txt-3)}
+#explo .lg .pip{flex:none;width:8px;height:8px;border-radius:50%}
+#explo .enfants{display:none;margin-left:13px;border-left:1px solid var(--bord);padding-left:5px}
+#explo .noeud.ouv > .enfants{display:block}
+#explo .cadrer{flex:none;background:none;border:0;cursor:pointer;
+  font-size:11px;padding:2px 5px;border-radius:5px;color:var(--txt-3)}
+#explo .cadrer:hover{background:var(--fond-sel);color:var(--txt)}
+#explo .vide{color:var(--txt-3);font-size:12.5px;font-style:italic;padding:8px 6px}
+#explo .plus{font-size:11.5px;color:var(--txt-3);padding:5px 8px}

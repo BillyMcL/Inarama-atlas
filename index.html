@@ -6,29 +6,28 @@
 <title>Inarama — Atlas</title>
 <link rel="stylesheet" href="lib/leaflet.css"/>
 <style>
-  html,body{margin:0;height:100%;background:#070b12;font-family:system-ui,Segoe UI,sans-serif;color:#e8eaed}
+  html,body{margin:0;height:100%;background:#000;
+    font-family:var(--f-ui);color:var(--txt);transition:color var(--tr)}
   #map{position:absolute;inset:0}
-  .leaflet-container{background:#070b12}
-  #brand{position:absolute;top:8px;left:52px;z-index:600;pointer-events:none;
-    font-weight:700;letter-spacing:.22em;font-size:15px;color:#f3ede0;text-shadow:0 1px 5px #000}
-  #brand small{display:block;letter-spacing:.14em;font-weight:400;font-size:9px;opacity:.7;margin-top:1px}
-  .leaflet-control-layers{background:rgba(16,20,28,.93);color:#e8eaed;border:1px solid #2a3440;
-    border-radius:10px;box-shadow:0 6px 22px rgba(0,0,0,.5);font-size:13px}
-  .leaflet-control-layers-expanded{padding:8px 12px 10px}
-  .leaflet-control-layers label{margin:2px 0;line-height:1.6}
-  .leaflet-control-layers-separator{border-top:1px solid #2a3440;margin:6px -6px}
+  /* Le fond derrière la carte dépend du FOND DE CARTE, jamais du thème.
+     theme.js pose la couleur en style inline sur cet élément — c'est la
+     seule portée qui ne se fasse pas écraser par les variables de <body>. */
+  .leaflet-container{background:#000;font-family:var(--f-ui);
+    /* PAS le raccourci "background" : il couvrirait background-size et
+       background-position, que theme.js recale a chaque frame du deplacement —
+       le fond traînerait un quart de seconde derriere la carte. */
+    transition:background-color .25s ease}
+  /* le chevron du sélecteur de couches : image absente du dépôt, on la dessine */
   a.leaflet-control-layers-toggle{background-image:none}
-  a.leaflet-control-layers-toggle::before{content:"\2630";color:#e8eaed;font-size:20px;
+  /* le decor complet (parchemin+ornement) : le masque decoupe l'ouverture ovale
+     et l'exterieur de la feuille -> il RECOUVRE la carte, sauf l'ovale central */
+  .pdecor-frame{-webkit-mask-image:url('img/decor_mask.png');mask-image:url('img/decor_mask.png');
+    -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+  a.leaflet-control-layers-toggle::before{content:"\2630";font-size:19px;
     display:flex;align-items:center;justify-content:center;height:100%}
-  .leaflet-popup-content-wrapper{background:#12161f;color:#e8eaed;border-radius:10px;border:1px solid #2a3440}
-  .leaflet-popup-tip{background:#12161f;border:1px solid #2a3440}
-  .lp h4{margin:0 0 4px;font-size:15px;color:#f5d98a}
-  .lp .meta{font-size:11px;color:#9db0c4;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
-  .lp .tag{display:inline-block;background:#20303f;border-radius:5px;padding:1px 6px;margin:0 4px 4px 0;font-size:11px}
-  .lp .desc{font-size:12px;line-height:1.45;color:#cdd6df;max-height:180px;overflow:auto}
+  /* ─── styles portés PAR LA CARTE : hors périmètre de la refonte ─── */
   .lbl{background:none;border:none;box-shadow:none;color:#f3ede0;font-size:11px;font-weight:600;
     text-shadow:0 0 3px #000,0 0 3px #000,0 1px 2px #000;padding:0}
-  .lbl-roy{color:#ffe9b0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
   .roylbl{color:#141414;font:700 18px Arial,sans-serif;white-space:nowrap;pointer-events:none;
     transform:translate(-50%,-50%);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 4px #fff,0 1px 1px #fff}
   .roylbl.clic{pointer-events:auto;cursor:pointer;padding:14px 18px}
@@ -47,54 +46,52 @@
     text-shadow:0 0 2px #ece0c6,0 0 3px #ece0c6,0 1px 1px #ece0c6}
   body.parch .lbl{font-family:'IMFell',Georgia,serif;font-weight:400;font-size:13px;color:#3f2c18;
     text-shadow:0 0 3px #ece0c6,0 0 3px #ece0c6,0 0 4px #ece0c6,0 1px 1px #ece0c6}
-  #legend{position:absolute;left:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.9);
-    border:1px solid #2a3440;border-radius:9px;padding:8px 11px;font-size:11px;max-width:190px;
-    box-shadow:0 4px 16px rgba(0,0,0,.5)}
-  #legend b{display:block;margin:6px 0 4px;font-size:10px;letter-spacing:.06em;color:#93a3b4;text-transform:uppercase}
-  #legend b:first-child{margin-top:0}
-  #legend .row{display:flex;align-items:center;gap:6px;margin:2px 0}
-  #legend .sw{width:14px;height:14px;flex:none;display:flex;align-items:center;justify-content:center}
-  #legend .dot{width:11px;height:11px;border-radius:50%;flex:none}
-  #legend .hide{cursor:pointer;position:absolute;right:8px;top:6px;opacity:.6}
-  #tlegend{position:absolute;right:10px;bottom:14px;z-index:600;background:rgba(16,20,28,.92);
-    border:1px solid #2a3440;border-radius:9px;padding:8px 6px 8px 11px;font-size:11px;
-    max-height:62vh;overflow-y:auto;width:150px;box-shadow:0 4px 16px rgba(0,0,0,.5);display:none}
-  #tlegend.on{display:block}
-  #tlegend b{display:block;margin:7px 0 3px;font-size:9px;letter-spacing:.05em;color:#8fa0b2;text-transform:uppercase}
-  #tlegend b:first-of-type{margin-top:0}
-  #tlegend .row{display:flex;align-items:center;gap:6px;margin:1.5px 0;line-height:1.25}
-  #tlegend .sw{width:12px;height:12px;border-radius:3px;flex:none;border:1px solid #0006}
-  #tlegend .hd{font-weight:700;color:#e8eaed;font-size:12px;margin-bottom:4px;position:sticky;top:0;
-    background:rgba(16,20,28,.98);padding-bottom:3px}
-  #tlegend .hd span{cursor:pointer;float:right;opacity:.6}
-  .tztip{background:#12161f;color:#e8eaed;border:1px solid #2a3440;border-radius:6px;
-    font-size:12px;font-weight:600;padding:3px 8px;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-  .tztip::before{border-top-color:#2a3440}
-  .tzsw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;
-    vertical-align:-1px;border:1px solid #0006}
-  @media(max-width:640px){#legend{display:none}#tlegend{max-height:44vh;width:132px}#brand{font-size:13px;left:48px}}
+  /* Le chrome (marque, contrôles Leaflet, légendes, échelle) vit désormais
+     dans css/theme.css, en variables de thème. */
 </style>
+<!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
+<link rel="stylesheet" href="css/theme.css?v=2026-08-27g">
+<link rel="stylesheet" href="css/search.css?v=2026-08-27g">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-27g">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-27g">
 </head>
 <body>
 <div id="map"></div>
 <div id="brand">INARAMA<small>ATLAS DU MONDE</small></div>
 <div id="legend"></div>
+<button id="legendBtn" type="button" onclick="legendToggle(true)">Légende</button>
+<div id="rechBar" role="search">
+  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+    <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 L14.5 14.5" stroke-linecap="round"/></svg>
+  <span class="ph">Rechercher un lieu, un royaume, un article…</span>
+  <kbd>Ctrl K</kbd>
+  <input id="rechInput" type="search" autocomplete="off" spellcheck="false"
+         aria-label="Rechercher dans l'atlas et le lore">
+</div>
+<div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-07-24m';   // bump à chaque mise à jour de données (cache-busting)
-window.INARAMA={_d:{},_cb:{},_inj:{},
+window.INARAMA_BUILD='2026-08-27g';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
     (this._cb[n]=this._cb[n]||[]).push(cb);
     if(this._inj[n])return;this._inj[n]=1;
-    var s=document.createElement('script');s.src='data/'+n+'.js?v='+window.INARAMA_BUILD;s.async=true;document.body.appendChild(s);}};
+    var s=document.createElement('script');s.src='data/'+n+'.js?v='+window.INARAMA_BUILD;s.async=true;document.body.appendChild(s);},
+  // garde SYNCHRONE posée AVANT le téléchargement : si l'utilisateur (dé)coche une couche ou
+  // franchit un palier de zoom pendant le chargement, le même callback était mis en file 2 fois
+  // et s'exécutait 2 fois -> le 1er calque construit restait orphelin sur la carte (plus aucune
+  // référence JS ne le suivait), donc impossible à retirer. Une seule mise en file par clé.
+  loadOnce:function(n,cb){if(this._d[n])return cb(this._d[n]);
+    if(this._pend[n])return; this._pend[n]=1;
+    var self=this; this.load(n,function(d){self._pend[n]=0;cb(d);});}};
 </script>
 <script src="lib/leaflet.js"></script>
 <script>
 /* ===== repère monde (aligné sur satellite_monde.tif) ===== */
 const W=18764,H=26784,MAXZ=7,RES=2.0;
 const XMIN=-18764.690210918135563,YMAX=26779.558561177349475;
-const map=L.map('map',{crs:L.CRS.Simple,minZoom:1,maxZoom:8,zoomSnap:.5,
+const map=L.map('map',{crs:L.CRS.Simple,minZoom:1,maxZoom:7,zoomSnap:.5,
   wheelPxPerZoomLevel:120,preferCanvas:true});
 map.attributionControl.setPrefix('Inarama · Leaflet');
 const bounds=L.latLngBounds(map.unproject([0,H],MAXZ),map.unproject([W,0],MAXZ));
@@ -126,7 +123,7 @@ function tieredLine(name,parts){
     subs.forEach(p=>{ if(z>=p.reveal){ if(!map.hasLayer(p.layer))p.layer.addTo(map);}
                       else map.removeLayer(p.layer); }); }
   return {group:L.layerGroup(),
-    add(){on=true; if(!built)INARAMA.load(name,build); else update();},
+    add(){on=true; if(!built)INARAMA.loadOnce(name,build); else update();},
     remove(){on=false;update();}, zoom(){if(on)update();}};
 }
 
@@ -135,7 +132,7 @@ const rivStyle=w=>()=>({color:'#5a97cf',weight:w,opacity:.9,lineCap:'round'});
 const rivRenderer=L.canvas({padding:.4});   // renderer dédié -> retrait propre (repaint garanti)
 let rivOn=false,rivL={};
 function rivEnsure(t){ if(rivL[t]){if(rivOn&&map.getZoom()>=rivRev[t]&&!map.hasLayer(rivL[t]))rivL[t].addTo(map);return;}
-  INARAMA.load('rivieres_'+t,d=>{rivL[t]=gj(d,{renderer:rivRenderer,style:rivStyle(t==1?1.9:t==2?1.2:.8)});rivUpdate();}); }
+  INARAMA.loadOnce('rivieres_'+t,d=>{rivL[t]=gj(d,{renderer:rivRenderer,style:rivStyle(t==1?1.9:t==2?1.2:.8)});rivUpdate();}); }
 const rivRev={1:2.5,2:4,3:5.5};
 function rivUpdate(){ if(!rivOn){for(const t in rivL)map.removeLayer(rivL[t]);return;}
   const z=map.getZoom();
@@ -163,32 +160,51 @@ function simpleLayer(name,dataKey,make){ simple[name]=L.layerGroup();
 
 map.createPane('roy'); map.getPane('roy').style.zIndex=350;   // fond royaumes sous le reste
 const royRenderer=L.canvas({pane:'roy',padding:.4});
-function royPopup(p){
-  let h='<div class="lp"><h4>'+(p.np||p.n)+'</h4>';
-  if(p.np) h+='<div class="meta">anciennement « '+p.n+' »</div>';
-  h+='<div class="desc">'+p.d+'</div></div>'; return h;
-}
+/* superficie approx. en coords monde (formule du lacet) : sert à classer les royaumes */
+function ringArea(r){let s=0;for(let i=0,n=r.length;i<n;i++){const a=r[i],b=r[(i+1)%n];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+function geoArea(g){ if(!g)return -1;                       // -1 = aucun polygone (Yakuvara, maritime)
+  if(g.type==='Polygon')return ringArea(g.coordinates[0]);
+  if(g.type==='MultiPolygon')return g.coordinates.reduce((s,p)=>s+ringArea(p[0]),0);
+  return -1; }
+let royLbl=[];                                              // {m, rev} : libellé + seuil de zoom
+function royZoom(){ const z=map.getZoom();
+  royLbl.forEach(o=>{ if(o.m._icon) o.m._icon.style.display = z>=o.rev ? '' : 'none'; }); }
 const royaumes=simpleLayer('Royaumes','royaumes',(d,g)=>{
   gj(d,{ renderer:royRenderer, pane:'roy',
     style:f=>{const c=f.properties.c||[136,136,136];
       return {color:'#20242c',weight:.7,opacity:.45,
               fillColor:'rgb('+c[0]+','+c[1]+','+c[2]+')',fillOpacity:.5};}
   }).addTo(g);
-  d.features.forEach(f=>{const p=f.properties; if(!p.lp)return;
-    const m=L.marker(c2ll(p.lp),{interactive:!!p.d,keyboard:false,
-      icon:L.divIcon({className:'roylbl'+(p.d?' clic':''),html:(p.np||p.n),iconSize:[0,0]})}).addTo(g);
-    if(p.d) m.bindPopup(royPopup(p),{maxWidth:340});
+  // Les libellés n'avaient AUCUN seuil de zoom : en vue monde, 47 noms en 18px se
+  // superposaient en un bloc illisible (provinces et lieux, eux, se révèlent au zoom).
+  // Révélation progressive par SUPERFICIE : les plus vastes d'abord (z 1.5), les plus
+  // petits en dernier (z 4) -> la vue monde ne garde que les grands ensembles.
+  const fs=d.features.filter(f=>f.properties.lp).map(f=>({f,a:geoArea(f.geometry)}));
+  const pos=fs.map(o=>o.a).filter(a=>a>0).sort((x,y)=>x-y);
+  const med=pos.length?pos[Math.floor(pos.length/2)]:0;
+  fs.forEach(o=>{ if(o.a<0)o.a=med; });                     // sans polygone -> rang médian
+  fs.sort((x,y)=>y.a-x.a);
+  const N=Math.max(1,fs.length-1);
+  fs.forEach((o,i)=>{ const p=o.f.properties;
+    // toujours cliquable depuis la Phase E : la fiche vaut même sans description
+    // (compte de provinces, liste des enfants, renvoi au lore)
+    const m=L.marker(c2ll(p.lp),{interactive:true,keyboard:false,
+      icon:L.divIcon({className:'roylbl clic',html:(p.np||p.n),iconSize:[0,0]})}).addTo(g);
+    m.on('click',()=>window.INARAMA_fiche.royaume(p.n));
+    royLbl.push({m, rev:1.5+Math.round((i/N)*5)/2});        // 1.5 -> 4, par pas de 0.5
   });
+  royZoom();
 });
 
 let provOn=false,provLayer=null;
 let provLabels=[], provLblMk=new Map(), provLabelsData=false;
 const provinces={group:L.layerGroup(),
   add(){provOn=true;
-    if(!provLayer)INARAMA.load('provinces',d=>{provLayer=gj(d,{
+    if(!provLayer)INARAMA.loadOnce('provinces',d=>{provLayer=gj(d,{
       style:()=>({color:'#111111',weight:.9,opacity:.85,fill:false})}); provUpdate();});
-    if(!provLabelsData)INARAMA.load('prov_labels',d=>{provLabelsData=true;
-      provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n,d:o.d,s:o.s})); provUpdate();});
+    if(!provLabelsData)INARAMA.loadOnce('prov_labels',d=>{provLabelsData=true;
+      // `prov` est indispensable depuis la Phase E : c'est la clé de la fiche
+      provLabels=d.map(o=>({ll:c2ll(o.p),n:o.n,d:o.d,s:o.s,prov:o.prov})); provUpdate();});
     provUpdate();},
   remove(){provOn=false;provUpdate();}};
 function provUpdate(){
@@ -201,18 +217,12 @@ function provLabelSync(){
   if(!show){ provLblMk.forEach(m=>map.removeLayer(m)); provLblMk.clear(); return; }
   const b=map.getBounds().pad(0.2);
   provLabels.forEach(o=>{ const vis=b.contains(o.ll); let m=provLblMk.get(o);
-    if(vis&&!m){ m=L.marker(o.ll,{interactive:!!o.d,keyboard:false,
-        icon:L.divIcon({className:'provlbl'+(o.d?' clic':''),html:o.n,iconSize:[0,0]})}).addTo(map);
-      if(o.d) m.bindPopup(provPopup(o),{maxWidth:330});
+    if(vis&&!m){ m=L.marker(o.ll,{interactive:true,keyboard:false,
+        icon:L.divIcon({className:'provlbl clic',html:o.n,iconSize:[0,0]})}).addTo(map);
+      m.on('click',()=>window.INARAMA_fiche.province(o.prov));
       provLblMk.set(o,m); }
     else if(!vis&&m){ map.removeLayer(m); provLblMk.delete(o); } });
 }
-function provPopup(o){
-  let h='<div class="lp"><h4>'+o.n+'</h4>';
-  if(o.s) h+='<div class="meta">nom proposé</div>';
-  h+='<div class="desc">'+o.d+'</div></div>'; return h;
-}
-
 const courants=simpleLayer('Courants','courants',(d,g)=>gj(d,{
   style:()=>({color:'#5fb0d8',weight:.7,opacity:.28})}).addTo(g));
 
@@ -226,10 +236,12 @@ function sizeForZoom(z){return Math.round(Math.min(23, 11 + Math.max(0,z-2)*2.0)
 function ptsPoly(cx,cy,r,n,rot){let a=[];for(let i=0;i<n;i++){let t=rot+i*2*Math.PI/n;a.push((cx+r*Math.cos(t)).toFixed(1)+','+(cy+r*Math.sin(t)).toFixed(1));}return a.join(' ');}
 function ptsStar(cx,cy,r,n,rot,f){let a=[];for(let i=0;i<2*n;i++){let rr=i%2?r*f:r;let t=rot+i*Math.PI/n;a.push((cx+rr*Math.cos(t)).toFixed(1)+','+(cy+rr*Math.sin(t)).toFixed(1));}return a.join(' ');}
 const iconCache={};
-function lieuIcon(type,niv,star,s){
-  const key=type+'|'+niv+'|'+star+'|'+s;
-  if(iconCache[key])return iconCache[key];
-  const col=rarCol(niv), pad=3, S=Math.ceil(s+pad*2), c=S/2, r=s/2;
+const HIT=32;   // zone de clic minimale (px). L'icône VISIBLE garde sa taille : on n'élargit
+                // que la boîte transparente autour. Compromis assumé : 44px (recommandation
+                // tactile) masquerait trop les libellés de province en zone dense.
+// dessine la forme (taille visuelle s) centrée dans une boîte S ; S>s = marge transparente
+function lieuSvg(type,niv,star,s,S){
+  const col=rarCol(niv), c=S/2, r=s/2;
   const ol='stroke="#232323" stroke-width="1.1"';
   let shape;
   if(star===1) shape=`<polygon points="${ptsStar(c,c,r*1.05,5,-Math.PI/2,0.42)}" fill="${col}" ${ol}/>`;
@@ -240,20 +252,15 @@ function lieuIcon(type,niv,star,s){
       circ=R=>`M${(c-R).toFixed(1)},${c.toFixed(1)} a${R.toFixed(1)},${R.toFixed(1)} 0 1,0 ${(2*R).toFixed(1)},0 a${R.toFixed(1)},${R.toFixed(1)} 0 1,0 ${(-2*R).toFixed(1)},0Z`;
     shape=`<path d="${circ(Ro)} ${circ(Ri)}" fill-rule="evenodd" fill="${col}" ${ol}/>`; }
   else shape=`<circle cx="${c}" cy="${c}" r="${r*0.9}" fill="${col}" ${ol}/>`;
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${shape}</svg>`;
-  const ic=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(svg),iconSize:[S,S],iconAnchor:[c,c]});
-  return iconCache[key]=ic;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${shape}</svg>`;
 }
-function popupHtml(p){
-  let h='<div class="lp"><h4>'+(p.nom||'Sans nom')+'</h4>';
-  h+='<div class="meta">'+[p.type,p.stat].filter(Boolean).join(' · ')+'</div>';
-  const t=[];
-  if(p.royaume)t.push(p.royaume); if(p.prov_nom)t.push(p.prov_nom);
-  if(p.race)t.push(p.race); if(p.elem)t.push(p.elem);
-  if(p.ecole)t.push('École: '+p.ecole); if(p.etoile5)t.push('★ étoile');
-  h+=t.map(x=>'<span class="tag">'+x+'</span>').join('');
-  if(p.desc)h+='<div class="desc">'+p.desc+'</div>';
-  return h+'</div>';
+function lieuIcon(type,niv,star,s){
+  const key=type+'|'+niv+'|'+star+'|'+s;
+  if(iconCache[key])return iconCache[key];
+  const S=Math.max(Math.ceil(s+6),HIT), c=S/2;
+  const ic=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(lieuSvg(type,niv,star,s,S)),
+                   iconSize:[S,S],iconAnchor:[c,c]});
+  return iconCache[key]=ic;
 }
 let lieuxOn=false, lieuxFeat=[], lieuxMk=new Map(), lieuxData=false;
 function revZoom(niv){ return niv>=5?1 : niv>=4?2.5 : niv>=3?3.5 : niv>=2?4.5 : 5.5; }
@@ -269,11 +276,13 @@ function lieuxSync(){
   if(!lieuxOn){ lieuxMk.forEach(m=>map.removeLayer(m)); lieuxMk.clear(); return; }
   const z=map.getZoom(), b=map.getBounds().pad(0.25), sz=sizeForZoom(z);
   lieuxFeat.forEach(f=>{
-    const show = z>=revZoom(f.niv) && b.contains(f.ll);
+    // INARAMA_filtre : posé par js/explo.js (Phase F). Null = aucun filtre actif.
+    const show = z>=revZoom(f.niv) && b.contains(f.ll)
+                 && (!window.INARAMA_filtre || window.INARAMA_filtre(f.p));
     let m=lieuxMk.get(f);
     if(show && !m){ m=L.marker(f.ll,{icon:lieuIcon(f.p.type,f.niv,(f.p.etoile5===1||f.p.capitale===1)?1:0,sz),
         riseOnHover:true,keyboard:false});
-      m.bindPopup(popupHtml(f.p),{maxWidth:290});
+      m.on('click',()=>window.INARAMA_fiche.lieu(f.p.id));
       if(f.p.nom)m.bindTooltip(f.p.nom,{className:'lbl',direction:'top',offset:[0,-10],permanent:true});
       m.addTo(map); lieuxMk.set(f,m);
     } else if(!show && m){ map.removeLayer(m); lieuxMk.delete(f); }
@@ -285,7 +294,7 @@ function lieuxSync(){
   lieuxMk.forEach((m,f)=>{ if(m.getTooltip()){ (z>=lblRevZoom(f.niv))?m.openTooltip():m.closeTooltip(); } });
 }
 const lieux={group:L.layerGroup(),
-             add(){lieuxOn=true; if(!lieuxData)INARAMA.load('lieux',lieuxBuild); else lieuxSync();},
+             add(){lieuxOn=true; if(!lieuxData)INARAMA.loadOnce('lieux',lieuxBuild); else lieuxSync();},
              remove(){lieuxOn=false;lieuxSync();}};
 
 /* ===== contrôle des couches ===== */
@@ -297,20 +306,270 @@ const overlayDefs={
 };
 const overlays={};
 for(const n in overlayDefs) overlays[n]=overlayDefs[n].group;
-L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
+const layersCtl=L.control.layers(bases,overlays,{collapsed:window.innerWidth<900,position:'topright'}).addTo(map);
+// le mode replié n'était évalué qu'au chargement : on le réévalue au redimensionnement.
+// Repli SEULEMENT en rétrécissant (un panneau large mangeait un viewport devenu étroit) ;
+// jamais de dépliage automatique, pour ne pas rouvrir ce que l'utilisateur a fermé.
+let scNarrow=window.innerWidth<900, scT;
+addEventListener('resize',()=>{clearTimeout(scT);scT=setTimeout(()=>{
+  const n=window.innerWidth<900; if(n&&!scNarrow)layersCtl.collapse(); scNarrow=n; },200);});
+
+/* ===== échelle graphique (km réels) =====
+   CRS.Simple : pas de distorsion de projection, l'échelle ne dépend que du zoom.
+   1 pixel natif (au zoom MAXZ) = RES km, d'où la mesure via project(...,MAXZ). */
+const ScaleKm=L.Control.extend({
+  options:{position:'bottomleft',maxWidth:130},
+  onAdd:function(m){ this._el=L.DomUtil.create('div','ina-scale');
+    m.on('zoomend',this._upd,this); this._upd(); return this._el; },
+  onRemove:function(m){ m.off('zoomend',this._upd,this); },
+  _upd:function(){ const m=this._map,y=m.getSize().y/2,W=this.options.maxWidth;
+    const a=m.project(m.containerPointToLatLng([0,y]),MAXZ),
+          b=m.project(m.containerPointToLatLng([W,y]),MAXZ);
+    const kmMax=Math.abs(b.x-a.x)*RES;                      // km couverts par W px écran
+    const p=Math.pow(10,Math.floor(Math.log10(kmMax))),f=kmMax/p;
+    const km=(f>=5?5:f>=2?2:1)*p;                           // palier « rond » 1/2/5 ×10ⁿ
+    this._el.style.width=Math.round(W*km/kmMax)+'px';
+    this._el.textContent=km.toLocaleString('fr-FR')+' km'; }
+});
+map.addControl(new ScaleKm());
 // labels calligraphiés (IM Fell) quand le fond Parchemin est actif
 // fond Parchemin : labels calligraphiés + surcouche décor (cadre/cartouches/roses) calée sur la carte
-map.createPane('decor'); map.getPane('decor').style.zIndex=680;   // au-dessus des marqueurs (600) : cache lieux/provinces sous le décor
-const parchDecor=L.imageOverlay('decor_overlay.png?v='+window.INARAMA_BUILD,
-  L.latLngBounds(c2ll([-14535,-11068]),c2ll([33985,37847])),{interactive:false,pane:'decor',className:'pdecor'});
-function updateDecor(){const on=document.body.classList.contains('parch')&&map.getZoom()<=5.5;
-  if(on){map.hasLayer(parchDecor)||parchDecor.addTo(map);}else map.removeLayer(parchDecor);}
+// ── Fond Parchemin — la SCENE 3D est le decor ─────────────────────────────
+// La feuille, ses ornements, la table, les bougies et les objets sortent tous
+// du meme rendu. Ils sont donc composes en 3D, avec le bon empilement — la
+// feuille SOUS les objets poses dessus — et le bon eclairage. Plus rien de tout
+// cela n'est reconstitue en 2D : c'etait la source de tous les decalages.
+//
+// Ces rendus sont servis en TUILES, comme la carte, et pour la meme raison. La
+// camera a filme trois paliers a hauteur constante, chacun balaye lateralement.
+// Sur un palier donne, tous les rendus sont a la MEME echelle et ne different
+// que d'une translation : on peut donc les recoudre en une seule grande image
+// par niveau de zoom (web/build/mosaique.py, puis decor.py pour la decoupe).
+// Le decor est ainsi net a chaque zoom, sans jamais agrandir un pixel.
+//
+// La carte vient s'inscrire dans la fenetre laissee vide au centre. Elle est
+// decoupee sur le trace EXACT de cette ouverture — le second sous-chemin de
+// "Ornement-1" dans le master, 15 035 caracteres de courbes — pris en
+// vectoriel : le bord de l'ouverture ne peut donc pas pixeliser.
+const _B=window.INARAMA_BUILD;
+
+// CALAGE, calcule et non suppose. La feuille occupe le viewBox du master
+// (8857x8925), et le master est cale sur le monde par le groupe "image-carte" :
+// matrix(1.141732,0,0,1.141732,2653.172283,2019.192913) sur une image 3000x4280
+// qui EST la carte. En inversant, le viewBox couvre le monde de
+// (-14534.7,-11067.4) a (33986.0,37851.4). Tuiles du decor, tuiles de la carte
+// et decoupe partagent ce repere : ils se calent donc sans aucun reglage.
+const _fX0=-14534.7, _fY0=-11067.4, _fX1=33986.0, _fY1=37851.4;
+const _fW=_fX1-_fX0, _fH=_fY1-_fY0;
+const _pB=L.latLngBounds(c2ll([_fX0,_fY0]), c2ll([_fX1,_fY1]));
+// emprise du decor : ce que couvre le palier large, seul a aller jusqu'au bord
+// de la table. Mesuree sur la mosaique, pas choisie.
+// Le meme recalage que les tuiles y est applique (web/build/decor.py, CALAGE) :
+// sans lui la video des flammes flottait a 352 px monde des corps de bougie
+// qu'elle est censee surmonter.
+const _CALAGE_X=-352, _CALAGE_Y=-32;
+const _dX0=-47746+_CALAGE_X, _dY0=-19847+_CALAGE_Y,
+      _dX1= 67198+_CALAGE_X, _dY1= 44857+_CALAGE_Y;
+const _dW=_dX1-_dX0, _dH=_dY1-_dY0;
+const _dB=L.latLngBounds(c2ll([_dX0,_dY0]), c2ll([_dX1,_dY1]));
+
+map.createPane('decor');    map.getPane('decor').style.zIndex=150;    // sous les tuiles
+map.createPane('flamme');   map.getPane('flamme').style.zIndex=690;   // au-dessus des ornements
+map.createPane('grille');   map.getPane('grille').style.zIndex=350;   // sur la carte, sous les marqueurs
+map.createPane('ornement'); map.getPane('ornement').style.zIndex=680; // au-dessus de TOUT le contenu
+for(const p of ['decor','flamme','grille','ornement']) map.getPane(p).style.pointerEvents='none';
+
+const _vide='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const _optDecor=z=>({minNativeZoom:1,maxNativeZoom:4,noWrap:true,pane:z,
+   errorTileUrl:_vide,updateWhenZooming:false,keepBuffer:3});
+const parchDecor=L.tileLayer('tiles/decor/{z}/{x}/{y}.jpg?v='+_B,_optDecor('decor'));
+
+// LES ORNEMENTS MASQUENT, PUIS S'EFFACENT. Ce sont les MEMES tuiles, reposees
+// au-dessus de tout le contenu et decoupees en complementaire de l'ouverture :
+// elles ne montrent donc que l'anneau, le bord de la feuille et la table. Tant
+// qu'elles sont opaques, rien de ce qui deborde de l'ouverture ne se voit —
+// ni les tuiles, ni les royaumes, ni les lieux. En approchant elles s'effacent
+// et decouvrent la carte reelle, que l'on avait deja laissee s'etendre dessous.
+// Le navigateur ne retelecharge rien : ce sont les tuiles deja en cache.
+const parchOrn=L.tileLayer('tiles/decor/{z}/{x}/{y}.jpg?v='+_B,_optDecor('ornement'));
+const Z_OUVRE=4.0, Z_NU=5.5;   // debut et fin du devoilement
+
+// Pas de glissement du decor a l'execution : le recalage de -352 px monde cuit
+// dans les tuiles (web/build/decor.py) est le bon, verifie a l'ecran. Le reglage
+// par URL qui servait a le trouver est retire — il posait un transform CSS sur
+// la video, or c'est la que Leaflet ecrit SA position : la scene entiere partait
+// alors se placer n'importe ou des qu'on changeait de zoom.
+
+// LE VACILLEMENT. Le palier de la vue d'ensemble a ete rendu camera fixe : ses
+// 50 images ne different que par les flammes. C'est donc exactement la meme
+// image que la tuile de ce niveau, mais animee — le passage de l'une a l'autre
+// ne se voit pas. Au-dela, les bougies sortent du champ et la video, qui ferait
+// alors plusieurs dizaines de milliers de pixels, est retiree.
+// Panneau distinct, et TOUT EN HAUT. Deux couches la recouvraient tour a tour :
+// le conteneur de tuiles du decor, qui porte un z-index 1, puis le calque
+// d'ornement pose a 680. Elle tournait donc sans jamais etre vue. Placee
+// au-dessus de tout, elle est decoupee en complementaire de l'ouverture — sinon
+// elle masquerait la carte, puisque le rendu couvre aussi le centre.
+const parchFlamme=L.videoOverlay('img/bougies.webm?v='+_B, _dB,
+  {interactive:false,pane:'flamme',className:'pflamme',autoplay:true,loop:true,
+   muted:true,playsInline:true,keepAspectRatio:false});
+let _flammeOn=false;
+function majFlamme(){
+  const on=document.body.classList.contains('parch') && map.getZoom()<=2.75;
+  if(on!==_flammeOn){
+    _flammeOn=on;
+    if(on) parchFlamme.addTo(map); else map.removeLayer(parchFlamme);
+  }
+  // relancer a CHAQUE passage, pas seulement a l'ajout : une video mise en
+  // pause pendant un geste ne repart pas d'elle-meme.
+  const v=parchFlamme.getElement();
+  if(on&&v){ v.muted=true; if(v.paused) v.play&&v.play().catch(()=>{}); }
+}
+map.on('movestart zoomstart',()=>{ const v=parchFlamme.getElement(); if(_flammeOn&&v) v.pause(); });
+map.on('moveend zoomend',   ()=>{ majFlamme(); });
+
+// DECOUPE de la carte sur l'ouverture. Le trace vit dans un <clipPath> exprime
+// en coordonnees master : on ne recalcule donc jamais ses 4 445 sommets, on ne
+// met a jour qu'une transformation affine — deux points suffisent a la definir.
+let _fen=null, _fenEnCours=false;
+function chargeFenetre(){
+  if(_fen||_fenEnCours) return;
+  _fenEnCours=true;
+  fetch('svg/fenetre.svg?v='+_B).then(r=>r.text()).then(t=>{
+    const d=document.createElement('div');
+    d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+    d.innerHTML=t; document.body.appendChild(d);
+    _fen=[...d.querySelectorAll('clipPath > path')];
+    _fenEnCours=false; caleFenetre(); majParch();
+  }).catch(e=>{ _fenEnCours=false; console.warn('fenetre :',e); });
+}
+// Aucune correction ici. Le master est coherent avec lui-meme : la carte y est
+// centree dans l'ouverture, a 65,7 unites du bord gauche et 67,2 du droit. Le
+// decalage venait du RENDU, ou l'encre des ornements avait glisse de 64,3
+// unites ; il est corrige a la fabrication des tuiles (web/build/decor.py).
+// Deplacer la decoupe, comme je l'avais fait, ne faisait que desolidariser la
+// carte des ornements — la carte se retrouvait collee a gauche de l'ouverture.
+function caleFenetre(){
+  if(!_fen) { chargeFenetre(); return; }
+  const a=map.latLngToLayerPoint(c2ll([_fX0,_fY0]));
+  const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1]));
+  const kx=(b.x-a.x)/8857, ky=(b.y-a.y)/8925;
+  const t='translate('+a.x+' '+a.y+') scale('+kx+' '+ky+')';
+  for(const e of _fen) e.setAttribute('transform',t);
+}
+window.INARAMA_caleFenetre=caleFenetre;
+
+// Consequence directe du calage : le decor ne couvre l'ecran que jusqu'a un
+// certain recul. On arrete donc le dezoom la — au zoom minimal on a exactement
+// la scene du rendu Blender. Le seuil depend de la fenetre du navigateur, il se
+// recalcule au redimensionnement plutot que d'etre une constante fausse ailleurs.
+let _zMini=1;
+function caleZooms(){
+  const t=map.getSize();
+  // conteneur pas encore mesure (onglet cache, mise en page en cours) : log2(0)
+  // vaut -Infinity et emporterait le zoom minimal avec lui
+  if(t.x<2||t.y<2) return;
+  const parch=document.body.classList.contains('parch');
+  _zMini=MAXZ+Math.log2(Math.max(t.x/_dW, t.y/_dH));
+  const vise=parch?_zMini:1;
+  if(Math.abs(map.getMinZoom()-vise)>0.01) map.setMinZoom(vise);
+  // en Parchemin on doit pouvoir se promener sur toute la feuille, pas
+  // seulement sur la carte : sinon les ornements restent hors d'atteinte
+  map.setMaxBounds(parch ? _pB.pad(0.03) : bounds.pad(0.12));
+}
+
+// la grille reste VECTORIELLE : elle est le seul trait pose sur la carte, et
+// "non-scaling-stroke" lui garde la meme finesse a l'ecran a tous les zooms
+let parchGrille=null, _svgEnCours=false;
+function chargeSVG(){
+  if(_svgEnCours||parchGrille) return;
+  _svgEnCours=true;
+  fetch('svg/grille.svg?v='+_B).then(r=>r.text())
+    .then(t=>new DOMParser().parseFromString(t,'image/svg+xml').documentElement)
+    .then(g=>{
+      parchGrille=L.svgOverlay(g,_pB,{interactive:false,pane:'grille',className:'pgrille'});
+      _svgEnCours=false; majParch();
+    }).catch(e=>{ _svgEnCours=false; console.warn('grille :',e); });
+}
+
+// La decoupe ne peut pas se limiter aux TUILES : royaumes, provinces, rivieres,
+// routes et lieux vivent dans d'autres panneaux et debordaient allegrement sur
+// les ornements. On borne donc tout ce qui appartient a la carte.
+const _PANNEAUX=['tilePane','roy','overlayPane','grille','tz','shadowPane','markerPane'];
+function rectMonde(){
+  const a=map.latLngToLayerPoint(bounds.getNorthWest());
+  const b=map.latLngToLayerPoint(bounds.getSouthEast());
+  return 'polygon('+a.x+'px '+a.y+'px,'+b.x+'px '+a.y+'px,'+b.x+'px '+b.y+'px,'+a.x+'px '+b.y+'px)';
+}
+function decoupeCarte(mode){   // 'fenetre' | 'monde' | null
+  const dec = mode==='fenetre' ? 'url(#fenetreCarte)' : mode==='monde' ? rectMonde() : '';
+  for(const n of _PANNEAUX){ const p=map.getPane(n); if(p) p.style.clipPath=dec; }
+  // Le remplissage NOIR est cuit dans les tuiles JPEG : le monde est un
+  // rectangle, la grille de tuiles ne tombe pas dessus, et la derniere colonne
+  // porte du noir jusqu'au bord de sa tuile. Or l'ouverture est plus large que
+  // la carte : elle laissait donc voir cette bande. On borne les tuiles au
+  // rectangle du monde EN PLUS de la decoupe organique — deux elements
+  // imbriques, donc deux decoupes qui se composent.
+  const tp=map.getPane('tilePane');
+  if(tp) for(const c of tp.children) c.style.clipPath = mode ? rectMonde() : '';
+  const p=map.getPane('tilePane'); if(!p) return;
+  const on=!!mode;
+  // ETALONNAGE de la carte sur le parchemin. Mesure sur les tuiles assemblees :
+  // le papier de la carte sort a (206,178,134), celui du decor a (134,93,45) —
+  // soit un rapport de 0,65 / 0,51 / 0,34 par canal. Mais egaliser au produit
+  // seul aplatit le relief, et c'est la lisibilite de la carte qui prime. On
+  // garde donc le NIVEAU du papier et on ouvre le contraste de 30 % autour de
+  // lui : le raccord au bord de l'ouverture reste invisible, le relief revient.
+  // Applique en feColorMatrix, donc sur le GPU : les 344 Mo de tuiles ne sont
+  // pas retouches, et le reglage reste un seul nombre dans svg/fenetre.svg.
+  p.style.filter = on ? 'url(#tonCarte)' : '';
+}
+function majParch(){
+  const on=document.body.classList.contains('parch');
+  caleZooms(); caleFenetre();
+  if(!on){
+    decoupeCarte(null);
+    for(const l of [parchDecor,parchOrn,parchGrille]) if(l&&map.hasLayer(l)) map.removeLayer(l);
+    _flammeOn=false; if(map.hasLayer(parchFlamme)) map.removeLayer(parchFlamme);
+    if(window.INARAMA_rogne) window.INARAMA_rogne();
+    return;
+  }
+  map.hasLayer(parchDecor)||parchDecor.addTo(map);
+  majFlamme();
+  // l'anneau ne doit jamais mordre sur l'ouverture : decoupe complementaire
+  for(const n of ['ornement','flamme']){
+    const p=map.getPane(n); if(p) p.style.clipPath = _fen ? 'url(#horsFenetre)' : 'none';
+  }
+
+  // LE DEVOILEMENT. La carte s'etend au-dela de l'ouverture des que l'on
+  // commence a approcher — mais sous des ornements encore opaques, donc rien ne
+  // saute a l'ecran. Ce sont eux qui s'effacent ensuite, et decouvrent ce qui
+  // etait deja la. Zoomer devient ainsi un moyen de trouver, pas un effet.
+  const t=Math.max(0,Math.min(1,(map.getZoom()-Z_OUVRE)/(Z_NU-Z_OUVRE)));
+  decoupeCarte(_fen ? (t>0 ? 'monde' : 'fenetre') : 'monde');
+  if(t<1){ map.hasLayer(parchOrn)||parchOrn.addTo(map); parchOrn.setOpacity(1-t); }
+  else if(map.hasLayer(parchOrn)) map.removeLayer(parchOrn);
+
+  if(!parchGrille){ chargeSVG(); return; }
+  map.hasLayer(parchGrille)||parchGrille.addTo(map);
+}
+window.INARAMA_majParch=majParch;
+window.parchDecor=parchDecor;
+const updateDecor=majParch;
+map.on('resize',()=>{ caleZooms(); caleFenetre(); majFlamme(); });
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
+map.on('viewreset',()=>{ caleFenetre(); majParch(); });
+// PAS de recalcul pendant l'animation. Leaflet met toute la couche a l'echelle
+// le temps du zoom ; recalculer la decoupe a ce moment-la appliquait le zoom une
+// seconde fois, et la carte partait se poser a cote de son ouverture. Les points
+// de couche ne bougent qu'au changement de zoom acheve, pas au deplacement :
+// zoomend et viewreset suffisent donc, et sont les seuls moments justes.
 
-map.on('overlayadd',e=>overlayDefs[e.name]&&overlayDefs[e.name].add());
-map.on('overlayremove',e=>overlayDefs[e.name]&&overlayDefs[e.name].remove());
-map.on('zoomend',()=>{rivUpdate();routes.zoom&&routes.zoom();routesMer.zoom&&routesMer.zoom();provUpdate();lieuxSync();});
+// royZoom() : réafficher la couche recrée les icônes -> il faut réappliquer les seuils
+map.on('overlayadd',e=>{overlayDefs[e.name]&&overlayDefs[e.name].add(); buildLegend(); royZoom();});
+map.on('overlayremove',e=>{overlayDefs[e.name]&&overlayDefs[e.name].remove(); buildLegend();});
+map.on('zoomend',()=>{rivUpdate();routes.zoom&&routes.zoom();routesMer.zoom&&routesMer.zoom();provUpdate();lieuxSync();royZoom();});
 map.on('moveend',()=>{lieuxSync(); provLabelSync();});
 
 /* ===== couches actives par défaut ===== */
@@ -318,15 +577,49 @@ map.on('moveend',()=>{lieuxSync(); provLabelSync();});
   overlays[n].addTo(map); o.add();
 });
 
-/* ===== légende ===== */
-const shapeSwatch={civil:'●',arene:'○',academie:'▲',guilde:'◆',sanctuaire:'✷'};
-document.getElementById('legend').innerHTML=
-  '<span class="hide" onclick="this.parentNode.style.display=\'none\'">✕</span>'+
-  '<b>Rareté (niveau)</b>'+
-  [[5,'légendaire'],[4,'très rare'],[3,'rare'],[2,'peu commun'],[1,'commun']].map(([n,t])=>
-    '<div class="row"><span class="dot" style="background:'+RAR[n]+'"></span>'+n+' — '+t+'</div>').join('')+
-  '<b>Type de lieu</b>'+
-  Object.entries(shapeSwatch).map(([k,s])=>'<div class="row"><span class="sw">'+s+'</span>'+k+'</div>').join('');
+/* ===== légende CONTEXTUELLE : n'affiche que les couches réellement actives =====
+   (avant : une seule section « Lieux », figée, pour 8 couches — et refermable
+   définitivement, sans aucun moyen de la rouvrir) */
+let legendOpen=window.innerWidth>640;   // mobile : repliée par défaut, PLUS jamais supprimée
+function legendToggle(v){ legendOpen=v;
+  document.getElementById('legend').style.display=v?'block':'none';
+  document.getElementById('legendBtn').classList.toggle('on',!v); }
+// échantillons conformes aux styles réels des couches
+function swLine(col,w,dash,op){ return '<svg class="swl" viewBox="0 0 24 10">'+
+  '<line x1="1" y1="5" x2="23" y2="5" stroke="'+col+'" stroke-width="'+Math.max(w,1.1)+'"'+
+  (dash?' stroke-dasharray="'+dash+'"':'')+' stroke-linecap="round" opacity="'+(op||1)+'"/></svg>'; }
+// vignette générée par lieuSvg = le marqueur RÉEL (les glyphes texte ● ▲ ✷ n'y correspondaient pas)
+function swMk(type,star){ return '<img class="swi" alt="" src="data:image/svg+xml,'+
+  encodeURIComponent(lieuSvg(type,3,star,15,21))+'">'; }
+// déclaration de fonction (hoistée) : buildLegend est appelée par overlayadd DÈS l'init,
+// avant ce bloc — un const/arrow serait en zone morte temporelle
+function legRow(sw,txt){ return '<div class="row">'+sw+'<span>'+txt+'</span></div>'; }
+
+function buildLegend(){
+  const el=document.getElementById('legend'); if(!el)return;
+  const on=n=>overlays[n]&&map.hasLayer(overlays[n]), S=[];
+  if(on('Lieux')){
+    S.push('<b>Rareté du lieu</b>'+[[5,'légendaire'],[4,'très rare'],[3,'rare'],[2,'peu commun'],[1,'commun']]
+      .map(([n,t])=>legRow('<span class="dot" style="background:'+RAR[n]+'"></span>',n+' — '+t)).join(''));
+    S.push('<b>Type de lieu</b>'+[['civil','civil'],['arene','arène'],['academie','académie'],
+      ['guilde','guilde'],['sanctuaire','sanctuaire']].map(([k,t])=>legRow(swMk(k,0),t)).join('')+
+      legRow(swMk('civil',1),'capitale / étoile'));
+  }
+  if(on('Royaumes')) S.push('<b>Royaumes</b><div class="note">Aplat coloré, un ton par royaume ; le nom est gravé sur le territoire.</div>');
+  if(on('Provinces')) S.push('<b>Provinces</b>'+legRow(swLine('#111111',1.4,0,.85),'limite de province'));
+  if(on('Rivières')) S.push('<b>Rivières (débit)</b>'+legRow(swLine('#5a97cf',1.9,0,.9),'fort')+
+    legRow(swLine('#5a97cf',1.2,0,.9),'moyen')+legRow(swLine('#5a97cf',.8,0,.9),'faible'));
+  if(on('Routes')) S.push('<b>Routes</b>'+legRow(swLine(rtCol,1.9,0,.85),'grand axe')+
+    legRow(swLine(rtCol,1.2,0,.8),'secondaire')+legRow(swLine(rtCol,.7,0,.75),'locale')+
+    legRow(swLine(rtCol,.5,'2,3',.7),'piste'));
+  if(on('Routes maritimes')) S.push('<b>Routes maritimes</b>'+legRow(swLine('#3f8fa0',1.4,'5,5',.8),'grande ligne')+
+    legRow(swLine('#3f8fa0',1,'4,5',.75),'secondaire')+legRow(swLine('#3f8fa0',.7,'3,4',.7),'cabotage'));
+  if(on('Courants marins')) S.push('<b>Courants marins</b>'+legRow(swLine('#5fb0d8',1.4,0,.6),'sens du courant'));
+  if(on('Terres sauvages')) S.push('<b>Terres sauvages</b><div class="note">Élément par couleur : voir le panneau dédié, à droite.</div>');
+  if(!S.length) S.push('<div class="note">Aucune couche active — ouvrez le sélecteur en haut à droite.</div>');
+  el.innerHTML='<div class="hd">Légende<span onclick="legendToggle(false)" title="Masquer">✕</span></div>'+S.join('');
+}
+buildLegend(); legendToggle(legendOpen);
 
 /* ===== légende Terres sauvages (élément → couleur, exact QGIS) ===== */
 const TERRES_LEG=[
@@ -355,7 +648,7 @@ map.createPane('tz'); map.getPane('tz').style.zIndex=450;  // au-dessus des vect
 const tzRenderer=L.canvas({pane:'tz',padding:.3});
 let tzLayer=null, tzOn=false;
 function terresHover(on){ tzOn=on;
-  if(on){ if(!tzLayer) INARAMA.load('terres_zones',d=>{ tzLayer=gj(d,{renderer:tzRenderer,pane:'tz',
+  if(on){ if(!tzLayer) INARAMA.loadOnce('terres_zones',d=>{ tzLayer=gj(d,{renderer:tzRenderer,pane:'tz',
             style:()=>({stroke:false,fill:true,fillColor:'#000',fillOpacity:0}),
             onEachFeature:(f,l)=>{ const e=f.properties.e;
               l.bindTooltip('<span class="tzsw" style="background:'+(ELEMCOL[e]||'#9aa0a6')+'"></span>'+e,
@@ -364,6 +657,17 @@ function terresHover(on){ tzOn=on;
           else if(!map.hasLayer(tzLayer)) tzLayer.addTo(map); }
   else if(tzLayer) map.removeLayer(tzLayer);
 }
+
+/* ===== exposition pour les modules externes (js/*.js) =====
+   Les `const` de ce script ne sont PAS des propriétés de window : les modules
+   chargés ensuite ne les verraient pas. On expose explicitement le strict
+   nécessaire, plutôt que de tout rendre global. */
+Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
+<script src="js/theme.js?v=2026-08-27g"></script>
+<script src="js/fond.js?v=2026-08-27g"></script>
+<script src="js/panel.js?v=2026-08-27g"></script>
+<script src="js/explo.js?v=2026-08-27g"></script>
+<script src="js/search.js?v=2026-08-27g"></script>
 </body>
 </html>

@@ -1,0 +1,303 @@
+<!-- Inarama wiki — généré par tools/build-wiki.mjs
+     source : README.md
+     lore   : acfe5e07dfca12fc159d5e11af40b6603f476d87 (2026-08-23T16:53:22+02:00) -->
+<article class="wiki-art" data-slug="readme" data-section="racine">
+<h1 id="inarama-lore">Inarama — Lore</h1>
+<blockquote>
+<p><strong>État :</strong> Index vivant. <strong>Toutes les branches sont mises au propre</strong> — cadre, peuples, magie, mythologie, chronologie, géographie. Le dépôt couvre 4 234 lieux, 476 provinces et 47 royaumes nommés et décrits. Reste : enrichissements des fiches royaume (4 champs différés) et quelques corrections de données côté carto.</p>
+</blockquote>
+<p>Source de vérité du contenu d'univers d'Inarama. Ce dépôt fait autorité ; le Projet Claude connecté en est le reflet (rafraîchi par Sync).</p>
+<p>Le <strong>Codex</strong> est la synthèse canonique au sommet, document maître autoportant. Les autres documents sont ses satellites de détail.</p>
+<p><strong>Règle d'autorité :</strong> le Codex fait foi sur les grands traits ; les satellites font foi sur le détail et ne contredisent jamais le Codex sur les grands traits. Une info de détail d'importance suffisante remonte au Codex.</p>
+<hr>
+<h2 id="arborescence-cible">Arborescence cible</h2>
+<pre><code>inarama-lore/
+├── README.md              → ce fichier : index + gouvernance + état + lacunes
+├── claude/review_2026-08-11.md → review générale + plan de chantiers (référence des sessions)
+├── claude/review_2026-08-15.md → audit du chantier B : détections, résolutions, récupération
+├── codex.md               → synthèse canonique, document maître (Livres I &amp; II)
+├── cadre/
+│   *(cosmologie · géographie · temps · empires : couverts par `codex.md` Livre I,
+│    pas de satellite — voir Arbitrages tranchés. `biomes.md` → `geographie/`)*
+│   ├── langues.md         → ✅ fait
+│   ├── observateurs.md    → ✅ fait
+│   ├── geopolitique.md    → ✅ fait
+│   ├── guerre.md          → ✅ fait *(chantier A)*
+│   ├── trones.md          → ✅ fait *(chantier B)*
+│   ├── alliance.md        → ✅ fait *(chantier B bis)*
+│   ├── empire.md          → ✅ fait *(chantier B bis)*
+│   └── figures.md         → registre des figures-causes *(gouvernance, non lore)*
+├── magie/                 → systemes.md · arcane.md · elementaire.md · celeste.md · magie.md · ecoles.md · alchimie.md · affinites.md  → ✅ fait
+├── peuples/               → niveau royaume (Livre III)
+│   ├── nains.md · elfes.md · draconiens.md · zoo.md · humains.md
+│   ├── orcs.md · halfelins.md · thieflins.md · celestes.md
+│   └── territoires.md     → Carceris · Indépendantes · Bandeau &amp; Rhodaliens
+├── mythologie/            → I-creation.md · II-arbres.md · III-elements.md  → ✅ fait
+├── chronologie.md         → frise datée des Éons (satellite Codex §4)  → ✅ fait
+└── geographie/           → ✅ fait
+    ├── README.md        → système : projection, identifiants, hiérarchie, autorités
+    ├── toponymie.md     → registres onomastiques, morphèmes, règles de nommage
+    ├── reperes.md       → 46 capitales · 25 merveilles · faces primordiales
+    ├── biomes.md        → terres sauvages ↔ affinités
+    └── data/            → lieux_existants · lieux_nouveaux · provinces · royaumes · affinites
+</code></pre>
+<p><em>Note : les fichiers sont pour l'instant déposés <strong>à plat</strong>. La mise en dossiers se fera lors de la réorganisation.</em></p>
+<hr>
+<h2 id="portee-du-depot">Portée du dépôt</h2>
+<p>Ne contient que du <strong>contenu d'univers</strong> (ce qui est vrai d'Inarama en soi), texte comme visuel (cartes SVG comprises). Ne contient PAS l'<strong>affichage</strong> de ce contenu (→ projet atlas) ni le <strong>contenu de jeu</strong> (ennemis, équipement, quêtes, mécaniques → projet jeu).</p>
+<p><em>Règle de tri : contenu d'univers → ici. Traitement ou exploitation → projet correspondant.</em></p>
+<hr>
+<h2 id="regles-de-gouvernance">Règles de gouvernance</h2>
+<ul>
+<li><strong>Le Codex est le document maître canonique</strong> (autoportant). Voir la Règle d'autorité en tête.</li>
+<li><strong>Frontière ethnie / royaume.</strong> Le Codex va jusqu'au <strong>niveau ethnie</strong> (socle + hémisphère). Le <strong>niveau royaume</strong> vit dans les satellites <code>peuples/</code>.</li>
+<li><strong>Règle de remontée.</strong> Une info de détail remonte au Codex si elle touche un grand trait et a une importance suffisante.</li>
+<li><strong>Règle d'écriture — vérité ≠ croyance.</strong> Le Codex distingue toujours la <strong>vérité cosmologique</strong> (ce qui est réellement) de la <strong>croyance des peuples</strong>. Ne jamais présenter un savoir ésotérique (planète creuse, An 65000, fonction réelle de la guerre) comme la foi commune.</li>
+<li><strong>Ligne d'état.</strong> Chaque document porte en tête une ligne d'état ; ce README centralise la vue.</li>
+</ul>
+<hr>
+<h2 id="echelons-de-connaissance">Échelons de connaissance</h2>
+<p>Toute affirmation de lore peut être vraie <strong>et</strong> ignorée, ou crue <strong>et</strong> fausse. Les documents notent donc, en marge de chaque affirmation concernée, <strong>qui la tient pour vraie</strong> — au moyen d'une balise en fin de phrase ou de bloc.</p>
+<table>
+<thead>
+<tr>
+<th>Balise</th>
+<th>Portée</th>
+<th>Exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="ech ech-P" data-ech="P" title="Public — tous les peuples"><span class="ech-l">P</span></span></td>
+<td><strong>Public</strong> — tous les peuples</td>
+<td>l'Éveillée règne, épaulée par neuf anciennes</td>
+</tr>
+<tr>
+<td><span class="ech ech-C" data-ech="C" title="Caste — les Astreli / les Abyssari"><span class="ech-l">C</span></span></td>
+<td><strong>Caste</strong> — les Astreli / les Abyssari</td>
+<td>la désignation prime le sang</td>
+</tr>
+<tr>
+<td><span class="ech ech-T" data-ech="T" title="Trônes — souverains en fonction, Rhodaliens gardiens, Observateurs"><span class="ech-l">T</span></span></td>
+<td><strong>Trônes</strong> — souverains en fonction, Rhodaliens gardiens, Observateurs</td>
+<td>le secret cosmique</td>
+</tr>
+<tr>
+<td><span class="ech ech-R" data-ech="R" title="Cercle restreint — organe collégial du sommet concerné"><span class="ech-l">R</span></span></td>
+<td><strong>Cercle restreint</strong> — organe collégial du sommet concerné</td>
+<td>la ponction, la mutinerie</td>
+</tr>
+<tr>
+<td><span class="ech ech-X" data-ech="X" title="Singulier — un seul être le sait"><span class="ech-l">X</span></span></td>
+<td><strong>Singulier</strong> — un seul être le sait</td>
+<td>ce que veut la première Régente</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Règles d'emploi.</strong></p>
+<ul>
+<li>Une affirmation <strong>non balisée</strong> est un fait du monde, vrai indépendamment de qui le croit (géographie, mécanique magique, dates réelles).</li>
+<li><span class="ech ech-P" data-ech="P" title="Public — tous les peuples"><span class="ech-l">P</span></span> ne signifie pas « vrai » : il signifie « cru par tous ». Quand la façade et la vérité divergent, les deux figurent, chacune balisée — jamais l'une à la place de l'autre.</li>
+<li>Les échelons ne sont pas les mêmes dans les deux empires : Hodolin porte <span class="ech ech-P" data-ech="P" title="Public — tous les peuples"><span class="ech-l">P</span></span> <span class="ech ech-C" data-ech="C" title="Caste — les Astreli / les Abyssari"><span class="ech-l">C</span></span> <span class="ech ech-T" data-ech="T" title="Trônes — souverains en fonction, Rhodaliens gardiens, Observateurs"><span class="ech-l">T</span></span> <span class="ech ech-R" data-ech="R" title="Cercle restreint — organe collégial du sommet concerné"><span class="ech-l">R</span></span>, Galombar <span class="ech ech-P" data-ech="P" title="Public — tous les peuples"><span class="ech-l">P</span></span> <span class="ech ech-C" data-ech="C" title="Caste — les Astreli / les Abyssari"><span class="ech-l">C</span></span> <span class="ech ech-T" data-ech="T" title="Trônes — souverains en fonction, Rhodaliens gardiens, Observateurs"><span class="ech-l">T</span></span> seulement. Cette asymétrie est du lore, pas un oubli.</li>
+<li>Un échelon supérieur n'implique pas un savoir supérieur : à Hodolin, <span class="ech ech-R" data-ech="R" title="Cercle restreint — organe collégial du sommet concerné"><span class="ech-l">R</span></span> contient <span class="ech ech-T" data-ech="T" title="Trônes — souverains en fonction, Rhodaliens gardiens, Observateurs"><span class="ech-l">T</span></span>.</li>
+</ul>
+<hr>
+<h2 id="etat-des-documents-lacunes">État des documents &amp; lacunes</h2>
+<h3 id="livre-i-ii-le-cadre-et-les-peuples-codex-md">Livre I &amp; II — le cadre et les peuples → <a class="wiki-ref" href="codex.html"><code>codex.md</code></a> ✅</h3>
+<p>Mis au propre, validés section par section. Corrections de fond entérinées : deux trous polaires + scission équatoriale ; scission partiellement obstruée par Rhodalia ; une trame par source ; réincarnation réservée à Inarama (sinon sauvegarde par la mémoire) ; guerre à trois cercles de vérité ; Arènes communes ; nommage céleste (Astrelior/Abyssarath, Astreli/Abyssari, l'Éveillée) ; Arcane = 12 anneaux.</p>
+<p><strong>Lacunes Livre I ouvertes :</strong> rituel du proto-mariage rhodalien (nommé, non défini). <em>(Fêtes : résolu — on fête le Zénith et l'Éclipse, sans autre nom propre.)</em> <em>Retrofit fait : §6 intègre l'asymétrie chronomancie/spatiomancie.</em></p>
+<h3 id="cadre-satellites">Cadre — satellites ✅</h3>
+<ul>
+<li><strong><a class="wiki-ref" href="cadre-langues.html"><code>langues.md</code></a></strong> — récupéré (session 22 juin). Lacunes : dérive diachronique, endonymes, fragments concrets.</li>
+<li><strong><a class="wiki-ref" href="cadre-observateurs.html"><code>observateurs.md</code></a></strong> — récupéré (session 19 juin). Apporte l'asymétrie des arts (répercutée au §6) + la Conseillère de Nobunaga.</li>
+<li><strong><a class="wiki-ref" href="cadre-geopolitique.html"><code>geopolitique.md</code></a></strong> — récupéré (19 juin) <strong>et revalidé</strong> contre le Codex.</li>
+<li><strong><a class="wiki-ref" href="cadre-guerre.html"><code>guerre.md</code></a></strong> — chantier A (11 août). Satellite de <a class="wiki-ref" href="codex.html"><code>codex.md</code></a> §5 : doctrine de guerre — dispositif, cycle Zénith/Éclipse, arènes, champions, commandement par le Réseau, magie de front, économie des Plaines.</li>
+<li><strong><a class="wiki-ref" href="cadre-empire.html"><code>empire.md</code></a></strong> — chantier B bis (15 août). L'<strong>architecture politique de Galombar</strong>, pendant d'<a class="wiki-ref" href="cadre-alliance.html"><code>alliance.md</code></a> : la <strong>régence niée</strong> (vérité en extinction naturelle), les trois castes d'application, la <strong>génuflexion</strong>, les ambassades impériales, Abyssarath et les deux trônes, le protocole des conseillers, le tribut vécu comme honneur, le précédent d'<strong>Ashmael</strong>, et la nomenclature <strong>Champion de l'Abyssal / champion d'arène</strong>.</li>
+<li><strong><a class="wiki-ref" href="cadre-alliance.html"><code>alliance.md</code></a></strong> — chantier B bis (15 août). L'<strong>architecture politique d'Hodolin</strong> : charte d'Ira et sédimentation, les <strong>sept voix</strong> et leur constitution interne, majorité sur voix totale, freins raciaux, instances d'Astrelior (assemblée, conseil des souverains, conseil constitutionnel), régime des amendements, cas gnome, symétrie des régences avec Galombar.</li>
+<li><strong><a class="wiki-ref" href="cadre-trones.html"><code>trones.md</code></a></strong> — chantier B (15 août). Satellite de <a class="wiki-ref" href="codex.html"><code>codex.md</code></a> §5 et Livre II §IX, sœur de <a class="wiki-ref" href="cadre-guerre.html"><code>guerre.md</code></a> : la <strong>mécanique du pouvoir céleste</strong> — le Prisme et le fractionnement, rotation et Vices à Hodolin, les trois régimes et le tribut à Galombar, Conseil des Anciennes, ponction, épaulement et versement, effectif (~200 ± 15).</li>
+</ul>
+<h3 id="registre-livre-iii-niveau-royaume-mis-au-propre">Registre — Livre III (niveau royaume) → <strong>MIS AU PROPRE</strong> ✅</h3>
+<p>Base : <code>wiki_geo.json</code>. Gabarit : Capitale · Peuple · Affinité · Étymologie · Hémisphère · Structure · Culture · Biologie · Relations + 4 champs différés (Monnaie · Dieu-pilier · Droit · Arts) en placeholder.</p>
+<table>
+<thead>
+<tr>
+<th>Fichier</th>
+<th>Contenu</th>
+<th>Lacunes propres</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="wiki-ref" href="peuples-nains.html"><code>nains.md</code></a></td>
+<td>8 royaumes</td>
+<td>Structure (Gjallvik, Melkarthos, Nebeshaat, Jarnfjord) ; Relations (Steinmark, Gjallvik, Ceomhar, Melkarthos)</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-elfes.html"><code>elfes.md</code></a></td>
+<td>8 royaumes</td>
+<td>Structure (Luminaris, Thalassorn, Ignareth, Bathyalos, Ghabarat) ; Relations (Thalassorn, Ghabarat, Ashmael)</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-draconiens.html"><code>draconiens.md</code></a></td>
+<td>8 clans</td>
+<td>Structure/Relations dérivées du socle + affinités partagées ; détail clanique interne à enrichir</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-zoo.html"><code>zoo.md</code></a></td>
+<td>Hodolin (Vivara + volants + aquatiques + polaires) + Galombar 4</td>
+<td>Galombar minces (Structure/Biologie/Relations)</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-humains.html"><code>humains.md</code></a></td>
+<td>4 royaumes</td>
+<td>Structure partout ; Relations Viranthis</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-orcs.html"><code>orcs.md</code></a></td>
+<td>4 royaumes</td>
+<td>Culture partout ; Relations Gorzgul</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-halfelins.html"><code>halfelins.md</code></a></td>
+<td>16 principautés (tableau)</td>
+<td>gouvernance interne par principauté</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-thieflins.html"><code>thieflins.md</code></a></td>
+<td>4 royaumes</td>
+<td>Relations Kazarak &amp; Ashkareth</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-celestes.html"><code>celestes.md</code></a></td>
+<td>2 capitales (Astrelior/Abyssarath) — fiche peuple ; <strong>pouvoir → <a class="wiki-ref" href="cadre-trones.html"><code>cadre/trones.md</code></a></strong></td>
+<td>nommage acté ; dépend du sweep atlas</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="peuples-territoires.html"><code>territoires.md</code></a></td>
+<td>Carceris · Indépendantes · Bandeau &amp; Rhodaliens</td>
+<td>Indépendantes à préciser ; rôle des Rhodaliens errants dans la réincarnation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Roster :</strong> 44 royaumes de race + 16 principautés + 2 capitales célestes + Carceris + Indépendantes + Bandeau/Rhodaliens — <strong>couvert</strong>.</p>
+<h3 id="registre-branche-magie-complete">Registre — Branche magie → <strong>COMPLÈTE</strong> ✅</h3>
+<blockquote>
+<p>Les <strong>quatre pratiques</strong> ont chacune leur satellite (<code>arcane</code> · <code>elementaire</code> · <code>celeste</code> · <code>magie</code>), plus <code>ecoles</code>. Ce qui reste relève du <strong>peuplement</strong> — quelles écoles, ordres et académies existent, et où —, non de la mécanique.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Fichier</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="wiki-ref" href="magie-systemes.html"><code>magie/systemes.md</code></a></td>
+<td>3 sources · 4 pratiques · Réseau Céleste · énergie superactive · lieux · croyance</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="magie-arcane.html"><code>magie/arcane.md</code></a></td>
+<td>l'énergie pure — système glyphique complet, économie du coût, arbitrage de la trame, artisanat</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="magie-elementaire.html"><code>magie/elementaire.md</code></a></td>
+<td>l'énergie naturelle — mécanisme, réserve, terrain, échelle, risques, trace, artisanat</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="magie-celeste.html"><code>magie/celeste.md</code></a></td>
+<td>l'énergie astrale — foi, trois sources, deux formes, Réseau, cycle, cœur, incarnation</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="magie-magie.html"><code>magie/magie.md</code></a></td>
+<td>la synthèse — trois composantes, glyphe hybride, multiplicateur, quatre dangers</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="magie-ecoles.html"><code>magie/ecoles.md</code></a></td>
+<td>les corps enseignants des deux faces — trousseaux, répertoires, greffes, doctrines, politique</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="magie-alchimie.html"><code>magie/alchimie.md</code></a></td>
+<td>système des 35 éléments (principes, règles, table, énergie pure)</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="magie-affinites.html"><code>magie/affinites.md</code></a></td>
+<td>cartographie élément ↔ peuple</td>
+</tr>
+</tbody>
+</table>
+<p><em>Enrichissements laissés au source : descriptifs prose des 35 éléments (alchimie) ; exemples de sorts (arcane).</em></p>
+<p><em>Chantiers magie ouverts (peuplement, non mécanique) : <strong>recensement des écoles</strong> (combien, lesquelles, où → <code>geographie/data/</code>) · <strong>ordres célestes et hérésies</strong> · <strong>détail des 8 écoles de Magie</strong> · <strong>vie propre des 8 sanctuaires raciaux</strong> · <strong>arbitrage « Site » / « sanctuaire »</strong> · <strong>chronologie de la mixité</strong> · <strong>lexique d'Alde</strong> · <strong>pictogrammes du noyau</strong> · <strong>effectif céleste d'Éon 9</strong>.</em></p>
+<h3 id="registre-branche-mythologie-mise-au-propre">Registre — Branche mythologie → <strong>MISE AU PROPRE</strong> ✅</h3>
+<p>Couche <strong>croyance</strong> (≠ vérité du Codex) : préservation intégrale des mythes, ré-accentuation, reformatage, cohérence.</p>
+<table>
+<thead>
+<tr>
+<th>Fichier</th>
+<th>Contenu</th>
+<th>Corrections</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="wiki-ref" href="mythologie-i-creation.html"><code>mythologie/I-creation.md</code></a></td>
+<td>création, astres, Ira &amp; Nama, mythes des races, panthéons</td>
+<td>« l'Éveillé » → « l'Éveillée »</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="mythologie-ii-arbres.html"><code>mythologie/II-arbres.md</code></a></td>
+<td>Arbres primordiaux (Alde/Fenir), bandeau, cultes, forces naturelles</td>
+<td>coquilles ; Marcheur des Vents ↔ Observateur de l'Espace</td>
+</tr>
+<tr>
+<td><a class="wiki-ref" href="mythologie-iii-elements.html"><code>mythologie/III-elements.md</code></a></td>
+<td>les 34 mythes élémentaires + ponts inter-hémisphériques</td>
+<td>notation → ordre F-A-T-E ; « Ignarith » → « Ignareth »</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="chantiers-en-attente">Chantiers en attente</h2>
+<ol>
+<li><strong>Quatre champs différés</strong> (Monnaie · Dieu-pilier · Droit · Arts) : absents de toutes les fiches royaume, par décision — <strong>gros chantier créatif</strong> (par ethnie de préférence).</li>
+<li><strong>Structure / Relations « à compléter »</strong> par royaume (voir tableau ci-dessus).</li>
+<li><strong>Indépendantes</strong> : recenser au-delà de Babkar/Larsaarimur.</li>
+<li><strong>Corrections de données côté carto</strong> : <code>B120</code> (province sans géométrie), 36 lieux marqués <code>douteux</code> dans <code>plateau.js</code> — voir <code>travail/journaux/</code>.</li>
+<li><strong>Face cachée de Rhodalia</strong> : seul lieu primordial sans emplacement sur la carte.</li>
+</ol>
+<hr>
+<h2 id="arbitrages-tranches">Arbitrages tranchés</h2>
+<ul>
+<li><strong>Nommage célestial</strong> → empires <strong>Hodolin/Galombar</strong> ; capitales <strong>Astrelior/Abyssarath</strong> ; peuples <strong>Astreli/Abyssari</strong> ; souveraine d'Hodolin <strong>l'Éveillée</strong> (matriarcat strict) ; l'Abyssal (Galombar, conquis) inchangé. <strong>Appliqué</strong> au Compendium et aux satellites.</li>
+<li><strong>Zoo Hodolin</strong> → <strong>trois modes de vie de même rang</strong> (terrestre=Vivara, volants, aquatiques) <strong>+ lignées polaires</strong> (catégorie de biome, capitale <strong>Quchariti</strong>). <em>(Résout l'ancien « 3 vs 4 ».)</em></li>
+<li><strong>Thieflins</strong> → orthographe retenue (parité avec les Halfelins), <strong>harmonisée</strong> dans tout le corpus.</li>
+<li><strong>Demi-sangs</strong> → version <strong>Codex</strong> canonique (Compendium obsolète, aligné).</li>
+<li><strong>Arcane</strong> → <strong>12 anneaux + 12 paires d'actions</strong> (<code>manuel_arcane</code> fait foi) ; <strong>réconcilié dans <a class="wiki-ref" href="magie-arcane.html"><code>magie/arcane.md</code></a></strong> — l'ancienne « carte glyphique à 9 niveaux » est <strong>périmée</strong>.</li>
+<li><strong>Base niveau royaume</strong> → <strong><code>wiki_geo</code> seul</strong> (Voie A), sans le « Codex Intégral » de juin (périmé).</li>
+<li><strong>Biomes</strong> → le système « 12 biomes / 7 terres sauvages » est du <strong>jeu</strong>, pas du lore. En lore : une variété de biomes façonnés par 35+ types de terres sauvages, qui ont <strong>façonné les peuples</strong> voisins.</li>
+<li><strong>Zoo « Terre de Non-Droit »</strong> : inexistante — c'était la gouvernance anarchique du Zoo de Galombar. <strong>Supprimée</strong> du Compendium.</li>
+<li><strong>Caste servile de Galombar</strong> → le cadre général est une <strong>subordination d'ensemble</strong> (Nains et Zoo sous les Elfes et Thieflins), sans système de castes systématique. <strong>Certains royaumes poussent toutefois le cadre jusqu'à un vrai fonctionnement de caste</strong> : les gobelins chez les Orcs, une caste de lignées impures chez les Damaveth. La forme varie par royaume — le socle est la subordination, la caste est une aggravation locale.</li>
+<li><strong>Satellites <code>cadre/</code> — le critère.</strong> Un satellite est légitime s'il <strong>développe</strong> ce que le Codex pose ; il est proscrit s'il ne ferait que le <strong>redire</strong> — sans apport, et avec un risque de divergence. Sur cette base : la <strong>cosmologie</strong> et le <strong>temps</strong> restent sans satellite, le Codex Livre I étant autoportant sur ces sujets. Les <strong>empires</strong> et la <strong>guerre</strong> en ont un, parce qu'il y avait à développer — <a class="wiki-ref" href="cadre-geopolitique.html"><code>geopolitique.md</code></a> sur le détail des structures politiques, <a class="wiki-ref" href="cadre-guerre.html"><code>guerre.md</code></a> sur la conduite de la guerre (§5). La <strong>géographie</strong> a migré vers <code>geographie/</code> (dont <a class="wiki-ref" href="geographie-biomes.html"><code>biomes.md</code></a>).</li>
+<li><strong>Accord grammatical</strong> → dans toute section dont le socle pose une <strong>autorité féminine</strong> (Nains de Galombar, Elfes d'Hodolin), <strong>tout se féminise</strong> — titres, individus <strong>et fonctions génériques</strong>. Le masculin générique n'y est pas admis. Ailleurs, accord au masculin. Règle arrêtée pour lever toute ambiguïté de lecture dans un corpus où l'inversion matrilinéaire est un trait structurant. <em>Le Zoo est explicitement hors règle : sa filiation est matrilinéaire et matrifocale, mais son autorité se prend par la capacité et non par le sexe — les chefs peuvent être des mâles.</em></li>
+</ul>
+<hr>
+<h2 id="branche-geographie-faite">Branche géographie — faite</h2>
+<p><em>Statut : achevée le 2026-07-24.</em></p>
+<p>La réconciliation atlas ↔ SVG est terminée. Les identifiants sont stables et font autorité : préfixe <code>H</code>/<code>G</code>/<code>B</code> pour les provinces, <code>HL</code>/<code>GL</code>/<code>BL</code> pour les lieux — <strong>le préfixe suffit à classer un point sans calcul géométrique</strong>.</p>
+<p><strong>Volumétrie</strong> : 4 234 lieux · 476 provinces · 47 royaumes, tous nommés et décrits. Identifiants uniques, aucune collision de nom, aucun texte dupliqué.</p>
+<p><strong>Le markdown fait foi sur les règles, le JSON sur les entrées.</strong> Quatre documents posent le système, la toponymie, les repères canoniques et les biomes ; cinq fichiers de données portent les 4 234 entrées et la répartition des affinités élémentaires par province.</p>
+<p><strong>Refonte de la couche descriptive</strong> : 1 213 descriptions sur 1 771 contredisaient les attributs réels du lieu (académie de lave sur banquise, tourbières à 4 800 m). Toutes refondues. La règle de résolution est désormais écrite : <strong>quand une description contredit un attribut, l'attribut gagne.</strong></p>
+<p><strong>Repères canoniques</strong> : 25 merveilles identifiées et symétriques — 4 Académies de Magie, 4 sanctuaires raciaux et 4 guildes de quadrant par hémisphère, plus l'arène de Rhodalia. Cela referme la lacune que <a class="wiki-ref" href="magie-systemes.html"><code>magie/systemes.md</code></a> laissait ouverte sur la localisation des huit écoles.</p>
+<hr>
+<h2 id="journal-construction-plus-tard">Journal « construction — plus tard »</h2>
+<p>Pistes ouvertes, <strong>non canoniques</strong>, à développer :</p>
+<ul>
+<li><strong>Lingua franca d'Hodolin</strong> (pendant du céleste ténébreux imposé à Galombar — de nature sans doute différente, vu le clivage ouvert/imposé). <em>(Note : <a class="wiki-ref" href="cadre-langues.html"><code>langues.md</code></a> pose déjà l'humain comme lingua franca de facto d'Hodolin — à approfondir.)</em></li>
+<li><strong>Passations d'énergie</strong> entre entités (legs d'une part d'énergie — quelque chose qui <em>ressemble</em> à une réincarnation sans en être).</li>
+<li><strong>Dieu de la réincarnation émergent</strong> : un peuple croyant à la réincarnation ferait émerger de la trame un dieu qui réincarnerait ses fidèles (récursif, cohérent avec §8).</li>
+<li><strong>Ironie tragique des Célestes</strong> : Inarama aimerait ses deux enfants pareillement, par-delà Ira/Nama — à faire affleurer.</li>
+<li><strong>Rôle des Rhodaliens errants</strong> dans la réincarnation d'Inarama — à développer.</li>
+</ul>
+<hr>
+<p><em>Dépôt : github.com/BillyMcL/inarama-lore</em></p>
+</article>
