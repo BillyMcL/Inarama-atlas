@@ -50,17 +50,12 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/search.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/panel.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/explo.css?v=2026-08-27i">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-27g">
+<link rel="stylesheet" href="css/search.css?v=2026-08-27g">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-27g">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-27g">
 </head>
 <body>
-<!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
-     SVG : Safari, sur iPhone, ignore purement et simplement `filter: url(#id)`
-     sur un element HTML. L'element s'affiche, sans le filtre — la carte
-     ressortait en creme pale sur un decor brun. Il est desormais exprime en
-     fonctions CSS, comprises partout, dans decoupeCarte(). -->
 <div id="map"></div>
 <div id="brand">INARAMA<small>ATLAS DU MONDE</small></div>
 <div id="legend"></div>
@@ -76,7 +71,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-27i';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-27g';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -433,23 +428,20 @@ function majFlamme(){
 map.on('movestart zoomstart',()=>{ const v=parchFlamme.getElement(); if(_flammeOn&&v) v.pause(); });
 map.on('moveend zoomend',   ()=>{ majFlamme(); });
 
-// DECOUPE. On n'utilise PAS `clip-path: url(#...)`, qui renvoie a un <clipPath>
-// injecte dans la page : Chrome le suit, le Safari des iPhone l'ignore. Et
-// quand il l'ignore, le calque d'ornement — qui est le decor entier prive de
-// son ouverture — n'est plus decoupe et recouvre l'ecran : il ne reste que le
-// decor, sans la carte. C'est ce qu'on voyait sur telephone.
-// `clip-path: polygon(...)` ne reference rien et passe partout. Il lui faut des
-// sommets : data/fenetre.js en porte 784, dans le repere du master (assez fins
-// pour rester sous le pixel au zoom le plus profond ou l'ouverture se voit).
+// DECOUPE de la carte sur l'ouverture. Le trace vit dans un <clipPath> exprime
+// en coordonnees master : on ne recalcule donc jamais ses 4 445 sommets, on ne
+// met a jour qu'une transformation affine — deux points suffisent a la definir.
 let _fen=null, _fenEnCours=false;
 function chargeFenetre(){
   if(_fen||_fenEnCours) return;
   _fenEnCours=true;
-  const sc=document.createElement('script');
-  sc.src='data/fenetre.js?v='+_B;
-  sc.onload=()=>{ _fen=window.INARAMA_FENETRE||null; _fenEnCours=false; majParch(); };
-  sc.onerror=()=>{ _fenEnCours=false; console.warn('fenetre : chargement impossible'); };
-  document.head.appendChild(sc);
+  fetch('svg/fenetre.svg?v='+_B).then(r=>r.text()).then(t=>{
+    const d=document.createElement('div');
+    d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+    d.innerHTML=t; document.body.appendChild(d);
+    _fen=[...d.querySelectorAll('clipPath > path')];
+    _fenEnCours=false; caleFenetre(); majParch();
+  }).catch(e=>{ _fenEnCours=false; console.warn('fenetre :',e); });
 }
 // Aucune correction ici. Le master est coherent avec lui-meme : la carte y est
 // centree dans l'ouverture, a 65,7 unites du bord gauche et 67,2 du droit. Le
@@ -457,20 +449,13 @@ function chargeFenetre(){
 // unites ; il est corrige a la fabrication des tuiles (web/build/decor.py).
 // Deplacer la decoupe, comme je l'avais fait, ne faisait que desolidariser la
 // carte des ornements — la carte se retrouvait collee a gauche de l'ouverture.
-// Le complementaire de l'ouverture : un grand rectangle perce du trace, regle
-// pair-impair. C'est ce qui borne l'anneau d'ornement et la video des bougies.
-let _horsFenetre='';
 function caleFenetre(){
   if(!_fen) { chargeFenetre(); return; }
   const a=map.latLngToLayerPoint(c2ll([_fX0,_fY0]));
   const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1]));
   const kx=(b.x-a.x)/8857, ky=(b.y-a.y)/8925;
-  const p=new Array(_fen.length);
-  for(let i=0;i<_fen.length;i++)
-    p[i]=(a.x+_fen[i][0]*kx).toFixed(1)+'px '+(a.y+_fen[i][1]*ky).toFixed(1)+'px';
-  const t=map.getSize(), M=Math.max(t.x,t.y)*4;
-  _horsFenetre='polygon(evenodd,'+(-M)+'px '+(-M)+'px,'+M+'px '+(-M)+'px,'
-    +M+'px '+M+'px,'+(-M)+'px '+M+'px,'+p.join(',')+')';
+  const t='translate('+a.x+' '+a.y+') scale('+kx+' '+ky+')';
+  for(const e of _fen) e.setAttribute('transform',t);
 }
 window.INARAMA_caleFenetre=caleFenetre;
 
@@ -516,8 +501,8 @@ function rectMonde(){
   const b=map.latLngToLayerPoint(bounds.getSouthEast());
   return 'polygon('+a.x+'px '+a.y+'px,'+b.x+'px '+a.y+'px,'+b.x+'px '+b.y+'px,'+a.x+'px '+b.y+'px)';
 }
-function decoupeCarte(mode){   // 'monde' | null
-  const dec = mode==='monde' ? rectMonde() : '';
+function decoupeCarte(mode){   // 'fenetre' | 'monde' | null
+  const dec = mode==='fenetre' ? 'url(#fenetreCarte)' : mode==='monde' ? rectMonde() : '';
   for(const n of _PANNEAUX){ const p=map.getPane(n); if(p) p.style.clipPath=dec; }
   // Le remplissage NOIR est cuit dans les tuiles JPEG : le monde est un
   // rectangle, la grille de tuiles ne tombe pas dessus, et la derniere colonne
@@ -530,17 +515,14 @@ function decoupeCarte(mode){   // 'monde' | null
   const p=map.getPane('tilePane'); if(!p) return;
   const on=!!mode;
   // ETALONNAGE de la carte sur le parchemin. Mesure sur les tuiles assemblees :
-  // le papier de la carte sort a (212,184,139), celui du decor a (137,93,47).
-  // La correction exacte est une transformation affine PAR CANAL —
-  //   R'=0,845R-0,1659   V'=0,663V-0,1133   B'=0,442B-0,0576
-  // — qu'aucune fonction CSS ne sait exprimer telle quelle, les decalages
-  // n'y etant jamais propres a un canal. Cette chaine-ci a donc ete AJUSTEE
-  // sur 51 000 pixels reellement pris dans les tuiles : elle reproduit la
-  // matrice a 0,6 niveau pres en moyenne, 0,7 au 90e centile. Indiscernable,
-  // et comprise par tous les navigateurs.
-  p.style.filter = on
-    ? 'sepia(1) saturate(2.087) hue-rotate(-9.9deg) brightness(0.457) contrast(1.177)'
-    : '';
+  // le papier de la carte sort a (206,178,134), celui du decor a (134,93,45) —
+  // soit un rapport de 0,65 / 0,51 / 0,34 par canal. Mais egaliser au produit
+  // seul aplatit le relief, et c'est la lisibilite de la carte qui prime. On
+  // garde donc le NIVEAU du papier et on ouvre le contraste de 30 % autour de
+  // lui : le raccord au bord de l'ouverture reste invisible, le relief revient.
+  // Applique en feColorMatrix, donc sur le GPU : les 344 Mo de tuiles ne sont
+  // pas retouches, et le reglage reste un seul nombre dans svg/fenetre.svg.
+  p.style.filter = on ? 'url(#tonCarte)' : '';
 }
 function majParch(){
   const on=document.body.classList.contains('parch');
@@ -554,13 +536,9 @@ function majParch(){
   }
   map.hasLayer(parchDecor)||parchDecor.addTo(map);
   majFlamme();
-  // L'anneau et les bougies sont bornes au complementaire de l'ouverture. Ce
-  // sont les SEULES couches a decouper : tout ce que la carte dessine au-dela
-  // de l'ouverture passe dessous, et l'anneau etant opaque, il le masque deja.
-  // Inutile donc de decouper sept panneaux — c'est autant de travail en moins
-  // a chaque zoom, ce qui compte sur telephone.
+  // l'anneau ne doit jamais mordre sur l'ouverture : decoupe complementaire
   for(const n of ['ornement','flamme']){
-    const p=map.getPane(n); if(p) p.style.clipPath=_horsFenetre||'none';
+    const p=map.getPane(n); if(p) p.style.clipPath = _fen ? 'url(#horsFenetre)' : 'none';
   }
 
   // LE DEVOILEMENT. La carte s'etend au-dela de l'ouverture des que l'on
@@ -568,7 +546,7 @@ function majParch(){
   // saute a l'ecran. Ce sont eux qui s'effacent ensuite, et decouvrent ce qui
   // etait deja la. Zoomer devient ainsi un moyen de trouver, pas un effet.
   const t=Math.max(0,Math.min(1,(map.getZoom()-Z_OUVRE)/(Z_NU-Z_OUVRE)));
-  decoupeCarte('monde');
+  decoupeCarte(_fen ? (t>0 ? 'monde' : 'fenetre') : 'monde');
   if(t<1){ map.hasLayer(parchOrn)||parchOrn.addTo(map); parchOrn.setOpacity(1-t); }
   else if(map.hasLayer(parchOrn)) map.removeLayer(parchOrn);
 
@@ -686,10 +664,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-27i"></script>
-<script src="js/fond.js?v=2026-08-27i"></script>
-<script src="js/panel.js?v=2026-08-27i"></script>
-<script src="js/explo.js?v=2026-08-27i"></script>
-<script src="js/search.js?v=2026-08-27i"></script>
+<script src="js/theme.js?v=2026-08-27g"></script>
+<script src="js/fond.js?v=2026-08-27g"></script>
+<script src="js/panel.js?v=2026-08-27g"></script>
+<script src="js/explo.js?v=2026-08-27g"></script>
+<script src="js/search.js?v=2026-08-27g"></script>
 </body>
 </html>
