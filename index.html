@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-09-04b">
-<link rel="stylesheet" href="css/search.css?v=2026-09-04b">
-<link rel="stylesheet" href="css/panel.css?v=2026-09-04b">
-<link rel="stylesheet" href="css/explo.css?v=2026-09-04b">
+<link rel="stylesheet" href="css/theme.css?v=2026-09-04c">
+<link rel="stylesheet" href="css/search.css?v=2026-09-04c">
+<link rel="stylesheet" href="css/panel.css?v=2026-09-04c">
+<link rel="stylesheet" href="css/explo.css?v=2026-09-04c">
 </head>
 <body>
 <!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
@@ -76,7 +76,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-09-04b';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-09-04c';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -490,6 +490,29 @@ function caleFenetre(){
 }
 window.INARAMA_caleFenetre=caleFenetre;
 
+// REPERE DE CONTROLE, absent par defaut. Avec ?repere=1 dans l'URL, le trace de
+// l'ouverture est dessine en rouge par-dessus tout : une capture d'ecran montre
+// alors sans ambiguite si le decalage est entre le TRACE et l'encre, ou entre la
+// carte et le trace. Sans le parametre, rien n'est cree et rien ne change.
+if(new URLSearchParams(location.search).get('repere')){
+  map.createPane('repere'); const pr=map.getPane('repere');
+  pr.style.zIndex=900; pr.style.pointerEvents='none';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('style','position:absolute;overflow:visible;left:0;top:0');
+  const pl=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  pl.setAttribute('fill','none'); pl.setAttribute('stroke','#ff2020');
+  pl.setAttribute('stroke-width','2'); svg.appendChild(pl); pr.appendChild(svg);
+  const trace=()=>{
+    if(!_fen) return;
+    const a=map.latLngToLayerPoint(c2ll([_fX0,_fY0]));
+    const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1]));
+    const kx=(b.x-a.x)/8857, ky=(b.y-a.y)/8925;
+    pl.setAttribute('points',_fen.map(p=>(a.x+p[0]*kx).toFixed(1)+','+(a.y+p[1]*ky).toFixed(1)).join(' '));
+  };
+  map.on('zoomend viewreset load', trace); setTimeout(trace, 1500);
+  window.INARAMA_repere = trace;
+}
+
 // Consequence directe du calage : le decor ne couvre l'ecran que jusqu'a un
 // certain recul. On arrete donc le dezoom la — au zoom minimal on a exactement
 // la scene du rendu Blender. Le seuil depend de la fenetre du navigateur, il se
@@ -708,10 +731,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-09-04b"></script>
-<script src="js/fond.js?v=2026-09-04b"></script>
-<script src="js/panel.js?v=2026-09-04b"></script>
-<script src="js/explo.js?v=2026-09-04b"></script>
-<script src="js/search.js?v=2026-09-04b"></script>
+<script src="js/theme.js?v=2026-09-04c"></script>
+<script src="js/fond.js?v=2026-09-04c"></script>
+<script src="js/panel.js?v=2026-09-04c"></script>
+<script src="js/explo.js?v=2026-09-04c"></script>
+<script src="js/search.js?v=2026-09-04c"></script>
 </body>
 </html>
