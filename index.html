@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-09-04a">
-<link rel="stylesheet" href="css/search.css?v=2026-09-04a">
-<link rel="stylesheet" href="css/panel.css?v=2026-09-04a">
-<link rel="stylesheet" href="css/explo.css?v=2026-09-04a">
+<link rel="stylesheet" href="css/theme.css?v=2026-09-04b">
+<link rel="stylesheet" href="css/search.css?v=2026-09-04b">
+<link rel="stylesheet" href="css/panel.css?v=2026-09-04b">
+<link rel="stylesheet" href="css/explo.css?v=2026-09-04b">
 </head>
 <body>
 <!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
@@ -76,7 +76,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-09-04a';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-09-04b';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -466,11 +466,27 @@ function caleFenetre(){
   const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1]));
   const kx=(b.x-a.x)/8857, ky=(b.y-a.y)/8925;
   const p=new Array(_fen.length);
-  for(let i=0;i<_fen.length;i++)
-    p[i]=(a.x+_fen[i][0]*kx).toFixed(1)+'px '+(a.y+_fen[i][1]*ky).toFixed(1)+'px';
-  const t=map.getSize(), M=Math.max(t.x,t.y)*4;
-  _horsFenetre='polygon(evenodd,'+(-M)+'px '+(-M)+'px,'+M+'px '+(-M)+'px,'
-    +M+'px '+M+'px,'+(-M)+'px '+M+'px,'+p.join(',')+')';
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for(let i=0;i<_fen.length;i++){
+    const X=a.x+_fen[i][0]*kx, Y=a.y+_fen[i][1]*ky;
+    if(X<x0)x0=X; if(X>x1)x1=X; if(Y<y0)y0=Y; if(Y>y1)y1=Y;
+    p[i]=X.toFixed(1)+'px '+Y.toFixed(1)+'px';
+  }
+  // LE RECTANGLE EXTERIEUR DOIT ENGLOBER LE TRACE. Il etait dimensionne sur la
+  // FENETRE (quatre fois sa taille, ~7600 px) : or les coordonnees du trace sont
+  // des points de couche, qui grandissent avec le zoom. Passe le zoom 4, la
+  // feuille depasse 12000 px et le trace sortait du rectangle — la regle
+  // pair-impair n'avait alors plus de trou a percer et la decoupe partait en
+  // vrille. En dezoome le trace tenait dedans, d'ou un defaut qui n'apparaissait
+  // qu'en s'approchant. On le dimensionne donc sur le TRACE lui-meme, plus la
+  // fenetre, plus un plancher : getSize() rend 0 tant que le conteneur n'est pas
+  // mesure, et la marge tomberait alors a zero.
+  const t=map.getSize();
+  const M=Math.max(x1-x0, y1-y0, t.x||0, t.y||0)*2+4096;
+  const A=Math.round(x0-M), B=Math.round(x1+M),
+        C=Math.round(y0-M), D=Math.round(y1+M);
+  _horsFenetre='polygon(evenodd,'+A+'px '+C+'px,'+B+'px '+C+'px,'
+    +B+'px '+D+'px,'+A+'px '+D+'px,'+p.join(',')+')';
 }
 window.INARAMA_caleFenetre=caleFenetre;
 
@@ -692,10 +708,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-09-04a"></script>
-<script src="js/fond.js?v=2026-09-04a"></script>
-<script src="js/panel.js?v=2026-09-04a"></script>
-<script src="js/explo.js?v=2026-09-04a"></script>
-<script src="js/search.js?v=2026-09-04a"></script>
+<script src="js/theme.js?v=2026-09-04b"></script>
+<script src="js/fond.js?v=2026-09-04b"></script>
+<script src="js/panel.js?v=2026-09-04b"></script>
+<script src="js/explo.js?v=2026-09-04b"></script>
+<script src="js/search.js?v=2026-09-04b"></script>
 </body>
 </html>
