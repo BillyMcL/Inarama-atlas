@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/search.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/panel.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/explo.css?v=2026-08-27i">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-28b">
+<link rel="stylesheet" href="css/search.css?v=2026-08-28b">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-28b">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-28b">
 </head>
 <body>
 <!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
@@ -76,7 +76,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-27i';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-28b';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -459,18 +459,72 @@ function chargeFenetre(){
 // carte des ornements — la carte se retrouvait collee a gauche de l'ouverture.
 // Le complementaire de l'ouverture : un grand rectangle perce du trace, regle
 // pair-impair. C'est ce qui borne l'anneau d'ornement et la video des bougies.
-let _horsFenetre='';
-function caleFenetre(){
-  if(!_fen) { chargeFenetre(); return; }
-  const a=map.latLngToLayerPoint(c2ll([_fX0,_fY0]));
-  const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1]));
-  const kx=(b.x-a.x)/8857, ky=(b.y-a.y)/8925;
+// OU POSER LA DECOUPE. Pas sur un panneau : Leaflet anime le zoom avec DEUX
+// transformations, une sur le volet de la carte et une sur le conteneur de
+// tuiles de chaque couche. Un panneau ne recoit que la premiere — sa decoupe
+// derive donc du contenu pendant toute la transition, puis se remet en place a
+// l'arrivee quand tout est repositionne. On la pose donc sur l'element qui
+// porte exactement le meme transform que ce qu'elle borne :
+//   les tuiles -> le conteneur de niveau (couche._levels[z].el), dans son repere
+//   la video   -> l'element <video> lui-meme, dans son repere local
+const _GRAND=1e6;   // le rectangle exterieur du complementaire, en px locaux
+function _poly(ox,oy,kx,ky,complement){
   const p=new Array(_fen.length);
   for(let i=0;i<_fen.length;i++)
-    p[i]=(a.x+_fen[i][0]*kx).toFixed(1)+'px '+(a.y+_fen[i][1]*ky).toFixed(1)+'px';
-  const t=map.getSize(), M=Math.max(t.x,t.y)*4;
-  _horsFenetre='polygon(evenodd,'+(-M)+'px '+(-M)+'px,'+M+'px '+(-M)+'px,'
+    p[i]=(ox+_fen[i][0]*kx).toFixed(1)+'px '+(oy+_fen[i][1]*ky).toFixed(1)+'px';
+  if(!complement) return 'polygon('+p.join(',')+')';
+  const M=_GRAND;
+  return 'polygon(evenodd,'+(-M)+'px '+(-M)+'px,'+M+'px '+(-M)+'px,'
     +M+'px '+M+'px,'+(-M)+'px '+M+'px,'+p.join(',')+')';
+}
+// applique a chaque niveau d'une couche de tuiles une decoupe calculee DANS SON
+// REPERE : origine = level.origin, echelle = celle du zoom de ce niveau
+function _decoupeNiveaux(couche, fab){
+  if(!couche || !couche._levels) return;
+  for(const k in couche._levels){
+    const L=couche._levels[k];
+    if(L && L.el) L.el.style.clipPath = fab(+k, L.origin) || '';
+  }
+}
+const _horsFenetreNiveau=(z,o)=>{
+  if(!_fen) return '';
+  const a=map.project(c2ll([_fX0,_fY0]),z).subtract(o);
+  const b=map.project(c2ll([_fX1,_fY1]),z).subtract(o);
+  return _poly(a.x,a.y,(b.x-a.x)/8857,(b.y-a.y)/8925,true);
+};
+const _rectMondeNiveau=(z,o)=>{
+  const a=map.project(bounds.getNorthWest(),z).subtract(o);
+  const b=map.project(bounds.getSouthEast(),z).subtract(o);
+  return 'polygon('+a.x+'px '+a.y+'px,'+b.x+'px '+a.y+'px,'
+    +b.x+'px '+b.y+'px,'+a.x+'px '+b.y+'px)';
+};
+// Les niveaux de tuiles se recalculent A TOUT MOMENT, animation comprise : leur
+// repere est celui de leur propre zoom, il ne depend donc pas de l'avancement de
+// la transition. Il FAUT le faire des le debut de l'animation, car Leaflet cree
+// alors le conteneur du niveau d'arrivee : non decoupe, l'anneau recouvrirait la
+// carte pendant toute la duree du zoom.
+function caleNiveaux(mode){
+  _decoupeNiveaux(parchOrn, _fen ? _horsFenetreNiveau : ()=>'');
+  const tp=map.getPane('tilePane');
+  for(const id in map._layers){
+    const c=map._layers[id];
+    if(c && c._levels && c._container && c._container.parentNode===tp)
+      _decoupeNiveaux(c, mode==='monde' ? _rectMondeNiveau : ()=>'');
+  }
+}
+// La video, elle, garde sa taille d'avant pendant l'animation : Leaflet ne la
+// repositionne qu'a l'arrivee. Sa decoupe, exprimee dans ce repere local, reste
+// donc juste tant qu'on ne la recalcule PAS en cours de route.
+function caleFenetre(){
+  if(!_fen) { chargeFenetre(); return; }
+  const v=parchFlamme.getElement();
+  if(v){
+    const o=map.latLngToLayerPoint(c2ll([_dX0,_dY0]));
+    const a=map.latLngToLayerPoint(c2ll([_fX0,_fY0])).subtract(o);
+    const b=map.latLngToLayerPoint(c2ll([_fX1,_fY1])).subtract(o);
+    v.style.clipPath=_poly(a.x,a.y,(b.x-a.x)/8857,(b.y-a.y)/8925,true);
+  }
+  caleNiveaux(document.body.classList.contains('parch') ? 'monde' : null);
 }
 window.INARAMA_caleFenetre=caleFenetre;
 
@@ -510,25 +564,22 @@ function chargeSVG(){
 // La decoupe ne peut pas se limiter aux TUILES : royaumes, provinces, rivieres,
 // routes et lieux vivent dans d'autres panneaux et debordaient allegrement sur
 // les ornements. On borne donc tout ce qui appartient a la carte.
-const _PANNEAUX=['tilePane','roy','overlayPane','grille','tz','shadowPane','markerPane'];
-function rectMonde(){
-  const a=map.latLngToLayerPoint(bounds.getNorthWest());
-  const b=map.latLngToLayerPoint(bounds.getSouthEast());
-  return 'polygon('+a.x+'px '+a.y+'px,'+b.x+'px '+a.y+'px,'+b.x+'px '+b.y+'px,'+a.x+'px '+b.y+'px)';
-}
 function decoupeCarte(mode){   // 'monde' | null
-  const dec = mode==='monde' ? rectMonde() : '';
-  for(const n of _PANNEAUX){ const p=map.getPane(n); if(p) p.style.clipPath=dec; }
   // Le remplissage NOIR est cuit dans les tuiles JPEG : le monde est un
   // rectangle, la grille de tuiles ne tombe pas dessus, et la derniere colonne
   // porte du noir jusqu'au bord de sa tuile. Or l'ouverture est plus large que
-  // la carte : elle laissait donc voir cette bande. On borne les tuiles au
-  // rectangle du monde EN PLUS de la decoupe organique — deux elements
-  // imbriques, donc deux decoupes qui se composent.
-  const tp=map.getPane('tilePane');
-  if(tp) for(const c of tp.children) c.style.clipPath = mode ? rectMonde() : '';
+  // la carte : elle laissait donc voir cette bande. On borne donc les tuiles au
+  // rectangle du monde — la aussi niveau par niveau, pour que la bordure ne
+  // parte pas en vrille pendant l'animation du zoom.
+  caleNiveaux(mode);
   const p=map.getPane('tilePane'); if(!p) return;
   const on=!!mode;
+  // theme.js borne les tuiles au rectangle du monde pour les fonds Terrain et
+  // Satellite. En Parchemin il se retire, mais la decoupe qu'il avait posee
+  // AVANT le changement de fond restait accrochee au panneau : figee dans les
+  // coordonnees du zoom d'alors, elle amputait la carte des qu'on bougeait. On
+  // l'efface ici, sans dependre de l'ordre dans lequel les deux s'executent.
+  if(on) p.style.clipPath='';
   // ETALONNAGE de la carte sur le parchemin. Mesure sur les tuiles assemblees :
   // le papier de la carte sort a (212,184,139), celui du decor a (137,93,47).
   // La correction exacte est une transformation affine PAR CANAL —
@@ -559,9 +610,7 @@ function majParch(){
   // de l'ouverture passe dessous, et l'anneau etant opaque, il le masque deja.
   // Inutile donc de decouper sept panneaux — c'est autant de travail en moins
   // a chaque zoom, ce qui compte sur telephone.
-  for(const n of ['ornement','flamme']){
-    const p=map.getPane(n); if(p) p.style.clipPath=_horsFenetre||'none';
-  }
+  caleFenetre();
 
   // LE DEVOILEMENT. La carte s'etend au-dela de l'ouverture des que l'on
   // commence a approcher — mais sous des ornements encore opaques, donc rien ne
@@ -582,6 +631,12 @@ map.on('resize',()=>{ caleZooms(); caleFenetre(); majFlamme(); });
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
 map.on('viewreset',()=>{ caleFenetre(); majParch(); });
+// des le DEBUT du zoom : c'est la qu'apparait le conteneur du niveau d'arrivee
+map.on('zoomanim', ()=>{ if(document.body.classList.contains('parch')) caleNiveaux('monde'); });
+// et a chaque fournee de tuiles, qui peut creer un niveau de plus
+for(const c of [parchDecor,parchOrn]) c.on('loading load', ()=>{
+  if(document.body.classList.contains('parch')) caleNiveaux('monde');
+});
 // PAS de recalcul pendant l'animation. Leaflet met toute la couche a l'echelle
 // le temps du zoom ; recalculer la decoupe a ce moment-la appliquait le zoom une
 // seconde fois, et la carte partait se poser a cote de son ouverture. Les points
@@ -686,10 +741,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-27i"></script>
-<script src="js/fond.js?v=2026-08-27i"></script>
-<script src="js/panel.js?v=2026-08-27i"></script>
-<script src="js/explo.js?v=2026-08-27i"></script>
-<script src="js/search.js?v=2026-08-27i"></script>
+<script src="js/theme.js?v=2026-08-28b"></script>
+<script src="js/fond.js?v=2026-08-28b"></script>
+<script src="js/panel.js?v=2026-08-28b"></script>
+<script src="js/explo.js?v=2026-08-28b"></script>
+<script src="js/search.js?v=2026-08-28b"></script>
 </body>
 </html>
