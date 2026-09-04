@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-28d">
-<link rel="stylesheet" href="css/search.css?v=2026-08-28d">
-<link rel="stylesheet" href="css/panel.css?v=2026-08-28d">
-<link rel="stylesheet" href="css/explo.css?v=2026-08-28d">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-28e">
+<link rel="stylesheet" href="css/search.css?v=2026-08-28e">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-28e">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-28e">
 </head>
 <body>
 <!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
@@ -76,7 +76,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-28d';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-28e';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -648,12 +648,26 @@ map.on('resize',()=>{ caleZooms(); caleFenetre(); majFlamme(); });
 map.on('baselayerchange',e=>{document.body.classList.toggle('parch', /Parchemin/.test(e.name));updateDecor();});
 map.on('zoomend',updateDecor);
 map.on('viewreset',()=>{ caleFenetre(); majParch(); });
-// des le DEBUT du zoom : c'est la qu'apparait le conteneur du niveau d'arrivee
-map.on('zoomanim', ()=>{ if(document.body.classList.contains('parch')) caleNiveaux('monde'); });
-// et a chaque fournee de tuiles, qui peut creer un niveau de plus
-for(const c of [parchDecor,parchOrn]) c.on('loading load', ()=>{
-  if(document.body.classList.contains('parch')) caleNiveaux('monde');
+// LE CONTENEUR DU NIVEAU D'ARRIVEE EST CREE PAR LEAFLET DANS SON PROPRE
+// ecouteur de `zoomanim`. Le mien est enregistre AVANT le sien — l'ordre des
+// ecouteurs suit l'ordre d'inscription, et les couches ne sont ajoutees a la
+// carte qu'ensuite. Au moment ou je decoupais, ce conteneur n'existait donc pas
+// encore, et il traversait tout le zoom SANS decoupe : l'anneau recouvrait la
+// carte, ou la laissait paraitre a cote de son ouverture.
+// On n'essaie plus de deviner le bon moment : on observe le DOM et on decoupe
+// tout conteneur des son insertion. Le rappel d'un MutationObserver s'execute
+// avant le rendu suivant, donc rien n'est jamais affiche sans sa decoupe.
+const _obsNiveaux=new MutationObserver(muts=>{
+  for(const m of muts) if(m.addedNodes.length){
+    caleNiveaux(document.body.classList.contains('parch') ? 'monde' : null);
+    return;
+  }
 });
+for(const n of ['ornement','tilePane']){
+  const p=map.getPane(n);
+  if(p) _obsNiveaux.observe(p,{childList:true,subtree:true});
+}
+map.on('zoomanim', ()=>{ if(document.body.classList.contains('parch')) caleNiveaux('monde'); });
 // PAS de recalcul pendant l'animation. Leaflet met toute la couche a l'echelle
 // le temps du zoom ; recalculer la decoupe a ce moment-la appliquait le zoom une
 // seconde fois, et la carte partait se poser a cote de son ouverture. Les points
@@ -758,10 +772,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-28d"></script>
-<script src="js/fond.js?v=2026-08-28d"></script>
-<script src="js/panel.js?v=2026-08-28d"></script>
-<script src="js/explo.js?v=2026-08-28d"></script>
-<script src="js/search.js?v=2026-08-28d"></script>
+<script src="js/theme.js?v=2026-08-28e"></script>
+<script src="js/fond.js?v=2026-08-28e"></script>
+<script src="js/panel.js?v=2026-08-28e"></script>
+<script src="js/explo.js?v=2026-08-28e"></script>
+<script src="js/search.js?v=2026-08-28e"></script>
 </body>
 </html>
