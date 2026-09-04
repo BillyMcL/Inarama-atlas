@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-28b">
-<link rel="stylesheet" href="css/search.css?v=2026-08-28b">
-<link rel="stylesheet" href="css/panel.css?v=2026-08-28b">
-<link rel="stylesheet" href="css/explo.css?v=2026-08-28b">
+<link rel="stylesheet" href="css/theme.css?v=2026-08-28d">
+<link rel="stylesheet" href="css/search.css?v=2026-08-28d">
+<link rel="stylesheet" href="css/panel.css?v=2026-08-28d">
+<link rel="stylesheet" href="css/explo.css?v=2026-08-28d">
 </head>
 <body>
 <!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
@@ -76,7 +76,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-28b';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-08-28d';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -467,15 +467,28 @@ function chargeFenetre(){
 // porte exactement le meme transform que ce qu'elle borne :
 //   les tuiles -> le conteneur de niveau (couche._levels[z].el), dans son repere
 //   la video   -> l'element <video> lui-meme, dans son repere local
-const _GRAND=1e6;   // le rectangle exterieur du complementaire, en px locaux
 function _poly(ox,oy,kx,ky,complement){
   const p=new Array(_fen.length);
-  for(let i=0;i<_fen.length;i++)
-    p[i]=(ox+_fen[i][0]*kx).toFixed(1)+'px '+(oy+_fen[i][1]*ky).toFixed(1)+'px';
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for(let i=0;i<_fen.length;i++){
+    const x=ox+_fen[i][0]*kx, y=oy+_fen[i][1]*ky;
+    if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+    p[i]=x.toFixed(1)+'px '+y.toFixed(1)+'px';
+  }
   if(!complement) return 'polygon('+p.join(',')+')';
-  const M=_GRAND;
-  return 'polygon(evenodd,'+(-M)+'px '+(-M)+'px,'+M+'px '+(-M)+'px,'
-    +M+'px '+M+'px,'+(-M)+'px '+M+'px,'+p.join(',')+')';
+  // Le rectangle exterieur du complementaire est dimensionne SUR LA FORME, et
+  // non pris arbitrairement grand. A un million de pixels, le rasteriseur perd
+  // toute precision sur un contour qui n'en fait que quelques centaines : la
+  // decoupe degenerait en biseau et ne laissait voir qu'un coin de la carte.
+  // Le plancher n'est pas une precaution de style : getSize() rend 0 tant que le
+  // conteneur n'est pas mesure (onglet cache, mise en page en cours), et la
+  // marge tombait alors a zero — le complementaire se refermait sur la forme.
+  const t=map.getSize();
+  const M=Math.max(x1-x0, y1-y0, t.x||0, t.y||0)*3+4096;
+  const a=Math.round(x0-M), b=Math.round(x1+M),
+        c=Math.round(y0-M), d=Math.round(y1+M);
+  return 'polygon(evenodd,'+a+'px '+c+'px,'+b+'px '+c+'px,'
+    +b+'px '+d+'px,'+a+'px '+d+'px,'+p.join(',')+')';
 }
 // applique a chaque niveau d'une couche de tuiles une decoupe calculee DANS SON
 // REPERE : origine = level.origin, echelle = celle du zoom de ce niveau
@@ -586,11 +599,15 @@ function decoupeCarte(mode){   // 'monde' | null
   //   R'=0,845R-0,1659   V'=0,663V-0,1133   B'=0,442B-0,0576
   // — qu'aucune fonction CSS ne sait exprimer telle quelle, les decalages
   // n'y etant jamais propres a un canal. Cette chaine-ci a donc ete AJUSTEE
-  // sur 51 000 pixels reellement pris dans les tuiles : elle reproduit la
-  // matrice a 0,6 niveau pres en moyenne, 0,7 au 90e centile. Indiscernable,
-  // et comprise par tous les navigateurs.
+  // sur 51 000 pixels reellement pris dans les tuiles.
+  // L'ORDRE N'EST PAS LIBRE : le navigateur ECRETE a [0,1] apres CHAQUE
+  // fonction. Une saturation posee d'abord fait sortir les canaux de
+  // l'intervalle, ils sont rabotes, et la luminosite qui suit travaille sur des
+  // valeurs fausses — le rouge tombait 23 niveaux trop bas et la carte virait au
+  // vert olive. En assombrissant d'ABORD, rien ne sature, et la chaine reproduit
+  // la matrice a 0,5 niveau pres (0,6 au 90e centile).
   p.style.filter = on
-    ? 'sepia(1) saturate(2.087) hue-rotate(-9.9deg) brightness(0.457) contrast(1.177)'
+    ? 'brightness(0.460) sepia(0.999) saturate(2.016) hue-rotate(-9.9deg) contrast(1.209)'
     : '';
 }
 function majParch(){
@@ -741,10 +758,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-28b"></script>
-<script src="js/fond.js?v=2026-08-28b"></script>
-<script src="js/panel.js?v=2026-08-28b"></script>
-<script src="js/explo.js?v=2026-08-28b"></script>
-<script src="js/search.js?v=2026-08-28b"></script>
+<script src="js/theme.js?v=2026-08-28d"></script>
+<script src="js/fond.js?v=2026-08-28d"></script>
+<script src="js/panel.js?v=2026-08-28d"></script>
+<script src="js/explo.js?v=2026-08-28d"></script>
+<script src="js/search.js?v=2026-08-28d"></script>
 </body>
 </html>
