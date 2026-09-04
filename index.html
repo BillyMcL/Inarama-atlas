@@ -50,10 +50,10 @@
      dans css/theme.css, en variables de thème. */
 </style>
 <!-- theme.css EN PREMIER : il définit les variables que les autres consomment -->
-<link rel="stylesheet" href="css/theme.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/search.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/panel.css?v=2026-08-27i">
-<link rel="stylesheet" href="css/explo.css?v=2026-08-27i">
+<link rel="stylesheet" href="css/theme.css?v=2026-09-04a">
+<link rel="stylesheet" href="css/search.css?v=2026-09-04a">
+<link rel="stylesheet" href="css/panel.css?v=2026-09-04a">
+<link rel="stylesheet" href="css/explo.css?v=2026-09-04a">
 </head>
 <body>
 <!-- L'etalonnage de la carte sur le parchemin ne passe plus par un <filter>
@@ -76,7 +76,7 @@
 <div id="rechRes" role="listbox" aria-label="Résultats de recherche"></div>
 
 <script>
-window.INARAMA_BUILD='2026-08-27i';   // bump à chaque mise à jour de données (cache-busting)
+window.INARAMA_BUILD='2026-09-04a';   // bump à chaque mise à jour de données (cache-busting)
 window.INARAMA={_d:{},_cb:{},_inj:{},_pend:{},
   reg:function(n,d){this._d[n]=d;(this._cb[n]||[]).forEach(f=>f(d));this._cb[n]=[];},
   load:function(n,cb){if(this._d[n])return cb(this._d[n]);
@@ -538,8 +538,14 @@ function decoupeCarte(mode){   // 'monde' | null
   // sur 51 000 pixels reellement pris dans les tuiles : elle reproduit la
   // matrice a 0,6 niveau pres en moyenne, 0,7 au 90e centile. Indiscernable,
   // et comprise par tous les navigateurs.
+  // L'ORDRE N'EST PAS LIBRE : le navigateur ECRETE a [0,1] apres CHAQUE
+  // fonction. Une saturation posee d'abord fait sortir les canaux de
+  // l'intervalle, ils sont rabotes, et la luminosite qui suit travaille sur des
+  // valeurs fausses — le papier sortait a (114,93,47) au lieu de (137,93,47),
+  // soit 23 niveaux de rouge en moins, ce qui se lit comme un voile vert olive.
+  // En assombrissant d'ABORD, rien ne sature : 0,5 niveau d'ecart a la matrice.
   p.style.filter = on
-    ? 'sepia(1) saturate(2.087) hue-rotate(-9.9deg) brightness(0.457) contrast(1.177)'
+    ? 'brightness(0.460) sepia(0.999) saturate(2.016) hue-rotate(-9.9deg) contrast(1.209)'
     : '';
 }
 function majParch(){
@@ -686,10 +692,10 @@ function terresHover(on){ tzOn=on;
    nécessaire, plutôt que de tout rendre global. */
 Object.assign(window,{ map, c2ll, RAR, lieuxMk, MAXZ, W, H, lieuxSync, bounds });
 </script>
-<script src="js/theme.js?v=2026-08-27i"></script>
-<script src="js/fond.js?v=2026-08-27i"></script>
-<script src="js/panel.js?v=2026-08-27i"></script>
-<script src="js/explo.js?v=2026-08-27i"></script>
-<script src="js/search.js?v=2026-08-27i"></script>
+<script src="js/theme.js?v=2026-09-04a"></script>
+<script src="js/fond.js?v=2026-09-04a"></script>
+<script src="js/panel.js?v=2026-09-04a"></script>
+<script src="js/explo.js?v=2026-09-04a"></script>
+<script src="js/search.js?v=2026-09-04a"></script>
 </body>
 </html>
