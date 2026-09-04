@@ -118,10 +118,6 @@
     // par le trace de l'ouverture des ornements, pose par index.html. Ce rognage
     // rectangulaire l'ecraserait — on lui laisse la main.
     if (FOND_CARTE[baseCourante].mode === 'scene') {
-      // ... et on EFFACE celui qu'on avait pose avant le changement de fond :
-      // il survivait au basculement et bornait la carte au rectangle du monde,
-      // par-dessus la decoupe organique.
-      p.style.clipPath = '';
       if (window.INARAMA_caleFenetre) window.INARAMA_caleFenetre();
       if (bordEl) bordEl.style.boxShadow = 'none';
       return;
